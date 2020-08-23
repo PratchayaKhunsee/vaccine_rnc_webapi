@@ -11,4 +11,6 @@ const client = new Client({
 
 client.connect();
 
-export default client;
+module.exports ={
+    client
+}

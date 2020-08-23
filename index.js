@@ -1,5 +1,5 @@
 let express = require('express');
-let client = require('./database');
+let client = require('./database').client;
 let app = express();
 
 app.get('/', function(req, res) {
