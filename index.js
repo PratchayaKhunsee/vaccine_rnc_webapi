@@ -3,8 +3,9 @@ let client = require('./database').client;
 let app = express();
 
 app.get('/', function(req, res) {
-    res.write('Successful');
-    res.end();
+    res.send('Successful.');
 });
 
-app.listen();
+app.listen(443, function(){
+    console.log('Have a vistor');
+});
