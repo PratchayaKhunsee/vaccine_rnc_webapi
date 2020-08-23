@@ -5,4 +5,6 @@ let app = express();
 app.get('/', function(req, res) {
     res.write('Successful');
     res.end();
-})
+});
+
+app.listen(80);
