@@ -37,6 +37,7 @@ app.post('/login', function (req, res) {
         });
 
         try {
+            console.log(req.body)
             let loginSuccess = await (await login(req.body.username, req.body.password));
             
 
