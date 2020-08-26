@@ -19,15 +19,24 @@ app.get('/', function(req, res){
 });
 
 app.post('/', function (req, res) {
-    switch (req.query('action')) {
+    let responseData = {
+        type: ''
+    };
+    switch (req.query.action) {
         case 'login': {
+            responseData.type = 'login';
             break;
         }
         default: {
-            res.send('...');
+            responseData = null;
             break;
         }
     }
+
+    res.set({
+        'Content-Type': 'text/json; charset=UTF-8'
+    });
+    res.send(JSON.stringify(responseData));
 });
 
 app.listen(port, function () {});
