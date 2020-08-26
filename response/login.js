@@ -50,6 +50,7 @@ async function login(username, password) {
 
     } catch (err) {
         await pool.query('rollback');
+        console.log(err);
         return new LoginError(err);
     }
 };
