@@ -3,6 +3,7 @@ const app = express();
 const session = require('express-session');
 const uuid = require('uuid').v4;
 const bodyParser = require('body-parser');
+const login = require('./response/login');
 let port = process.env.PORT || 8080;
 
 app.use(bodyParser({
@@ -21,6 +22,13 @@ app.use(bodyParser({
 app.get('/', function (req, res) {
     res.send('...');
 });
+
+app.post('/login', function (req, res) {
+    (async () => {
+        let loginSuccess = await (await login(req.body.username, req.body.password));
+        console.log(loginSuccess);
+    })();
+})
 
 // app.post('/', function (req, res) {
 //     let responseData = {
