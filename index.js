@@ -45,6 +45,8 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(bodyParser.json());
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Setting routing for accesing the app
 app.get('/', function (req, res) {
