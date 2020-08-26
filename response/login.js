@@ -20,12 +20,12 @@ async function login(username, password) {
         return (async () => {
             await pool.query('begin');
 
+            /** @type {Number} */
             let personId = await (await pool.query(
-                "select * from user_account where username = $1 and password = crypt($2, password) returning id",
+                "select * from user_account where username = $1 and password = crypt($2, password)",
                 [username, password]
             )).rows[0].id;
 
-            await pool.query('commit');
 
             let result = await (await pool.query(
                 "select * from person where id = $1",
@@ -40,6 +40,8 @@ async function login(username, password) {
             let returnedResult = {
                 ...(result.rows[0])
             };
+
+            await pool.query('commit');
 
             return returnedResult;
         })();
