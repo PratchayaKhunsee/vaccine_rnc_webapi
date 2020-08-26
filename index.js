@@ -1,38 +1,31 @@
 const express = require('express');
 const app = express();
 const session = require('express-session');
-const login = require('./response/login');
 const uuid = require('uuid').v4;
+const bodyParser = require('body-parser');
 let port = process.env.PORT || 8080;
 
-app.use(session({
-    genid() {
-        return uuid();
-    },
-    secret: 'vaccine-database',
-    resave: false,
-    saveUninitialized: true
+app.use(bodyParser({
+    extended: true
 }));
 
-app.get('/', function(req, res){
+// app.use(session({
+//     genid() {
+//         return uuid();
+//     },
+//     secret: 'vaccine-database',
+//     resave: false,
+//     saveUninitialized: true
+// }));
+
+app.get('/', function (req, res) {
     res.send('...');
 });
 
 app.post('/', function (req, res) {
     let responseData = {
-        query: req.query
-        // type: ''
+        body: req.body
     };
-    // switch (req.query.action) {
-    //     case 'login': {
-    //         responseData.type = 'login';
-    //         break;
-    //     }
-    //     default: {
-    //         responseData = null;
-    //         break;
-    //     }
-    // }
 
     res.set({
         'Content-Type': 'text/json; charset=UTF-8'
