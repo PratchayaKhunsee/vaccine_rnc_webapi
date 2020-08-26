@@ -12,7 +12,7 @@ const {
 } = require('./error');
 let port = process.env.PORT || 8080;
 
-// configure passport.js to use the local strategy
+// Configure passport.js to use the local strategy
 passport.use(new LocalStrategy({
         usernameField: 'username',
         passwordField: 'password'
@@ -20,9 +20,8 @@ passport.use(new LocalStrategy({
     function verify(username, password, done) {
         (async () => {
             let result = await (await login(username, password));
-            console.log(result);
-            
-            if(result instanceof LoginError){
+
+            if (result instanceof LoginError) {
                 done(result);
                 return;
             }
@@ -31,12 +30,11 @@ passport.use(new LocalStrategy({
         })();
     }
 ));
-// tell passport how to serialize the user
+// Telling passport how to serialize the user
 passport.serializeUser((user, done) => {
-    // console.log('Inside serializeUser callback. User id is save to the session file store here')
     done(null, user.id);
 });
-// Setting middlewares for the app.
+// Setting middlewares for the app
 app.use(session({
     genid() {
         return uuid();
@@ -66,16 +64,16 @@ app.post('/login', function (req, res, next) {
 
         try {
             passport.authenticate('local', function (err, user) {
-                // console.log(err, user);
-                if(err){
+                console.log(err);
+                if (err) {
                     throw err;
                 }
 
-                req.login(user, function done(){
+                req.login(user, function done() {
                     res.send("true");
                 });
             })(req, res, next);
-            
+
         } catch (error) {
             res.send("false");
         }
