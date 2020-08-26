@@ -65,15 +65,15 @@ app.post('/login', function (req, res, next) {
 
         try {
             passport.authenticate('local', function (err, user) {
-                // console.log(arguments);
                 if(err){
                     throw err;
                 }
 
-                req.login(user)
+                req.login(user, function done(){
+                    res.send("true");
+                });
             })(req, res, next);
-
-            res.send("true");
+            
         } catch (error) {
             res.send("false");
         }
