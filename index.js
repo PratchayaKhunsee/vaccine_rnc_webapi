@@ -65,6 +65,7 @@ app.post('/login', function (req, res, next) {
 
         try {
             passport.authenticate('local', function (err, user) {
+                console.log(err, user);
                 if(err){
                     throw err;
                 }
