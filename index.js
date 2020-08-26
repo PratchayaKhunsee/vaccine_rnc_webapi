@@ -22,15 +22,15 @@ app.get('/', function (req, res) {
     res.send('...');
 });
 
-app.post('/', function (req, res) {
-    let responseData = {
-        body: req.body
-    };
+// app.post('/', function (req, res) {
+//     let responseData = {
+//         body: req.body
+//     };
 
-    res.set({
-        'Content-Type': 'text/json; charset=UTF-8'
-    });
-    res.send(JSON.stringify(responseData));
-});
+//     res.set({
+//         'Content-Type': 'text/json; charset=UTF-8'
+//     });
+//     res.send(JSON.stringify(responseData));
+// });
 
 app.listen(port, function () {});
