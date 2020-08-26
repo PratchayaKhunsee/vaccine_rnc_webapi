@@ -20,18 +20,19 @@ app.get('/', function(req, res){
 
 app.post('/', function (req, res) {
     let responseData = {
-        type: ''
+        query: req.query
+        // type: ''
     };
-    switch (req.query.action) {
-        case 'login': {
-            responseData.type = 'login';
-            break;
-        }
-        default: {
-            responseData = null;
-            break;
-        }
-    }
+    // switch (req.query.action) {
+    //     case 'login': {
+    //         responseData.type = 'login';
+    //         break;
+    //     }
+    //     default: {
+    //         responseData = null;
+    //         break;
+    //     }
+    // }
 
     res.set({
         'Content-Type': 'text/json; charset=UTF-8'
