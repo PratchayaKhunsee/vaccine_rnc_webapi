@@ -14,10 +14,13 @@ app.use(session({
     saveUninitialized: true
 }));
 
+app.get('/', function(req, res){
+    res.send('...');
+});
+
 app.post('/', function (req, res) {
     switch (req.query('action')) {
         case 'login': {
-
             break;
         }
         default: {
@@ -25,7 +28,6 @@ app.post('/', function (req, res) {
             break;
         }
     }
-    // res.send('...');
 });
 
 app.listen(port, function () {});
