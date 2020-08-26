@@ -51,7 +51,7 @@ app.use(passport.session());
 app.get('/', function (req, res) {
     res.send('...');
 });
-app.post('/login', function (req, res) {
+app.post('/login', function (req, res, next) {
     (async () => {
 
         res.set({
@@ -59,9 +59,9 @@ app.post('/login', function (req, res) {
         });
 
         try {
-            passport.authenticate('local', function () {
-                console.log(arguments)
-            });
+            passport.authenticate('local', function (req, res, next) {
+                console.log(arguments);
+            })(req, res, next);
 
             res.send("true");
         } catch (error) {
