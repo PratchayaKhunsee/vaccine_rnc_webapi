@@ -37,11 +37,11 @@ async function login(username, password) {
             }
 
             /** @type {import('./signin').UserData} */
-            let result = {
+            let returnedResult = {
                 ...(result.rows[0])
             };
 
-            return result;
+            return returnedResult;
         })();
 
     } catch (err) {
