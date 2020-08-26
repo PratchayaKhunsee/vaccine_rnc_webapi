@@ -12,25 +12,24 @@ const {
 } = require('./error');
 let port = process.env.PORT || 8080;
 
-
 // configure passport.js to use the local strategy
 passport.use(new LocalStrategy({
         usernameField: 'username',
         passwordField: 'password'
     },
-    (username, password, done) => {
+    function verify(username, password, done) {
         (async () => {
-            done(null, await (await login(username, password)))
+            let result = await (await login(username, password));
+            console.log(username, password);
+            done(result instanceof LoginError ? result : null, result);
         })();
     }
 ));
-
 // tell passport how to serialize the user
 passport.serializeUser((user, done) => {
     // console.log('Inside serializeUser callback. User id is save to the session file store here')
     done(null, user.id);
 });
-
 // Setting middlewares for the app.
 app.use(session({
     genid() {
@@ -60,7 +59,7 @@ app.post('/login', function (req, res) {
         });
 
         try {
-            passport.authenticate('local', function(){
+            passport.authenticate('local', function () {
                 console.log(arguments)
             });
 
