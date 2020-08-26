@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const login = require('./response/login');
 let port = process.env.PORT || 8080;
 
-app.use(bodyParser({
+app.use(bodyParser.urlencoded({
     extended: true
 }));
 
