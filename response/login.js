@@ -17,7 +17,7 @@ async function login(username, password) {
     }
 
     try {
-        return (async () => {
+        let result = await (async () => {
             await pool.query('begin');
 
             let person = await (await pool.query(
@@ -26,7 +26,7 @@ async function login(username, password) {
             ));
 
             if(person.rowCount != 1){
-                throw new UserNotFoundError(username);
+                return new UserNotFoundError(username);
             }
 
             let result = await (await pool.query(
@@ -35,7 +35,7 @@ async function login(username, password) {
             ));
 
             if (result.rowCount != 1) {
-                throw new UserNotFoundError(username);
+                return new UserNotFoundError(username);
             }
 
             /** @type {import('./signin').UserData} */
@@ -47,6 +47,9 @@ async function login(username, password) {
 
             return returnedResult;
         })();
+
+        if(result instanceof UserNotFoundError) throw result;
+        return result;
 
     } catch (err) {
         await pool.query('rollback');
