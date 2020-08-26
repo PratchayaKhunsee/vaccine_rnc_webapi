@@ -27,11 +27,14 @@ app.get('/', function (req, res) {
 app.post('/login', function (req, res) {
     (async () => {
         let loginSuccess = await (await login(req.body.username, req.body.password));
+        res.set({
+            'Content-Type': 'application/json'
+        });
+        
         if(loginSuccess instanceof LoginError) {
-            res.send(null);
+            res.send("null");
             return;
         }
-
         res.send(loginSuccess);
     })();
 });
