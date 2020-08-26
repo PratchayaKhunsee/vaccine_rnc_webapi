@@ -4,7 +4,9 @@ const app = express();
 // const uuid = require('uuid').v4;
 const bodyParser = require('body-parser');
 const login = require('./response/login');
-const { LoginError } = require('./error');
+const {
+    LoginError
+} = require('./error');
 let port = process.env.PORT || 8080;
 
 app.use(bodyParser.urlencoded({
@@ -26,18 +28,23 @@ app.get('/', function (req, res) {
 
 app.post('/login', function (req, res) {
     (async () => {
-        let loginSuccess = await (await login(req.body.username, req.body.password));
+
         res.set({
             'Content-Type': 'application/json'
         });
+        
+        try {
+            let loginSuccess = await (await login(req.body.username, req.body.password));
+            
 
-        console.log(loginSuccess);
-
-        if(loginSuccess instanceof LoginError) {
+            if (loginSuccess instanceof LoginError) {
+                res.send("null");
+                return;
+            }
+            res.send(loginSuccess);
+        } catch (error) {
             res.send("null");
-            return;
         }
-        res.send(loginSuccess);
     })();
 });
 
