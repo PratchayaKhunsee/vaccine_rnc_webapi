@@ -30,7 +30,9 @@ app.post('/login', function (req, res) {
         res.set({
             'Content-Type': 'application/json'
         });
-        
+
+        console.log(loginSuccess);
+
         if(loginSuccess instanceof LoginError) {
             res.send("null");
             return;
