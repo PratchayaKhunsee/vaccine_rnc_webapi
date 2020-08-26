@@ -4,7 +4,8 @@ const {
     UserNameExistError,
     IdentityExistError,
     InvalidIdNumberError,
-    EmptyInputError
+    EmptyInputError,
+    SigninError
 } = require("../error");
 
 module.exports = signin;
@@ -21,17 +22,16 @@ module.exports = signin;
  */
 /**
  * @param {UserData} userData
- * @returns {1} 
  */
-function signin(userData) {
+async function signin(userData) {
     for (let name in userData) {
         if (!userData[name]) {
-            return new EmptyInputError();
+            return new SigninError(new EmptyInputError());
         }
     }
 
     if (!idValidator.verify(userData.idCardNumber)) {
-        return new InvalidIdNumberError(userData.idCardNumber);
+        return new SigninError(new InvalidIdNumberError(userData.idCardNumber));
     }
 
     let queryString = {
@@ -46,7 +46,7 @@ function signin(userData) {
     };
 
     try {
-        (async () => {
+        return await (async () => {
             await pool.query('begin');
 
             let countUser = await (await pool.query(
@@ -83,6 +83,6 @@ function signin(userData) {
         })();
     } catch (err) {
         await pool.query('rollback');
-        return err;
+        return new SigninError(err);
     }
 }

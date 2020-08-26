@@ -1,7 +1,8 @@
 let pool = require('../database');
 const {
     EmptyInputError,
-    UserNotFoundError
+    UserNotFoundError,
+    LoginError
 } = require('../error');
 
 module.exports = login;
@@ -9,45 +10,42 @@ module.exports = login;
  * 
  * @param {String} username 
  * @param {String} password 
- * @param {Boolean} [returnUserInfo]
- * @returns {import('./signin').UserData|1}
  */
-function login(username, password, returnUserInfo) {
+async function login(username, password) {
     if (!(username && password)) {
-        throw new EmptyInputError();
+        return new LoginError(new EmptyInputError());
     }
 
     try {
-        (async () => {
+        return (async () => {
             await pool.query('begin');
 
             let personId = await (await pool.query(
-                "select * from user_account where username = $1 and password = $2 returning id",
+                "select * from user_account where username = $1 and password = crypt($2, password) returning id",
                 [username, password]
             )).rows[0].id;
-        
+
             await pool.query('commit');
 
-            if (returnUserInfo) {
-                let result = await (await pool.query(
-                    "select * from person where id = $1",
-                    [personId]
-                ));
+            let result = await (await pool.query(
+                "select * from person where id = $1",
+                [personId]
+            ));
 
-                if (result.rowCount != 1) {
-                    throw new UserNotFoundError(username);
-                }
-
-                return {
-                    ...(result.rows[0])
-                };
+            if (result.rowCount != 1) {
+                throw new UserNotFoundError(username);
             }
 
-            return 1;
+            /** @type {import('./signin').UserData} */
+            let result = {
+                ...(result.rows[0])
+            };
+
+            return result;
         })();
 
     } catch (err) {
         await pool.query('rollback');
-        return err;
+        return new LoginError(err);
     }
 };

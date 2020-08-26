@@ -1,3 +1,7 @@
+/**
+ * @typedef {UserNotFoundError|EmptyInputError|Error|String} LoginErrorCause
+ * @typedef {InvalidIdNumberError|UserNameExistError|IdentityExistError|EmptyInputError|Error|String} LoginErrorCause
+ */
 class UserNotFoundError extends Error{
     /**
      * @param {String} username 
@@ -40,10 +44,37 @@ class IdentityExistError extends Error{
     }
 }
 
+class LoginError extends Error{
+    /** @type {LoginErrorCause} */
+    cause = null;
+    /**
+     * @param {LoginErrorCause} err
+     */
+    constructor(err){
+        super(err instanceof Error ? err.message : err);
+        this.cause = err;
+    }
+}
+
+class SigninError extends Error{
+    /** @type {LoginErrorCause} */
+    cause = null;
+    /**
+     * @param {LoginErrorCause} err
+     */
+    constructor(err){
+        super(err instanceof Error ? err.message : err);
+        this.cause = err;
+    }
+}
+
+
 module.exports = {
     UserNameExistError,
     IdentityExistError,
     InvalidIdNumberError,
     EmptyInputError,
-    UserNotFoundError
+    UserNotFoundError,
+    LoginError,
+    SigninError
 };
