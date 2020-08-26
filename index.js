@@ -20,8 +20,13 @@ passport.use(new LocalStrategy({
     function verify(username, password, done) {
         (async () => {
             let result = await (await login(username, password));
-            console.log(username, password);
-            done(result instanceof LoginError ? result : null, result);
+            // console.log(username, password);
+            if(result instanceof LoginError){
+                done(result);
+                return;
+            }
+
+            done(null, result);
         })();
     }
 ));
@@ -59,8 +64,13 @@ app.post('/login', function (req, res, next) {
         });
 
         try {
-            passport.authenticate('local', function (req, res, next) {
-                console.log(arguments);
+            passport.authenticate('local', function (err, user) {
+                // console.log(arguments);
+                if(err){
+                    throw err;
+                }
+
+                req.login(user)
             })(req, res, next);
 
             res.send("true");
