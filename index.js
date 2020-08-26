@@ -20,7 +20,8 @@ passport.use(new LocalStrategy({
     function verify(username, password, done) {
         (async () => {
             let result = await (await login(username, password));
-            // console.log(username, password);
+            console.log(result);
+            
             if(result instanceof LoginError){
                 done(result);
                 return;
@@ -65,7 +66,7 @@ app.post('/login', function (req, res, next) {
 
         try {
             passport.authenticate('local', function (err, user) {
-                console.log(err, user);
+                // console.log(err, user);
                 if(err){
                     throw err;
                 }
