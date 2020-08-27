@@ -21,11 +21,11 @@ passport.use(new LocalStrategy({
         (async () => {
             let result = await (await login(username, password));
             if (result instanceof LoginError) {
-                done(null, result);
+                done(result);
                 return;
             }
 
-            done(result);
+            done(null, result);
         })();
     }
 ));
