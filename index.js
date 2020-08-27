@@ -58,8 +58,9 @@ app.post('/login', function (req, res, next) {
     res.set({
         'Content-Type': 'application/json'
     });
-    
+
     passport.authenticate('local', function (err, user) {
+        console.log(err, user);
         if (err) {
             res.send("false");
         }
