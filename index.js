@@ -20,14 +20,19 @@ passport.use(new LocalStrategy({
     function verify(username, password, done) {
         (async () => {
             let result = await (await login(username, password));
+            if(result instanceof LoginError){
+                done(result, null);
+                return;
+            }
+
             done(null, result);
         })();
     }
 ));
 // Telling passport how to serialize the user
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
+// passport.serializeUser((user, done) => {
+//     done(null, user.id);
+// });
 // Setting middlewares for the app
 app.use(session({
     genid() {
@@ -55,9 +60,8 @@ app.post('/login', function (req, res, next) {
     (async () => {
         try {
             passport.authenticate('local', function (err, user) {
-                
-                if (user instanceof LoginError) {
-                    throw user;
+                if (err) {
+                    throw err;
                 }
 
                 req.login(user, function done() {
