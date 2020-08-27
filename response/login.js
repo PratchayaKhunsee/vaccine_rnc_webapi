@@ -40,6 +40,7 @@ async function login(username, password) {
 
             /** @type {import('./signin').UserData} */
             let returnedResult = {
+                personId: person.rows[0].id,
                 ...(result.rows[0])
             };
 
@@ -53,7 +54,6 @@ async function login(username, password) {
 
     } catch (err) {
         await pool.query('rollback');
-        console.log(err);
         return new LoginError(err);
     }
 };
