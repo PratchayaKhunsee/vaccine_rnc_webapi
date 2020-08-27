@@ -60,12 +60,13 @@ app.post('/login', function (req, res, next) {
     });
 
     passport.authenticate('local', function (err, user) {
-        console.log(arguments);
+        // console.log(arguments);
         if (err) {
             res.send("false");
             return;
         }
 
+        console.log('Logging in');
         req.login(user, function done() {
             res.send("true");
         });
