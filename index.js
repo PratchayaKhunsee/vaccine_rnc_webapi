@@ -34,8 +34,7 @@ passport.use(new LocalStrategy({
 ));
 // Telling passport how to serialize the user
 passport.serializeUser((user, done) => {
-    console.log(user);
-    done(null, user.id);
+    done(null, user.username);
 });
 // Setting middlewares for the app
 app.use(session({
