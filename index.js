@@ -25,7 +25,10 @@ passport.use(new LocalStrategy({
                 return;
             }
 
-            done(null, result);
+            done(null, {
+                username,
+                info: result
+            });
         })();
     }
 ));
