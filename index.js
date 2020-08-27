@@ -19,16 +19,17 @@ passport.use(new LocalStrategy({
     },
     function verify(username, password, done) {
         (async () => {
-            let result = await (await login(username, password));
-            if(result instanceof LoginError){
-                done(result, null);
-                return;
+            try {
+                let result = await (await login(username, password));
+                if (result instanceof LoginError) {
+                    throw result;
+                }
+                
+                done(null, result);
+            } catch (err) {
+                done(result);
             }
-
-            done(null, result);
-        })().catch(err => {
-            throw err;
-        });
+        })();
     }
 ));
 // Telling passport how to serialize the user
@@ -57,7 +58,9 @@ app.get('/', function (req, res) {
     res.send('...');
 });
 app.post('/login', function (req, res, next) {
-    res.set({ 'Content-Type': 'application/json' });
+    res.set({
+        'Content-Type': 'application/json'
+    });
 
     (async () => {
         try {
