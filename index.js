@@ -26,7 +26,9 @@ passport.use(new LocalStrategy({
             }
 
             done(null, result);
-        })();
+        })().catch(err => {
+            throw err;
+        });
     }
 ));
 // Telling passport how to serialize the user
