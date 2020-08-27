@@ -55,18 +55,22 @@ app.get('/', function (req, res) {
     res.send('...');
 });
 app.post('/login', function (req, res, next) {
+    
     res.set({
         'Content-Type': 'application/json'
     });
 
+    if(req.user){
+        res.send("true");
+        return;
+    }
+
     passport.authenticate('local', function (err, user) {
-        // console.log(arguments);
         if (err) {
             res.send("false");
             return;
         }
 
-        console.log('Logging in');
         req.login(user, function done() {
             res.send("true");
         });
