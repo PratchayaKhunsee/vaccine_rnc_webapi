@@ -99,6 +99,10 @@ app.post('/signin', function(req, res, next){
                 throw signInResult;
             }
 
+            if(req.body["auto-login"] === true){
+                res.redirect(307, '/login');
+            }
+
             res.send("true");
         } catch (error) {
             res.send("false");
