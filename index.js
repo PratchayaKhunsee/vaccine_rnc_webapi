@@ -6,10 +6,12 @@ const bodyParser = require('body-parser');
 const FileStore = require('session-file-store')(session);
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const login = require('./response/login');
+const login = require('./api/login');
+const signin = require('./api/signin');
 const {
-    LoginError
+    LoginError, SigninError
 } = require('./error');
+
 let port = process.env.PORT || 8080;
 
 // Configure passport.js to use the local strategy
@@ -58,7 +60,7 @@ app.get('/', function (req, res) {
     res.send('...');
 });
 app.post('/login', function (req, res, next) {
-    
+    // Response as JSON file
     res.set({
         'Content-Type': 'application/json'
     });
@@ -68,6 +70,7 @@ app.post('/login', function (req, res, next) {
         return;
     }
 
+    // Using passport.js for login authentication
     passport.authenticate('local', function (err, user) {
         if (err) {
             res.send("false");
@@ -79,5 +82,29 @@ app.post('/login', function (req, res, next) {
         });
     })(req, res, next);
 });
+app.post('/signin', function(req, res, next){
+    // Response as JSON file
+    res.set({
+        'Content-Type': 'application/json'
+    });
 
+    (async () => {
+        try {
+            // Signed in
+            var signInResult = await signin({
+                ...(req.body)
+            });
+
+            if(signInResult instanceof SigninError){
+                throw signInResult;
+            }
+
+            res.send("true");
+        } catch (error) {
+            res.send("false");
+        }
+    })();
+});
+
+// Start web server
 app.listen(port, function () {});
