@@ -1,4 +1,4 @@
-let pool = require('../database');
+const pool = require('../database');
 const {
     EmptyInputError,
     UserNotFoundError,
@@ -17,41 +17,44 @@ async function login(username, password) {
     }
 
     try {
-        let result = await (async () => {
-            await pool.query('begin');
+        await pool.query('begin');
 
-            let person = await (await pool.query(
-                "select * from user_account where username = $1 and password = crypt($2, password)",
-                [username, password]
-            ));
+        let userAccount = await pool.query(
+            "select * from user_account where username = $1 and password = crypt($2, password)",
+            [
+                username,
+                password
+            ]
+        );
 
-            if(person.rowCount != 1){
-                return new UserNotFoundError(username);
+        if (userAccount.rows.length != 1) {
+            throw new UserNotFoundError(username);
+        }
+
+        let person = await pool.query(
+            "select * from person where id = $1",
+            [
+                Number(person.rows[0].id)
+            ]
+        );
+
+        if (person.rows.length != 1) {
+            throw new UserNotFoundError(username);
+        }
+
+        let returned = {
+            person: {
+                ...(person.rows[0])
+            },
+            userAccount: {
+                ...(userAccount.rows[0])
             }
+        };
 
-            let result = await (await pool.query(
-                "select * from person where id = $1",
-                [Number(person.rows[0].id)]
-            ));
+        delete returned.person.password;
 
-            if (result.rowCount != 1) {
-                return new UserNotFoundError(username);
-            }
-
-            /** @type {import('./signin').UserData} */
-            let returnedResult = {
-                personId: person.rows[0].id,
-                ...(result.rows[0])
-            };
-
-            await pool.query('commit');
-
-            return returnedResult;
-        })();
-
-        if(result instanceof UserNotFoundError) throw result;
-        return result;
-
+        await pool.query('commit');
+        return returned;
     } catch (err) {
         await pool.query('rollback');
         return new LoginError(err);

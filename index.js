@@ -9,8 +9,23 @@ const LocalStrategy = require('passport-local').Strategy;
 const login = require('./api/login');
 const signin = require('./api/signin');
 const {
-    LoginError, SigninError
+    LoginError,
+    SigninError
 } = require('./error');
+const {
+    viewCertifications,
+    createCertification,
+    editCertification
+} = require('./api/certificate');
+const {
+    viewPatient,
+    viewRecords,
+    createPatient,
+    createRecord,
+    editPatient,
+    doVaccination
+} = require('./api/record');
+const { viewParenting, createParenting } = require('./api/parenting');
 
 let port = process.env.PORT || 8080;
 
@@ -21,16 +36,13 @@ passport.use(new LocalStrategy({
     },
     function verify(username, password, done) {
         (async () => {
-            let result = await (await login(username, password));
+            let result = await login(username, password);
             if (result instanceof LoginError) {
                 done(result);
                 return;
             }
 
-            done(null, {
-                username,
-                info: result
-            });
+            done(null, result);
         })();
     }
 ));
@@ -65,7 +77,7 @@ app.post('/login', function (req, res, next) {
         'Content-Type': 'application/json'
     });
 
-    if(req.user){
+    if (req.user) {
         res.send("true");
         return;
     }
@@ -77,12 +89,30 @@ app.post('/login', function (req, res, next) {
             return;
         }
 
-        req.login(user, function done() {
+        let cloned = {
+            id: Number(user.userAccount.id),
+            personID: Number(user.person.id),
+            vaccinePatientID: Number(user.person.vaccine_patient_id)
+        };
+
+        req.login(cloned, function done() {
             res.send("true");
         });
     })(req, res, next);
 });
-app.post('/signin', function(req, res, next){
+app.post('/logout', function (req, res) {
+    // Response as JSON file
+    res.set({
+        'Content-Type': 'application/json'
+    });
+    if (!req.user) {
+        res.send("false");
+        return;
+    }
+    req.logout();
+    res.send("true");
+});
+app.post('/signin', function (req, res) {
     // Response as JSON file
     res.set({
         'Content-Type': 'application/json'
@@ -95,20 +125,197 @@ app.post('/signin', function(req, res, next){
                 ...(req.body)
             });
 
-            if(signInResult instanceof SigninError){
+            if (signInResult instanceof SigninError) {
                 throw signInResult;
-            }
-
-            if(req.body["auto-login"] === true){
-                res.redirect(307, '/login');
             }
 
             res.send("true");
         } catch (error) {
             res.send("false");
         }
-    })();
+    })().catch(() => {
+        res.send("false");
+    });
 });
+app.post('/certificate', function (req, res) {
+    res.set({
+        'Content-Type': 'application/json'
+    });
 
+    switch (req.body.action) {
+        case 'view': {
+            (async () => {
+                let view = await viewCertifications(Number(req.user.personID));
+                res.send(JSON.parse(view));
+            })().catch(() => {
+                res.send("null");
+            });
+            break;
+        }
+        case 'create': {
+            (async () => {
+                let create = await createCertification(
+                    Number(req.user.personID),
+                    Number(req.body.vaccineID),
+                    req.body.data
+                );
+                res.send(String(create == 1));
+            })().catch(() => {
+                res.send("false");
+            });
+            break;
+        }
+        case 'edit': {
+            (async () => {
+                let edit = await editCertification(
+                    Number(req.user.personID),
+                    Number(req.body.certificationID),
+                    req.body.data
+                );
+                res.send(String(edit == 1));
+            })().catch(() => {
+                res.send("false");
+            });
+            break;
+        }
+        default: {
+            res.send("null");
+        }
+    }
+});
+app.post('/patient', function (req, res) {
+    res.set({
+        'Content-Type': 'application/json'
+    });
+
+    switch (req.body.action) {
+        case 'view': {
+            (async () => {
+                let view = await viewPatient(
+                    Number(req.user.vaccinePatientID)
+                );
+                delete view.id;
+                res.send(JSON.parse(view));
+            })().catch(() => {
+                res.send("null");
+            });
+            break;
+        }
+        case 'create': {
+            (async () => {
+                let create = await createPatient(
+                    req.body.data,
+                    Number(req.user.personID)
+                );
+                res.send(String(create == 1));
+            })().catch(() => {
+                res.send("false");
+            });
+            break;
+        }
+        case 'edit': {
+            (async () => {
+                let edit = await editPatient(
+                    Number(req.user.vaccinePatientID),
+                    req.body.data
+                );
+                res.send(String(edit == 1));
+            })().catch(() => {
+                res.send("false");
+            });
+            break;
+        }
+        default: {
+            res.send("null");
+        }
+    }
+});
+app.post('/records', function (req, res) {
+    res.set({
+        'Content-Type': 'application/json'
+    });
+
+    switch (req.body.action) {
+        case 'view': {
+            (async () => {
+                let view = await viewRecords(
+                    Number(req.user.personID)
+                );
+                res.send(JSON.parse(view));
+            })().catch(() => {
+                res.send("null");
+            });
+
+            break;
+        }
+        case 'create': {
+            (async () => {
+                let create = await createRecord(
+                    Number(req.user.vaccinePatientID)
+                );
+                res.send(String(create == 1));
+            })().catch(() => {
+                res.send("false");
+            });
+
+            break;
+        }
+        case 'vaccinate': {
+            (async () => {
+                let vaccinate = await doVaccination(
+                    req.body.data.vaccine,
+                    Number(req.body.vaccineRecordID),
+                    req.body.data.vaccineRecord
+                );
+                res.send(String(vaccinate == 1));
+            })().catch(() => {
+                res.send("false");
+            })
+            break;
+        }
+        default: {
+            res.send("null");
+        }
+    }
+});
+app.post('/parenting', function (req, res) {
+    res.set({
+        'Content-Type': 'application/json'
+    });
+
+    switch (req.body) {
+        case 'view': {
+            (async () => {
+                let view = await viewParenting(Number(req.user.personID));
+                
+                res.send(JSON.parse(view));
+            })().catch(() => {
+                res.send("null");
+            })
+            break;
+        }
+        case 'create': {
+            (async () => {
+                let create = await createParenting(
+                    Number(req.user.personID),
+                    Number(req.body.vaccinePatientID)
+                );
+
+                res.send(String(create == 1));
+            })().catch(()=> {
+                res.send("false")
+            })
+            break;
+        }
+        default: {
+            res.send("null");
+        }
+    }
+});
+app.post('/', function (req, res) {
+    res.set({
+        'Content-Type': 'application/json'
+    });
+});
 // Start web server
 app.listen(port, function () {});
