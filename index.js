@@ -6,26 +6,38 @@ const bodyParser = require('body-parser');
 const FileStore = require('session-file-store')(session);
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const login = require('./api/login');
-const signin = require('./api/signin');
 const {
     LoginError,
     SigninError
 } = require('./error');
 const {
-    viewCertifications,
-    createCertification,
-    editCertification
-} = require('./api/certificate');
+    doQuery
+} = require('./database');
 const {
-    viewPatient,
-    viewRecords,
-    createPatient,
-    createRecord,
-    editPatient,
+    doSignIn
+} = require('./query/signin');
+const {
+    doLogIn
+} = require('./query/login');
+const {
+    doViewRecords,
+    doCreateRecord,
     doVaccination
-} = require('./api/record');
-const { viewParenting, createParenting } = require('./api/parenting');
+} = require('./query/record');
+const {
+    doCreatePatient,
+    doViewPatient,
+    doEditPatient
+} = require('./query/patient');
+const {
+    doViewCertifications,
+    doCreateCertification,
+    doEditCertification
+} = require('./query/certificate');
+const {
+    doViewParenting,
+    doCreateParenting
+} = require('./query/parenting');
 
 let port = process.env.PORT || 8080;
 
@@ -34,16 +46,16 @@ passport.use(new LocalStrategy({
         usernameField: 'username',
         passwordField: 'password'
     },
-    function verify(username, password, done) {
-        (async () => {
-            let result = await login(username, password);
+    function (username, password, done) {
+        doQuery((q, conn) => {
+            let result = await doLogIn(q, username, password);
             if (result instanceof LoginError) {
                 done(result);
                 return;
             }
 
             done(null, result);
-        })();
+        });
     }
 ));
 // Telling passport how to serialize the user
@@ -118,23 +130,18 @@ app.post('/signin', function (req, res) {
         'Content-Type': 'application/json'
     });
 
-    (async () => {
+    doQuery(async (q, conn) => {
         try {
-            // Signed in
-            var signInResult = await signin({
-                ...(req.body)
-            });
+            let queryResult = await doSignIn(q, req.body.data);
 
-            if (signInResult instanceof SigninError) {
-                throw signInResult;
+            if (queryResult instanceof SigninError) {
+                throw queryResult;
             }
 
             res.send("true");
         } catch (error) {
             res.send("false");
         }
-    })().catch(() => {
-        res.send("false");
     });
 });
 app.post('/certificate', function (req, res) {
@@ -144,17 +151,19 @@ app.post('/certificate', function (req, res) {
 
     switch (req.body.action) {
         case 'view': {
-            (async () => {
-                let view = await viewCertifications(Number(req.user.personID));
+            doQuery(async (q) => {
+                let view = await doViewCertifications(
+                    q,
+                    Number(req.user.personID)
+                );
                 res.send(JSON.parse(view));
-            })().catch(() => {
-                res.send("null");
-            });
+            })();
             break;
         }
         case 'create': {
-            (async () => {
-                let create = await createCertification(
+            doQuery(async (q) => {
+                let create = await doCreateCertification(
+                    q,
                     Number(req.user.personID),
                     Number(req.body.vaccineID),
                     req.body.data
@@ -166,8 +175,9 @@ app.post('/certificate', function (req, res) {
             break;
         }
         case 'edit': {
-            (async () => {
-                let edit = await editCertification(
+            doQuery(async (q) => {
+                let edit = await doEditCertification(
+                    q,
                     Number(req.user.personID),
                     Number(req.body.certificationID),
                     req.body.data
@@ -190,38 +200,35 @@ app.post('/patient', function (req, res) {
 
     switch (req.body.action) {
         case 'view': {
-            (async () => {
-                let view = await viewPatient(
+            doQuery(async (q) => {
+                let view = await doViewPatient(
+                    q,
                     Number(req.user.vaccinePatientID)
                 );
                 delete view.id;
                 res.send(JSON.parse(view));
-            })().catch(() => {
-                res.send("null");
             });
             break;
         }
         case 'create': {
-            (async () => {
-                let create = await createPatient(
+            doQuery(async (q) => {
+                let create = await doCreatePatient(
+                    q,
                     req.body.data,
                     Number(req.user.personID)
                 );
                 res.send(String(create == 1));
-            })().catch(() => {
-                res.send("false");
             });
             break;
         }
         case 'edit': {
-            (async () => {
-                let edit = await editPatient(
+            doQuery(async (q) => {
+                let edit = await doEditPatient(
+                    q,
                     Number(req.user.vaccinePatientID),
                     req.body.data
                 );
                 res.send(String(edit == 1));
-            })().catch(() => {
-                res.send("false");
             });
             break;
         }
@@ -237,40 +244,37 @@ app.post('/records', function (req, res) {
 
     switch (req.body.action) {
         case 'view': {
-            (async () => {
-                let view = await viewRecords(
+            doQuery(async (q) => {
+                let view = await doViewRecords(
+                    q,
                     Number(req.user.personID)
                 );
                 res.send(JSON.parse(view));
-            })().catch(() => {
-                res.send("null");
             });
 
             break;
         }
         case 'create': {
-            (async () => {
-                let create = await createRecord(
+            doQuery(async (q) => {
+                let create = await doCreateRecord(
+                    q,
                     Number(req.user.vaccinePatientID)
                 );
                 res.send(String(create == 1));
-            })().catch(() => {
-                res.send("false");
             });
 
             break;
         }
         case 'vaccinate': {
-            (async () => {
+            doQuery(async (q) => {
                 let vaccinate = await doVaccination(
+                    q,
                     req.body.data.vaccine,
                     Number(req.body.vaccineRecordID),
                     req.body.data.vaccineRecord
                 );
                 res.send(String(vaccinate == 1));
-            })().catch(() => {
-                res.send("false");
-            })
+            });
             break;
         }
         default: {
@@ -285,9 +289,11 @@ app.post('/parenting', function (req, res) {
 
     switch (req.body) {
         case 'view': {
-            (async () => {
-                let view = await viewParenting(Number(req.user.personID));
-                
+            doQuery(async (q) => {
+                let view = await doViewParenting(
+                    q,
+                    Number(req.user.personID)
+                );
                 res.send(JSON.parse(view));
             })().catch(() => {
                 res.send("null");
@@ -295,15 +301,16 @@ app.post('/parenting', function (req, res) {
             break;
         }
         case 'create': {
-            (async () => {
-                let create = await createParenting(
+            doQuery(async (q) => {
+                let create = await doCreateParenting(
+                    q,
                     Number(req.user.personID),
                     Number(req.body.vaccinePatientID)
                 );
 
                 res.send(String(create == 1));
-            })().catch(()=> {
-                res.send("false")
+            })().catch(() => {
+                res.send("false");
             })
             break;
         }
@@ -313,9 +320,7 @@ app.post('/parenting', function (req, res) {
     }
 });
 app.post('/', function (req, res) {
-    res.set({
-        'Content-Type': 'application/json'
-    });
+    res.send('Welcome!!');
 });
 // Start web server
 app.listen(port, function () {});

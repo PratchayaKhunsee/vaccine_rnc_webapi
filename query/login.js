@@ -1,25 +1,23 @@
-const pool = require('../database');
 const {
     EmptyInputError,
     UserNotFoundError,
     LoginError
 } = require('../error');
 
-module.exports = login;
 /**
- * 
+ * @param {import("../database").PgQueryMethod} q
  * @param {String} username 
  * @param {String} password 
  */
-async function login(username, password) {
+async function doLogIn(q, username, password) {
     if (!(username && password)) {
         return new LoginError(new EmptyInputError());
     }
 
     try {
-        await pool.query('begin');
+        await q('begin');
 
-        let userAccount = await pool.query(
+        let userAccount = await q(
             "select * from user_account where username = $1 and password = crypt($2, password)",
             [
                 username,
@@ -31,7 +29,7 @@ async function login(username, password) {
             throw new UserNotFoundError(username);
         }
 
-        let person = await pool.query(
+        let person = await q(
             "select * from person where id = $1",
             [
                 Number(person.rows[0].id)
@@ -51,12 +49,16 @@ async function login(username, password) {
             }
         };
 
-        delete returned.person.password;
+        delete returned.userAccount.password;
 
-        await pool.query('commit');
+        await q('commit');
         return returned;
     } catch (err) {
-        await pool.query('rollback');
+        await q('rollback');
         return new LoginError(err);
     }
-};
+}
+
+module.exports = {
+    doLogIn
+}
