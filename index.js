@@ -47,7 +47,7 @@ passport.use(new LocalStrategy({
         passwordField: 'password'
     },
     function (username, password, done) {
-        doQuery((q, conn) => {
+        doQuery(async (q) => {
             let result = await doLogIn(q, username, password);
             if (result instanceof LoginError) {
                 done(result);
