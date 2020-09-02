@@ -13,7 +13,11 @@
  * @returns {Promise}
  * 
  * @callback ErrorCallback
- * @param {Error} error
+ * @param {*} error
+ * 
+ * @typedef {Object} QueuedQuery
+ * @property {AsyncFunction} exec
+ * @property {ErrorCallback} error
  */
 const {
     Pool,
@@ -27,15 +31,18 @@ const pool = new Pool({
     }
 });
 
-/** @type {Array<AsyncFunction>} */
+/** @type {Array<QueuedQuery>} */
 let queue = [];
 let counter = {
     connection: 0,
 }
 
-async function dequeueAll() {
+function dequeueAll() {
     while (queue.length > 0) {
-        await queue.shift()();
+        let o = queue.shift();
+        o.exec().catch((err) => {
+            if(typeof o.error == 'function') o.error(err);
+        });
     }
 }
 
@@ -55,25 +62,28 @@ function doQuery(success, error) {
         });
 
         conn.on('error', function (err) {
-            if(typeof error == 'function') error(err);
+            if (typeof error == 'function') error(err);
         });
 
         let result = await success(conn.query, conn);
-        if(result instanceof Error) {
+        if (result instanceof Error) {
             throw result;
         }
         await conn.end();
         counter.connection--;
     };
 
-    await dequeueAll();
+    dequeueAll();
     if (counter.connection < 20) {
         exec()
             .catch(x => {
-                if(typeof error == 'function') error(x);
+                if (typeof error == 'function') error(x);
             });
     } else {
-        queue.push(exec);
+        queue.push({
+            exec,
+            error
+        });
     }
 }
 
