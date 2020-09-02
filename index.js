@@ -81,7 +81,7 @@ app.use(passport.session());
 
 // Setting routing for accesing the app
 app.get('/', function (req, res) {
-    res.send('...');
+    res.send('Welcome to the peaceful place!!');
 });
 app.post('/login', function (req, res, next) {
     // Response as JSON file
@@ -95,19 +95,24 @@ app.post('/login', function (req, res, next) {
     }
 
     // Using passport.js for login authentication
-    passport.authenticate('local', function (err, user) {
+    passport.authenticate('local', function (err, allowed) {
         if (err) {
             res.send("false");
             return;
         }
 
-        let cloned = {
-            id: Number(user.userAccount.id),
-            personID: Number(user.person.id),
-            vaccinePatientID: Number(user.person.vaccine_patient_id)
+        let savedUser = {
+            username: allowed.userAccount.username,
+            id: Number(allowed.userAccount.username)
+        };
+        let sessionSaved = {
+            personID: Number(allowed.person.id),
+            vaccinePatientID: Number(allowed.person.vaccine_patient_id)
         };
 
-        req.login(cloned, function done() {
+        req.session.userInfo = sessionSaved;
+
+        req.login(savedUser, function done() {
             res.send("true");
         });
     })(req, res, next);
@@ -150,7 +155,7 @@ app.post('/certificate', function (req, res) {
             doQuery(async (q) => {
                 let view = await doViewCertifications(
                     q,
-                    Number(req.user.personID)
+                    Number(req.session.userInfo.personID)
                 );
                 res.send(JSON.parse(view));
             }, () => {
@@ -162,7 +167,7 @@ app.post('/certificate', function (req, res) {
             doQuery(async (q) => {
                 let create = await doCreateCertification(
                     q,
-                    Number(req.user.personID),
+                    Number(req.session.userInfo.personID),
                     Number(req.body.vaccineID),
                     req.body.data
                 );
@@ -176,7 +181,7 @@ app.post('/certificate', function (req, res) {
             doQuery(async (q) => {
                 let edit = await doEditCertification(
                     q,
-                    Number(req.user.personID),
+                    Number(req.session.userInfo.personID),
                     Number(req.body.certificationID),
                     req.body.data
                 );
@@ -201,7 +206,7 @@ app.post('/patient', function (req, res) {
             doQuery(async (q) => {
                 let view = await doViewPatient(
                     q,
-                    Number(req.user.vaccinePatientID)
+                    Number(req.session.userInfo.vaccinePatientID)
                 );
                 delete view.id;
                 res.send(JSON.parse(view));
@@ -215,7 +220,7 @@ app.post('/patient', function (req, res) {
                 let create = await doCreatePatient(
                     q,
                     req.body.data,
-                    Number(req.user.personID)
+                    Number(req.session.userInfo.personID)
                 );
                 res.send(String(create == 1));
             }, () => {
@@ -227,7 +232,7 @@ app.post('/patient', function (req, res) {
             doQuery(async (q) => {
                 let edit = await doEditPatient(
                     q,
-                    Number(req.user.vaccinePatientID),
+                    Number(req.session.userInfo.vaccinePatientID),
                     req.body.data
                 );
                 res.send(String(edit == 1));
@@ -251,7 +256,7 @@ app.post('/records', function (req, res) {
             doQuery(async (q) => {
                 let view = await doViewRecords(
                     q,
-                    Number(req.user.personID)
+                    Number(req.session.userInfo.personID)
                 );
                 res.send(JSON.parse(view));
             }, () => {
@@ -264,7 +269,7 @@ app.post('/records', function (req, res) {
             doQuery(async (q) => {
                 let create = await doCreateRecord(
                     q,
-                    Number(req.user.vaccinePatientID)
+                    Number(req.session.userInfo.vaccinePatientID)
                 );
                 res.send(String(create == 1));
             }, () => {
@@ -302,7 +307,7 @@ app.post('/parenting', function (req, res) {
             doQuery(async (q) => {
                 let view = await doViewParenting(
                     q,
-                    Number(req.user.personID)
+                    Number(req.session.userInfo.personID)
                 );
                 res.send(JSON.parse(view));
             }, () => {
@@ -314,7 +319,7 @@ app.post('/parenting', function (req, res) {
             doQuery(async (q) => {
                 let create = await doCreateParenting(
                     q,
-                    Number(req.user.personID),
+                    Number(req.session.userInfo.personID),
                     Number(req.body.vaccinePatientID)
                 );
 
@@ -330,7 +335,7 @@ app.post('/parenting', function (req, res) {
     }
 });
 app.post('/', function (req, res) {
-    res.send('Welcome!!');
+    res.send('null');
 });
 // Start web server
 app.listen(port, function () {});
