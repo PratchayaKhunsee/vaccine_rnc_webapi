@@ -11,6 +11,9 @@
  * @param {PgQueryMethod} query
  * @param {Client} connect
  * @returns {Promise}
+ * 
+ * @callback ErrorCallback
+ * @param {Error} error
  */
 const {
     Pool,
@@ -39,9 +42,10 @@ async function dequeueAll() {
 /**
  * 
  * @param {QueryAsyncFunction} success
+ * @param {ErrorCallback} error
  */
-async function doQuery(success) {
-    const exec = async function () {
+function doQuery(success, error) {
+    const exec = async () => {
         counter.connection++;
         const conn = new Client({
             connectionString: process.env.DATABASE_URL,
@@ -51,17 +55,23 @@ async function doQuery(success) {
         });
 
         conn.on('error', function (err) {
-            throw err;
+            if(typeof error == 'function') error(err);
         });
 
-        await success(conn.query, conn);
+        let result = await success(conn.query, conn);
+        if(result instanceof Error) {
+            throw result;
+        }
         await conn.end();
         counter.connection--;
     };
 
     await dequeueAll();
     if (counter.connection < 20) {
-        await exec();
+        exec()
+            .catch(x => {
+                if(typeof error == 'function') error(x);
+            });
     } else {
         queue.push(exec);
     }

@@ -50,11 +50,11 @@ passport.use(new LocalStrategy({
         doQuery(async (q) => {
             let result = await doLogIn(q, username, password);
             if (result instanceof LoginError) {
-                done(result);
-                return;
+                throw result;
             }
-
             done(null, result);
+        }, (err) => {
+            done(err);
         });
     }
 ));
@@ -130,18 +130,14 @@ app.post('/signin', function (req, res) {
         'Content-Type': 'application/json'
     });
 
-    doQuery(async (q, conn) => {
-        try {
-            let queryResult = await doSignIn(q, req.body.data);
-
-            if (queryResult instanceof SigninError) {
-                throw queryResult;
-            }
-
-            res.send("true");
-        } catch (error) {
-            res.send("false");
+    doQuery(async (q) => {
+        let queryResult = await doSignIn(q, req.body.data);
+        if (queryResult instanceof SigninError) {
+            throw queryResult;
         }
+        res.send("true");
+    }, () => {
+        res.send("false");
     });
 });
 app.post('/certificate', function (req, res) {
@@ -157,7 +153,9 @@ app.post('/certificate', function (req, res) {
                     Number(req.user.personID)
                 );
                 res.send(JSON.parse(view));
-            })();
+            }, () => {
+                res.send("null");
+            });
             break;
         }
         case 'create': {
@@ -169,7 +167,7 @@ app.post('/certificate', function (req, res) {
                     req.body.data
                 );
                 res.send(String(create == 1));
-            })().catch(() => {
+            }, () => {
                 res.send("false");
             });
             break;
@@ -183,7 +181,7 @@ app.post('/certificate', function (req, res) {
                     req.body.data
                 );
                 res.send(String(edit == 1));
-            })().catch(() => {
+            }, () => {
                 res.send("false");
             });
             break;
@@ -207,6 +205,8 @@ app.post('/patient', function (req, res) {
                 );
                 delete view.id;
                 res.send(JSON.parse(view));
+            }, () => {
+                res.send("null");
             });
             break;
         }
@@ -218,6 +218,8 @@ app.post('/patient', function (req, res) {
                     Number(req.user.personID)
                 );
                 res.send(String(create == 1));
+            }, () => {
+                res.send("false");
             });
             break;
         }
@@ -229,6 +231,8 @@ app.post('/patient', function (req, res) {
                     req.body.data
                 );
                 res.send(String(edit == 1));
+            }, () => {
+                res.send("null");
             });
             break;
         }
@@ -250,6 +254,8 @@ app.post('/records', function (req, res) {
                     Number(req.user.personID)
                 );
                 res.send(JSON.parse(view));
+            }, () => {
+                res.send("null");
             });
 
             break;
@@ -261,6 +267,8 @@ app.post('/records', function (req, res) {
                     Number(req.user.vaccinePatientID)
                 );
                 res.send(String(create == 1));
+            }, () => {
+                res.send("false")
             });
 
             break;
@@ -274,6 +282,8 @@ app.post('/records', function (req, res) {
                     req.body.data.vaccineRecord
                 );
                 res.send(String(vaccinate == 1));
+            }, () => {
+                res.send("false");
             });
             break;
         }
@@ -295,9 +305,9 @@ app.post('/parenting', function (req, res) {
                     Number(req.user.personID)
                 );
                 res.send(JSON.parse(view));
-            })().catch(() => {
+            }, () => {
                 res.send("null");
-            })
+            });
             break;
         }
         case 'create': {
@@ -309,9 +319,9 @@ app.post('/parenting', function (req, res) {
                 );
 
                 res.send(String(create == 1));
-            })().catch(() => {
+            }, () => {
                 res.send("false");
-            })
+            });
             break;
         }
         default: {
