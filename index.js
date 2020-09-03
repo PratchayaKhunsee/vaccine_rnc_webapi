@@ -8,7 +8,11 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const {
     LoginError,
-    SigninError
+    SigninError,
+    CertificateError,
+    PatientError,
+    RecordError,
+    ParentingError
 } = require('./error');
 const {
     doQuery
@@ -157,6 +161,11 @@ app.post('/certificate', function (req, res) {
                     q,
                     Number(req.session.userInfo.personID)
                 );
+
+                if(view instanceof CertificateError){
+                    throw view;
+                }
+
                 res.send(JSON.parse(view));
             }, () => {
                 res.send("null");
@@ -171,6 +180,11 @@ app.post('/certificate', function (req, res) {
                     Number(req.body.vaccineID),
                     req.body.data
                 );
+
+                if(create instanceof CertificateError){
+                    throw create;
+                }
+
                 res.send(String(create == 1));
             }, () => {
                 res.send("false");
@@ -185,6 +199,11 @@ app.post('/certificate', function (req, res) {
                     Number(req.body.certificationID),
                     req.body.data
                 );
+
+                if(edit instanceof CertificateError){
+                    throw edit;
+                }
+
                 res.send(String(edit == 1));
             }, () => {
                 res.send("false");
@@ -209,6 +228,11 @@ app.post('/patient', function (req, res) {
                     Number(req.session.userInfo.vaccinePatientID)
                 );
                 delete view.id;
+
+                if(view instanceof PatientError){
+                    throw view;
+                }
+
                 res.send(JSON.parse(view));
             }, () => {
                 res.send("null");
@@ -222,6 +246,11 @@ app.post('/patient', function (req, res) {
                     req.body.data,
                     Number(req.session.userInfo.personID)
                 );
+
+                if(create instanceof PatientError){
+                    throw create;
+                }
+
                 res.send(String(create == 1));
             }, () => {
                 res.send("false");
@@ -235,6 +264,11 @@ app.post('/patient', function (req, res) {
                     Number(req.session.userInfo.vaccinePatientID),
                     req.body.data
                 );
+
+                if(edit instanceof PatientError){
+                    throw edit;
+                }
+
                 res.send(String(edit == 1));
             }, () => {
                 res.send("null");
@@ -258,6 +292,11 @@ app.post('/records', function (req, res) {
                     q,
                     Number(req.session.userInfo.personID)
                 );
+
+                if(view instanceof RecordError){
+                    throw view;
+                }
+
                 res.send(JSON.parse(view));
             }, () => {
                 res.send("null");
@@ -271,6 +310,11 @@ app.post('/records', function (req, res) {
                     q,
                     Number(req.session.userInfo.vaccinePatientID)
                 );
+
+                if(create instanceof RecordError){
+                    throw create;
+                }
+
                 res.send(String(create == 1));
             }, () => {
                 res.send("false")
@@ -286,6 +330,11 @@ app.post('/records', function (req, res) {
                     Number(req.body.vaccineRecordID),
                     req.body.data.vaccineRecord
                 );
+
+                if(vaccinate instanceof RecordError){
+                    throw vaccinate;
+                }
+
                 res.send(String(vaccinate == 1));
             }, () => {
                 res.send("false");
@@ -309,6 +358,11 @@ app.post('/parenting', function (req, res) {
                     q,
                     Number(req.session.userInfo.personID)
                 );
+
+                if(view instanceof ParentingError){
+                    throw view;
+                }
+
                 res.send(JSON.parse(view));
             }, () => {
                 res.send("null");
@@ -322,6 +376,10 @@ app.post('/parenting', function (req, res) {
                     Number(req.session.userInfo.personID),
                     Number(req.body.vaccinePatientID)
                 );
+
+                if(create instanceof ParentingError){
+                    throw create;
+                }
 
                 res.send(String(create == 1));
             }, () => {

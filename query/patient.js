@@ -1,3 +1,11 @@
+const {
+    PatientNotFoundError,
+    PatientError,
+    EditPatientProfileError,
+    CreatePatientError,
+    UpdatePatientIDForPersonError
+} = require("../error");
+
 /**
  * @param {import("../database").PgQueryMethod} q
  * @param {Number} vaccinePatientID
@@ -12,7 +20,7 @@ async function doViewPatient(q, vaccinePatientID) {
         );
 
         if (vaccinePatient.rows.length != 1) {
-            throw 'VaccinePatientNotFound';
+            throw new PatientNotFoundError(Number(vaccinePatientID));
         }
 
         let returned = {
@@ -23,7 +31,7 @@ async function doViewPatient(q, vaccinePatientID) {
         return returned;
     } catch (err) {
         await q('rollback');
-        return err;
+        return new PatientError(err);
     }
 }
 
@@ -45,14 +53,15 @@ async function doEditPatient(q, vaccinePatientID, data) {
         );
 
         if (result.rowCount == 0) {
-            throw 'EditPatientError';
+            throw new EditPatientProfileError(Number(vaccinePatientID));
         }
+
         await q('commit');
-        return result.rowCount;
+        return 1;
 
     } catch (err) {
         await q('rollback');
-        return err;
+        return new PatientError(err);
     }
 }
 
@@ -73,7 +82,7 @@ async function doCreatePatient(q, data, personID) {
         );
 
         if (created.rowCount == 0) {
-            throw 'CreatedPatientError';
+            throw new CreatePatientError(Number(personID));
         }
 
         await q('commit');
@@ -85,7 +94,7 @@ async function doCreatePatient(q, data, personID) {
             );
 
             if (update.rowCount == 0) {
-                throw 'UpdateBoundVaccinePatientIDError';
+                throw new UpdatePatientIDForPersonError(Number(personID));
             }
 
         }
@@ -93,7 +102,7 @@ async function doCreatePatient(q, data, personID) {
         return 1;
     } catch (error) {
         await q('rollback');
-        return error;
+        return new PatientError(error);
     }
 }
 

@@ -22,6 +22,9 @@
  * @property {1|2|3} period
  * @property {DateString} date
  */
+
+const { PatientNotFoundError, VaccineRecordNotFoundError, RecordError, CreateEmptyRecordError, UpdateRecordIDForPatientError, UpdateVaccinationError, CreateVaccineError, CreateVaccinationProgramError } = require("../error");
+
 /**
  * @param {import("../database").PgQueryMethod} q
  * @param {Number} vaccinePatientID 
@@ -31,25 +34,29 @@ async function doViewRecords(q, vaccinePatientID) {
         await q('begin');
         let patient = await q(
             'select * from vaccine_patient where id = $1',
-            [vaccinePatientID]
+            [Number(vaccinePatientID)]
         );
 
         if (patient.rows.length != 1) {
-            throw 'VaccinePatientNotFound';
+            throw new PatientNotFoundError(Number(vaccinePatientID));
         }
 
         let records = await q(
             'select * from vaccine_record where id = $1',
-            [patient.rows[0].vaccine_record_id]
+            [Number(patient.rows[0].vaccine_record_id)]
         );
 
-        let returned = records.rows;
+        if(records.rows.length == 0){
+            throw VaccineRecordNotFoundError(Number(vaccinePatientID));
+        }
+
+        let returned = records.rows.map(x => ({ ...x }));
 
         await q('commit');
         return returned;
     } catch (err) {
         await q('rollback');
-        return err;
+        return new RecordError(err);
     }
 }
 /**
@@ -65,17 +72,20 @@ async function doCreateRecord(q, vaccinePatientID) {
         );
 
         if (created.rowCount == 0) {
-            throw 'CreatedEmptyRecordError';
+            throw new CreateEmptyRecordError();
         }
 
         if (0 in arguments) {
             let update = await q(
                 `update vaccine_patient set (vaccine_record_id = $1) where id = $2`,
-                [Number(created.rows[0].id), Number(vaccinePatientID)]
+                [
+                    Number(created.rows[0].id),
+                    Number(vaccinePatientID)
+                ]
             );
 
             if (update.rowCount == 0) {
-                throw 'UpdateBoundVaccineRecordIDError';
+                throw new UpdateRecordIDForPatientError(Number(vaccinePatientID));
             }
         }
 
@@ -84,7 +94,7 @@ async function doCreateRecord(q, vaccinePatientID) {
         return 1;
     } catch (error) {
         await q('rollback');
-        return error;
+        return new RecordError(error);
     }
 }
 
@@ -94,9 +104,9 @@ async function doCreateRecord(q, vaccinePatientID) {
  * @param {Number} vaccineRecordID 
  */
 async function doCreateVaccinationProgram(q, program, vaccineRecordID) {
-    if (!(program && program.against && program.age && program.age.first)) {
-        return 'MissingRequiredDataError';
-    }
+    // if (!(program && program.against && program.age && program.age.first)) {
+    //     return 'MissingRequiredDataError';
+    // }
 
     try {
         await q('begin');
@@ -113,14 +123,14 @@ async function doCreateVaccinationProgram(q, program, vaccineRecordID) {
         );
 
         if (vaccineProgram.rowCount == 0) {
-            throw 'InsertVaccinationProgramError';
+            throw new CreateVaccinationProgramError(Number(vaccineRecordID));
         }
 
         await q('commit');
         return 1;
     } catch (error) {
         await q('rollback');
-        return error;
+        return new RecordError(error);
     }
 }
 
@@ -148,7 +158,7 @@ async function doVaccination(q, vaccineData, vaccineRecordID, vaccineRecordData)
         );
 
         if (createdVaccine.rowCount == 0) {
-            throw 'InsertVaccineError';
+            throw new CreateVaccineError();
         }
 
         let rData = {
@@ -181,7 +191,7 @@ async function doVaccination(q, vaccineData, vaccineRecordID, vaccineRecordData)
             );
 
             if (extendedVaccineRecord.rowCount == 0) {
-                throw 'UpdateVaccineRecordError';
+                throw new UpdateVaccinationError();
             }
         }
 
@@ -190,7 +200,7 @@ async function doVaccination(q, vaccineData, vaccineRecordID, vaccineRecordData)
         return 1;
     } catch (error) {
         await q('rollback');
-        return error;
+        return new RecordError(error);
     }
 }
 

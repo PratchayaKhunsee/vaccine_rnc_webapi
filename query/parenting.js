@@ -1,3 +1,10 @@
+const {
+    RemoveParentingError,
+    ParentingError,
+    CreateParentingError,
+    ParentingNotFoundError
+} = require("../error");
+
 /**
  * @param {import("../database").PgQueryMethod} q
  * @param {Number} personID 
@@ -13,7 +20,7 @@ async function doViewParenting(q, personID) {
         );
 
         if (parenting.rows.length == 0) {
-            throw 'SelectParentingError';
+            throw new ParentingNotFoundError(Number(personID));
         }
 
         await q('commit');
@@ -25,7 +32,7 @@ async function doViewParenting(q, personID) {
         });
     } catch (error) {
         await q('rollback');
-        return error;
+        return new ParentingError(error);
     }
 }
 
@@ -46,7 +53,7 @@ async function doCreateParenting(q, personID, vaccinePatientID) {
         );
 
         if (parenting.rowCount == 0) {
-            throw 'InsertParentingError';
+            throw new CreateParentingError(Number(personID), Number(vaccinePatientID));
         }
 
         await q('commit');
@@ -54,7 +61,7 @@ async function doCreateParenting(q, personID, vaccinePatientID) {
         return 1;
     } catch (error) {
         await q('rollback');
-        return error;
+        return new ParentingError(error);
     }
 }
 
@@ -73,7 +80,7 @@ async function doRemoveParenting(q, parentingID) {
         );
 
         if (deleted.rowCount == 0) {
-            throw 'DeleteParentingError';
+            throw new RemoveParentingError();
         }
 
         await q('commit');
@@ -81,7 +88,7 @@ async function doRemoveParenting(q, parentingID) {
         return 1;
     } catch (error) {
         await q('rollback');
-        return error;
+        return new ParentingError(error);
     }
 }
 

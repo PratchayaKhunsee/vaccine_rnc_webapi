@@ -8,6 +8,9 @@
  * @property {String} [certify_to]
  * @property {String} [adminstering_centre_stamp]
  */
+
+const { CertificateNotFoundError, CertificateError, CreateCertificationError, UpdateCertificationError } = require("../error");
+
 /**
  * @param {import("../database").PgQueryMethod} q
  * @param {Number} personID 
@@ -22,7 +25,7 @@ async function doViewCertifications(q, personID) {
             ]
         );
         if (certs.rows.length == 0) {
-            throw 'SelectCertificationError';
+            throw new CertificateNotFoundError(Number(personID));
         }
 
         await q('commit');
@@ -35,7 +38,7 @@ async function doViewCertifications(q, personID) {
         });
     } catch (error) {
         await q('rollback');
-        return error;
+        return new CertificateError(error);
     }
 }
 
@@ -71,14 +74,14 @@ async function doCreateCertification(q, personID, vaccineID, data) {
         );
 
         if (certification.rowCount == 0) {
-            throw 'InsertCertificationError';
+            throw new CreateCertificationError(Number(personID));
         }
 
         await q('commit');
         return 1;
     } catch (error) {
         await q('rollback');
-        return error;
+        return new CertificateError(error);
     }
 }
 
@@ -110,13 +113,13 @@ async function doEditCertification(q, certificationID, personID, data) {
         );
 
         if (updated.rowCount == 0) {
-            throw 'UpdateCertificationError';
+            throw new UpdateCertificationError(Number(certificationID));
         }
 
         await q('commit');
     } catch (error) {
         await q('rollback');
-        return error;
+        return new CertificateError(error);
     }
 }
 
