@@ -40,6 +40,12 @@ const client = new Client({
 
 client.connect();
 
+client.query('select * from user_account').then(res => {
+    console.log(res);
+}).catch(err => {
+    console.log(err);
+})
+
 /** @type {Array<QueuedQuery>} */
 let queue = [];
 let counter = {
