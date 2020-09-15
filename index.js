@@ -140,29 +140,31 @@ app.post('/signup', function (req, res) {
         'Content-Type': 'application/json'
     });
 
-    connect().then(client => {
-        let queryResult = await doSignUp(client, req.body);
-        if (queryResult instanceof SigninError) {
+    connect(async client => await doSignUp(client, req.body))
+        .then(() => {
+            if (queryResult instanceof SigninError) {
+                res.status(400);
+                res.send("false");
+                return;
+            }
+
+            res.send("true");
+        }).catch(err => {
+            console.log(err);
             res.status(400);
             res.send("false");
-            return;
-        }
-        res.send("true");
-    }).catch(error => {
-        res.status(400);
-        res.send("false");
-    });
+        });
 
-    doQuery(async (q) => {
-        let queryResult = await doSignUp(q, req.body);
-        if (queryResult instanceof SigninError) {
-            throw queryResult;
-        }
-        res.send("true");
-    }, () => {
-        res.status(400);
-        res.send("false");
-    });
+    // doQuery(async (q) => {
+    //     let queryResult = await doSignUp(q, req.body);
+    //     if (queryResult instanceof SigninError) {
+    //         throw queryResult;
+    //     }
+    //     res.send("true");
+    // }, () => {
+    //     res.status(400);
+    //     res.send("false");
+    // });
 });
 app.post('/certificate', function (req, res) {
     res.set({

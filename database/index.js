@@ -89,12 +89,14 @@ function doQuery(success, error) {
 let o = {
     connection: 0,
 }
+/**
+ * 
+ * @param {QueryAsyncFunction} done 
+ * @param {*} fallback 
+ */
+async function connect(done, fallback) {
 
-async function connect() {
-
-    if (o.connection >= 20) {
-        throw null;
-    }
+    if(typeof done != 'function') return null;
 
     const conn = new Client(
         {
@@ -107,8 +109,11 @@ async function connect() {
 
     await conn.connect();
     o.connection++;
+    let result = await done(conn);
+    await conn.end();
+    o.connection--;
 
-    return conn;
+    return result;
 }
 
 module.exports = {
