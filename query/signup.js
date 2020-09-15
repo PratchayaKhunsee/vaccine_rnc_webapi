@@ -29,10 +29,10 @@ async function doSignUp(q, user) {
     //     }
     // }
 
-    for (let name of ['firstName', 'lastName', 'namePrefix', 'idNumber', 'gender', 'username', 'password']) {
-        if (user[name] == '' || !Number.isFinite(user[name]) || Number.isNaN(user[name]))
-            return new SigninError(new EmptyInputError());
-    }
+    // for (let name of ['firstName', 'lastName', 'namePrefix', 'idNumber', 'gender', 'username', 'password']) {
+    //     if (user[name] == '' || !Number.isFinite(user[name]) || Number.isNaN(user[name]))
+    //         return new SigninError(new EmptyInputError());
+    // }
 
     if (!idValidator.verify(userData.idCardNumber)) {
         return new SigninError(new InvalidIdNumberError(userData.idCardNumber));
