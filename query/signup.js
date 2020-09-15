@@ -30,8 +30,8 @@ async function doSignUp(conn, user) {
 
     let queryString = {
         check: {
-            person: "select count(*) as 'count' from person where idcard_number = $1",
-            userAccount: "select count(*) as 'count' from user_account where username = $1"
+            person: "select * from person where idcard_number = $1",
+            userAccount: "select * from user_account where username = $1"
         },
         create: {
             person: "insert into person (firstname,lastname,gender,name_prefix,idcard_number) values($1,$2,$3,$4,$5,$6) returning id",
@@ -45,22 +45,22 @@ async function doSignUp(conn, user) {
         let countUser = await conn.query(
             queryString.check.userAccount,
             [user.username]
-        ).rows[0].count;
+        );
 
-        if (Number(countUser) > 0) {
+        if (countUser.rows.length > 0) {
             throw new UserNameExistError(user.username);
         }
 
         let countPerson = await conn.query(
             queryString.check.userAccount,
             [user.idCardNumber]
-        ).rows[0].count;
+        );
 
-        if (Number(countPerson) > 0) {
+        if (countPerson.rows.length > 0) {
             throw new IdentityExistError(user.idCardNumber);
         }
 
-        let personID = await conn.query(
+        let personID = await (await conn.query(
             queryString.create.person,
             [
                 user.firstName,
@@ -69,7 +69,7 @@ async function doSignUp(conn, user) {
                 Number(user.namePrefix),
                 user.idNumber
             ]
-        ).rows[0].id;
+        )).rows[0].id;
 
         await conn.query(
             queryString.create.userAccount,
