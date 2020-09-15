@@ -60,9 +60,9 @@ function doQuery(success, error) {
                 rejectUnauthorized: false
             }
         });
-        conn.on('error', function (err) {
-            if (typeof error == 'function') error(err);
-        });
+        // conn.on('error', function (err) {
+        //     if (typeof error == 'function') error(err);
+        // });
         await conn.connect();
         
         let result = await success(conn.query, conn);
