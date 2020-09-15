@@ -8,7 +8,6 @@
  * @returns {Promise}
  * 
  * @callback QueryAsyncFunction
- * @param {PgQueryMethod} query
  * @param {Client} connect
  * @returns {Promise}
  * 
@@ -31,21 +30,6 @@ const pool = new Pool({
     }
 });
 
-const client = new Client({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
-});
-
-client.connect();
-
-client.query('select * from user_account').then(res => {
-    console.log(res);
-}).catch(err => {
-    console.log(err);
-})
-
 /** @type {Array<QueuedQuery>} */
 let queue = [];
 let counter = {
@@ -55,9 +39,10 @@ let counter = {
 function dequeueAll() {
     while (queue.length > 0) {
         let o = queue.shift();
-        o.exec().catch((err) => {
-            if (typeof o.error == 'function') o.error(err);
-        });
+        o.exec()
+            .catch((err) => {
+                if (typeof o.error == 'function') o.error(err);
+            });
     }
 }
 
@@ -75,13 +60,12 @@ function doQuery(success, error) {
                 rejectUnauthorized: false
             }
         });
-        // conn.on('error', function (err) {
-        //     if (typeof error == 'function') error(err);
-        // });
+
         await conn.connect();
 
-        let result = await success(conn.query, conn);
+        let result = await success(conn);
         if (result instanceof Error) {
+            await conn.end();
             throw result;
         }
         await conn.end();
@@ -102,7 +86,33 @@ function doQuery(success, error) {
     }
 }
 
+let o = {
+    connection: 0,
+}
+
+async function connect() {
+
+    if (o.connection >= 20) {
+        throw null;
+    }
+
+    const conn = new Client(
+        {
+            connectionString: process.env.DATABASE_URL,
+            ssl: {
+                rejectUnauthorized: false
+            }
+        }
+    );
+
+    await conn.connect();
+    o.connection++;
+
+    return conn;
+}
+
 module.exports = {
     pool,
-    doQuery
+    doQuery,
+    connect,
 };

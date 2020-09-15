@@ -15,7 +15,8 @@ const {
     ParentingError
 } = require('./error');
 const {
-    doQuery
+    doQuery,
+    connect
 } = require('./database');
 const {
     doSignUp
@@ -139,7 +140,18 @@ app.post('/signup', function (req, res) {
         'Content-Type': 'application/json'
     });
 
-    console.log(req.body);
+    connect().then(client => {
+        let queryResult = await doSignUp(client, req.body);
+        if (queryResult instanceof SigninError) {
+            res.status(400);
+            res.send("false");
+            return;
+        }
+        res.send("true");
+    }).catch(error => {
+        res.status(400);
+        res.send("false");
+    });
 
     doQuery(async (q) => {
         let queryResult = await doSignUp(q, req.body);
@@ -147,9 +159,8 @@ app.post('/signup', function (req, res) {
             throw queryResult;
         }
         res.send("true");
-    }, (err) => {
+    }, () => {
         res.status(400);
-        console.log(err);
         res.send("false");
     });
 });

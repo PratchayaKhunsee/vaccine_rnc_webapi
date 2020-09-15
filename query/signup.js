@@ -19,20 +19,10 @@ const {
 } = require("../error");
 
 /**
- * @param {import("../database").PgQueryMethod} q
+ * @param {import("pg").Client} conn
  * @param {UserData} user
  */
-async function doSignUp(q, user) {
-    // for (let name in user) {
-    //     if (!user[name]) {
-    //         return new SigninError(new EmptyInputError());
-    //     }
-    // }
-
-    // for (let name of ['firstName', 'lastName', 'namePrefix', 'idNumber', 'gender', 'username', 'password']) {
-    //     if (user[name] == '' || !Number.isFinite(user[name]) || Number.isNaN(user[name]))
-    //         return new SigninError(new EmptyInputError());
-    // }
+async function doSignUp(conn, user) {
 
     if (!idValidator.verify(user.idNumber)) {
         return new SigninError(new InvalidIdNumberError(user.idNumber));
@@ -50,9 +40,9 @@ async function doSignUp(q, user) {
     };
 
     try {
-        await q('begin');
+        await conn.query('begin');
 
-        let countUser = await q(
+        let countUser = await conn.query(
             queryString.check.userAccount,
             [user.username]
         ).rows[0].count;
@@ -61,7 +51,7 @@ async function doSignUp(q, user) {
             throw new UserNameExistError(user.username);
         }
 
-        let countPerson = await q(
+        let countPerson = await conn.query(
             queryString.check.userAccount,
             [user.idCardNumber]
         ).rows[0].count;
@@ -70,7 +60,7 @@ async function doSignUp(q, user) {
             throw new IdentityExistError(user.idCardNumber);
         }
 
-        let personID = await q(
+        let personID = await conn.query(
             queryString.create.person,
             [
                 user.firstName,
@@ -81,7 +71,7 @@ async function doSignUp(q, user) {
             ]
         ).rows[0].id;
 
-        await q(
+        await conn.query(
             queryString.create.userAccount,
             [
                 user.username,
@@ -90,11 +80,11 @@ async function doSignUp(q, user) {
             ]
         );
 
-        await q('commit');
+        await conn.query('commit');
 
         return 1;
     } catch (err) {
-        await q('rollback');
+        await conn.query('rollback');
         return new SigninError(err);
     }
 }
