@@ -139,8 +139,10 @@ app.post('/signup', function (req, res) {
         'Content-Type': 'application/json'
     });
 
+    console.log(req.body);
+
     doQuery(async (q) => {
-        let queryResult = await doSignUp(q, req.body.data);
+        let queryResult = await doSignUp(q, req.body);
         if (queryResult instanceof SigninError) {
             throw queryResult;
         }
