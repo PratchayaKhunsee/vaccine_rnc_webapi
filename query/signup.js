@@ -34,8 +34,8 @@ async function doSignUp(q, user) {
     //         return new SigninError(new EmptyInputError());
     // }
 
-    if (!idValidator.verify(userData.idCardNumber)) {
-        return new SigninError(new InvalidIdNumberError(userData.idCardNumber));
+    if (!idValidator.verify(user.idNumber)) {
+        return new SigninError(new InvalidIdNumberError(user.idNumber));
     }
 
     let queryString = {
