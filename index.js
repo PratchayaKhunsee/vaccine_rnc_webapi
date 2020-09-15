@@ -145,8 +145,9 @@ app.post('/signup', function (req, res) {
             throw queryResult;
         }
         res.send("true");
-    }, () => {
+    }, (err) => {
         res.status(400);
+        console.log(err);
         res.send("false");
     });
 });
