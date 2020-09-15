@@ -31,6 +31,15 @@ const pool = new Pool({
     }
 });
 
+const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
+
+client.connect();
+
 /** @type {Array<QueuedQuery>} */
 let queue = [];
 let counter = {
@@ -41,7 +50,7 @@ function dequeueAll() {
     while (queue.length > 0) {
         let o = queue.shift();
         o.exec().catch((err) => {
-            if(typeof o.error == 'function') o.error(err);
+            if (typeof o.error == 'function') o.error(err);
         });
     }
 }
@@ -64,7 +73,7 @@ function doQuery(success, error) {
         //     if (typeof error == 'function') error(err);
         // });
         await conn.connect();
-        
+
         let result = await success(conn.query, conn);
         if (result instanceof Error) {
             throw result;
