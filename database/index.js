@@ -61,13 +61,12 @@ function doQuery(success, error) {
             }
         });
 
+        conn.connect();
         conn.on('error', function (err) {
             if (typeof error == 'function') error(err);
         });
 
-        // console.log(process.env.DATABASE_URL);
-        await conn.connect();
-
+        
         let result = await success(conn.query, conn);
         if (result instanceof Error) {
             throw result;
