@@ -23,11 +23,11 @@ const {
  * @param {UserData} user
  */
 async function doSignUp(q, user) {
-    for (let name in user) {
-        if (!user[name]) {
-            return new SigninError(new EmptyInputError());
-        }
-    }
+    // for (let name in user) {
+    //     if (!user[name]) {
+    //         return new SigninError(new EmptyInputError());
+    //     }
+    // }
 
     for (let name of ['firstName', 'lastName', 'namePrefix', 'idNumber', 'gender', 'username', 'password']) {
         console.log(user[name]);
