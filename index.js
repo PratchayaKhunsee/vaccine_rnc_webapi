@@ -141,7 +141,7 @@ app.post('/signup', function (req, res) {
     });
 
     connect(async client => await doSignUp(client, req.body))
-        .then(() => {
+        .then((queryResult) => {
             if (queryResult instanceof SigninError) {
                 res.status(400);
                 res.send("false");
