@@ -30,8 +30,8 @@ async function doSignUp(q, user) {
     // }
 
     for (let name of ['firstName', 'lastName', 'namePrefix', 'idNumber', 'gender', 'username', 'password']) {
-        console.log(user[name]);
-        if (!user[name]) return new SigninError(new EmptyInputError());
+        if (user[name] == '' || !Number.isFinite(user[name]) || Number.isNaN(user[name]))
+            return new SigninError(new EmptyInputError());
     }
 
     if (!idValidator.verify(userData.idCardNumber)) {
