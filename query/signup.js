@@ -5,7 +5,7 @@
  * @property {String} username
  * @property {String} password
  * @property {Number|BigInt} namePrefix
- * @property {String[13]} idCardNumber
+ * @property {String[13]} idNumber
  * @property {Number|BigInt} gender 
  */
 
@@ -22,11 +22,15 @@ const {
  * @param {import("../database").PgQueryMethod} q
  * @param {UserData} user
  */
-async function doSignIn(q, user) {
+async function doSignUp(q, user) {
     for (let name in user) {
         if (!user[name]) {
             return new SigninError(new EmptyInputError());
         }
+    }
+
+    for (let name of ['firstName', 'lastName', 'namePrefix', 'idNumber', 'gender', 'username', 'password']) {
+        if (!user[name]) return new SigninError(new EmptyInputError());
     }
 
     if (!idValidator.verify(userData.idCardNumber)) {
@@ -72,7 +76,7 @@ async function doSignIn(q, user) {
                 user.lastName,
                 Number(user.gender),
                 Number(user.namePrefix),
-                user.idCardNumber
+                user.idNumber
             ]
         ).rows[0].id;
 
@@ -95,5 +99,5 @@ async function doSignIn(q, user) {
 }
 
 module.exports = {
-    doSignIn
+    doSignUp
 };

@@ -18,8 +18,8 @@ const {
     doQuery
 } = require('./database');
 const {
-    doSignIn
-} = require('./query/signin');
+    doSignUp
+} = require('./query/signup');
 const {
     doLogIn
 } = require('./query/login');
@@ -47,9 +47,9 @@ let port = process.env.PORT || 8080;
 
 // Configure passport.js to use the local strategy
 passport.use(new LocalStrategy({
-        usernameField: 'username',
-        passwordField: 'password'
-    },
+    usernameField: 'username',
+    passwordField: 'password'
+},
     function (username, password, done) {
         doQuery(async (q) => {
             let result = await doLogIn(q, username, password);
@@ -133,19 +133,20 @@ app.post('/logout', function (req, res) {
     req.logout();
     res.send("true");
 });
-app.post('/signin', function (req, res) {
+app.post('/signup', function (req, res) {
     // Response as JSON file
     res.set({
         'Content-Type': 'application/json'
     });
 
     doQuery(async (q) => {
-        let queryResult = await doSignIn(q, req.body.data);
+        let queryResult = await doSignUp(q, req.body.data);
         if (queryResult instanceof SigninError) {
             throw queryResult;
         }
         res.send("true");
     }, () => {
+        res.status(400);
         res.send("false");
     });
 });
@@ -162,7 +163,7 @@ app.post('/certificate', function (req, res) {
                     Number(req.session.userInfo.personID)
                 );
 
-                if(view instanceof CertificateError){
+                if (view instanceof CertificateError) {
                     throw view;
                 }
 
@@ -181,7 +182,7 @@ app.post('/certificate', function (req, res) {
                     req.body.data
                 );
 
-                if(create instanceof CertificateError){
+                if (create instanceof CertificateError) {
                     throw create;
                 }
 
@@ -200,7 +201,7 @@ app.post('/certificate', function (req, res) {
                     req.body.data
                 );
 
-                if(edit instanceof CertificateError){
+                if (edit instanceof CertificateError) {
                     throw edit;
                 }
 
@@ -229,7 +230,7 @@ app.post('/patient', function (req, res) {
                 );
                 delete view.id;
 
-                if(view instanceof PatientError){
+                if (view instanceof PatientError) {
                     throw view;
                 }
 
@@ -247,7 +248,7 @@ app.post('/patient', function (req, res) {
                     Number(req.session.userInfo.personID)
                 );
 
-                if(create instanceof PatientError){
+                if (create instanceof PatientError) {
                     throw create;
                 }
 
@@ -265,7 +266,7 @@ app.post('/patient', function (req, res) {
                     req.body.data
                 );
 
-                if(edit instanceof PatientError){
+                if (edit instanceof PatientError) {
                     throw edit;
                 }
 
@@ -293,7 +294,7 @@ app.post('/records', function (req, res) {
                     Number(req.session.userInfo.personID)
                 );
 
-                if(view instanceof RecordError){
+                if (view instanceof RecordError) {
                     throw view;
                 }
 
@@ -311,7 +312,7 @@ app.post('/records', function (req, res) {
                     Number(req.session.userInfo.vaccinePatientID)
                 );
 
-                if(create instanceof RecordError){
+                if (create instanceof RecordError) {
                     throw create;
                 }
 
@@ -331,7 +332,7 @@ app.post('/records', function (req, res) {
                     req.body.data.vaccineRecord
                 );
 
-                if(vaccinate instanceof RecordError){
+                if (vaccinate instanceof RecordError) {
                     throw vaccinate;
                 }
 
@@ -359,7 +360,7 @@ app.post('/parenting', function (req, res) {
                     Number(req.session.userInfo.personID)
                 );
 
-                if(view instanceof ParentingError){
+                if (view instanceof ParentingError) {
                     throw view;
                 }
 
@@ -377,7 +378,7 @@ app.post('/parenting', function (req, res) {
                     Number(req.body.vaccinePatientID)
                 );
 
-                if(create instanceof ParentingError){
+                if (create instanceof ParentingError) {
                     throw create;
                 }
 
@@ -396,4 +397,4 @@ app.post('/', function (req, res) {
     res.send('null');
 });
 // Start web server
-app.listen(port, function () {});
+app.listen(port, function () { });
