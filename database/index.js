@@ -61,6 +61,8 @@ function doQuery(success, error) {
             }
         });
 
+        console.log(process.env.DATABASE_URL);
+
         conn.on('error', function (err) {
             if (typeof error == 'function') error(err);
         });
