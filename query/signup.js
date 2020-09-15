@@ -34,7 +34,7 @@ async function doSignUp(conn, user) {
             userAccount: "select * from user_account where username = $1"
         },
         create: {
-            person: "insert into person (firstname,lastname,gender,name_prefix,id_number) values($1,$2,$3,$4,$5,$6) returning id",
+            person: "insert into person (firstname,lastname,gender,name_prefix,id_number) values($1,$2,$3,$4,$5) returning id",
             userAccount: "insert into user_account (username, password, person_id) values($1, crypt($2, gen_salt('md5')), $3) returning id",
         }
     };
