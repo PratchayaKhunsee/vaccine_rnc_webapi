@@ -45,6 +45,10 @@ const {
 } = require('./query/parenting');
 
 let port = process.env.PORT || 8080;
+const httpStatus = {
+    unautorized: 401,
+    ok: 200
+}
 
 // Configure passport.js to use the local strategy
 passport.use(new LocalStrategy({
@@ -52,15 +56,15 @@ passport.use(new LocalStrategy({
     passwordField: 'password'
 },
     function (username, password, done) {
-        doQuery(async (q) => {
-            let result = await doLogIn(q, username, password);
-            if (result instanceof LoginError) {
-                throw result;
-            }
-            done(null, result);
-        }, (err) => {
-            done(err);
-        });
+        connect(async client => await doLogIn(client, username, password))
+            .then(queryResult => {
+                if (queryResult instanceof LoginError) {
+                    throw queryResult;
+                }
+                done(null, queryResult);
+            }).catch(err => {
+                done(err);
+            });
     }
 ));
 // Telling passport how to serialize the user
@@ -95,14 +99,15 @@ app.post('/login', function (req, res, next) {
     });
 
     if (req.user) {
-        res.send("true");
+        res.send(String(true));
         return;
     }
 
     // Using passport.js for login authentication
     passport.authenticate('local', function (err, allowed) {
         if (err) {
-            res.send("false");
+            res.status(httpStatus.unautorized);
+            res.send(String(false));
             return;
         }
 
@@ -110,6 +115,7 @@ app.post('/login', function (req, res, next) {
             username: allowed.userAccount.username,
             id: Number(allowed.userAccount.username)
         };
+
         let sessionSaved = {
             personID: Number(allowed.person.id),
             vaccinePatientID: Number(allowed.person.vaccine_patient_id)
@@ -118,7 +124,7 @@ app.post('/login', function (req, res, next) {
         req.session.userInfo = sessionSaved;
 
         req.login(savedUser, function done() {
-            res.send("true");
+            res.send(String(true));
         });
     })(req, res, next);
 });
@@ -143,14 +149,17 @@ app.post('/signup', function (req, res) {
     connect(async client => await doSignUp(client, req.body))
         .then((queryResult) => {
             if (queryResult instanceof SigninError) {
-                throw queryResult
+                throw queryResult;
             }
 
-            res.send("true");
+            res.send(JSON.parse({
+                success: true,
+            }));
         }).catch(err => {
-            console.log(err);
             res.status(400);
-            res.send("false");
+            res.send(JSON.parse({
+                error: true
+            }));
         });
 
     // doQuery(async (q) => {

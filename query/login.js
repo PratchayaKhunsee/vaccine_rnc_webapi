@@ -5,19 +5,19 @@ const {
 } = require('../error');
 
 /**
- * @param {import("../database").PgQueryMethod} q
+ * @param {import('pg').Client} client
  * @param {String} username 
  * @param {String} password 
  */
-async function doLogIn(q, username, password) {
+async function doLogIn(client, username, password) {
     if (!(username && password)) {
         return new LoginError(new EmptyInputError());
     }
 
     try {
-        await q('begin');
+        await client.query('begin');
 
-        let userAccount = await q(
+        let userAccount = await client.query(
             "select * from user_account where username = $1 and password = crypt($2, password)",
             [
                 username,
@@ -29,7 +29,7 @@ async function doLogIn(q, username, password) {
             throw new UserNotFoundError(username);
         }
 
-        let person = await q(
+        let person = await client.query(
             "select * from person where id = $1",
             [
                 Number(person.rows[0].id)
@@ -51,10 +51,10 @@ async function doLogIn(q, username, password) {
 
         delete returned.userAccount.password;
 
-        await q('commit');
+        await client.query('commit');
         return returned;
     } catch (err) {
-        await q('rollback');
+        await client.query('rollback');
         return new LoginError(err);
     }
 }

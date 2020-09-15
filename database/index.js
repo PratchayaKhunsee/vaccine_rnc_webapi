@@ -88,32 +88,57 @@ function doQuery(success, error) {
 
 let o = {
     connection: 0,
+    maxConnection: 20,
+    /** @type {(()=>{})[]} */
+    queue: [],
+    async use() {
+        this.connection++;
+        if (this.connection > this.maxConnection) {
+            await new Promise(function (resolve) {
+                queue.push(resolve);
+            });
+        }
+    },
+    async release() {
+        this.connection--;
+        if (this.queue.length > 0) {
+            this.queue.shift()();
+        }
+    }
 }
 /**
  * 
  * @param {QueryAsyncFunction} done 
- * @param {*} fallback 
+ * @param {ErrorCallback} fallback 
  */
 async function connect(done, fallback) {
 
-    if(typeof done != 'function') return null;
+    if (typeof done != 'function') throw null;
+    let connectionUsed = false;
 
-    const conn = new Client(
-        {
+    try {
+        const conn = new Client({
             connectionString: process.env.DATABASE_URL,
             ssl: {
                 rejectUnauthorized: false
             }
+        });
+
+        await conn.connect();
+        await o.use();
+        connectionUsed = true;
+        let result = await done(conn);
+        await conn.end();
+        await o.release();
+        connectionUsed = false;
+        return result;
+    } catch (error) {
+        if (connectionUsed) {
+            await o.release();
         }
-    );
-
-    await conn.connect();
-    o.connection++;
-    let result = await done(conn);
-    await conn.end();
-    o.connection--;
-
-    return result;
+        if (typeof fallback == 'function') fallback(error);
+        throw error;
+    }
 }
 
 module.exports = {
