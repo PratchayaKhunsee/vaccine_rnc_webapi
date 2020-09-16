@@ -163,17 +163,6 @@ app.post('/signup', function (req, res) {
                 error: true
             }));
         });
-
-    // doQuery(async (q) => {
-    //     let queryResult = await doSignUp(q, req.body);
-    //     if (queryResult instanceof SigninError) {
-    //         throw queryResult;
-    //     }
-    //     res.send("true");
-    // }, () => {
-    //     res.status(400);
-    //     res.send("false");
-    // });
 });
 app.post('/certificate', function (req, res) {
     res.set({
@@ -193,7 +182,8 @@ app.post('/certificate', function (req, res) {
                 }
 
                 res.send(JSON.parse(view));
-            }, () => {
+            }, (err) => {
+                console.log(err);
                 res.send("null");
             });
             break;
