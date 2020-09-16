@@ -95,6 +95,7 @@ const decodedJwt = function (req) {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
 
+    console.log(authHeader, jwt.verify(token, process.env.JWT_TOKEN_SECRET));
     return jwt.verify(token, process.env.JWT_TOKEN_SECRET);
 }
 const method = {
@@ -139,7 +140,6 @@ app.post('/login',
 
         const username = req.body.username;
         const password = req.body.password;
-        console.log(process.env.JWT_TOKEN_SECRET);
 
         connect(async client => await doLogIn(
             client,
