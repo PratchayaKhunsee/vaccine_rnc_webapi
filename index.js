@@ -70,6 +70,8 @@ const authenticate = function (req, res, next) {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
 
+    console.log(authHeader, token);
+
     if (token == null) {
         res.status(httpStatus.UNAUTHORIZED);
         res.send('Unauthorized.');
@@ -95,7 +97,7 @@ const decodedJwt = function (req) {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
 
-    console.log(authHeader, jwt.verify(token, process.env.JWT_TOKEN_SECRET));
+    // console.log(authHeader, jwt.verify(token, process.env.JWT_TOKEN_SECRET));
     return jwt.verify(token, process.env.JWT_TOKEN_SECRET);
 }
 const method = {
