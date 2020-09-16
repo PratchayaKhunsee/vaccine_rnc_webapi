@@ -17,7 +17,7 @@ async function viewUser(client, username) {
         let person = await client.query(
             'select firstname,lastname,gender,name_prefix,id_number from person where id = $1',
             [
-                Number(user.rows[0].id)
+                Number(user.rows[0].person_id)
             ]
         );
 
