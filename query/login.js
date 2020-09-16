@@ -32,7 +32,7 @@ async function doLogIn(client, username, password) {
         let person = await client.query(
             "select * from person where id = $1",
             [
-                Number(person.rows[0].id)
+                Number(userAccount.rows[0].person_id)
             ]
         );
 
