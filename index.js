@@ -51,10 +51,11 @@ const httpStatus = {
 }
 
 // Configure passport.js to use the local strategy
-passport.use(new LocalStrategy({
-    usernameField: 'username',
-    passwordField: 'password'
-},
+passport.use(new LocalStrategy(
+    {
+        usernameField: 'username',
+        passwordField: 'password'
+    },
     function (username, password, done) {
         connect(async client => await doLogIn(client, username, password))
             .then(queryResult => {
@@ -63,6 +64,7 @@ passport.use(new LocalStrategy({
                 }
                 done(null, queryResult);
             }).catch(err => {
+                console.log(err);
                 done(err);
             });
     }
@@ -113,7 +115,7 @@ app.post('/login', function (req, res, next) {
 
         let savedUser = {
             username: allowed.userAccount.username,
-            id: Number(allowed.userAccount.username)
+            id: Number(allowed.userAccount.id)
         };
 
         let sessionSaved = {
