@@ -139,6 +139,7 @@ app.post('/login',
 
         const username = req.body.username;
         const password = req.body.password;
+        console.log(process.env.JWT_TOKEN_SECRET);
 
         connect(async client => await doLogIn(
             client,
