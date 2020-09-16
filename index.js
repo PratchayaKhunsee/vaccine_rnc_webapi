@@ -1,13 +1,9 @@
 const express = require('express');
 const app = express();
-const expressSession = require('express-session');
-const uuid = require('uuid').v4;
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const expressSession = require('express-session');
 const jwt = require('jsonwebtoken');
-const FileStore = require('session-file-store')(expressSession);
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
 const {
     LoginError,
     SigninError,
@@ -45,103 +41,103 @@ const {
     doViewParenting,
     doCreateParenting
 } = require('./query/parenting');
+const {
+    viewUser,
+} = require('./query/user');
 
 const port = process.env.PORT || 8080;
 const httpStatus = {
-    unautorized: 401,
-    ok: 200
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    OK: 200,
+    CREATED: 201
 };
 /**
  * 
  * @param {String} username 
  * @param {Date} generatedAt 
  */
-const genJwt = function (username, generatedAt) {
+const genJwt = function (username) {
     return jwt.sign({
         username,
-        genAt: generatedAt.toString()
+        iat: new Date().getTime()
     }, process.env.JWT_TOKEN_SECRET);
-}
-/** @type {import('express').RequestHandler} */
-const authJwt = function (req, res, next) {
+};
+/**
+ * 
+ * @type {import('express').RequestHandler}
+ **/
+const authenticate = function (req, res, next) {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
 
     if (token == null) {
-        res.status(httpStatus.unautorized);
+        res.status(httpStatus.UNAUTHORIZED);
         res.send('Unauthorized.');
         return;
     }
 
     jwt.verify(token, process.env.JWT_TOKEN_SECRET, (err, user) => {
         if (err) {
-            res.status(httpStatus.unautorized);
-            res.send('Unauthorized');
+            res.status(httpStatus.UNAUTHORIZED);
+            res.send('Unauthorized.');
             return;
         }
 
         req.user = user;
         next(); // pass the execution off to whatever request the client intended
     });
+};
+/**
+ * 
+ * @type {import('express').RequestHandler}
+ **/
+const decodedJwt = function (req) {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+
+    return jwt.verify(token, process.env.JWT_TOKEN_SECRET);
+}
+const method = {
+    GET: {
+        /** @type {import('express').RequestHandler} */
+        user(req, res) {
+            connect(async client => await viewUser(
+                client,
+                decodedJwt(req).username)
+            ).then(result => {
+                if(result === null){
+                    throw result;
+                }
+
+                res.status(httpStatus.OK);
+                res.send(result);
+                
+            }).catch(error => {
+                res.status(httpStatus.NOT_FOUND);
+                res.send('Not found.')
+            });
+        }
+    },
+    POST: {
+
+    }
 }
 
-// Configure passport.js to use the local strategy
-// passport.use(new LocalStrategy(
-//     {
-//         usernameField: 'username',
-//         passwordField: 'password'
-//     },
-//     function (username, password, done) {
-//         connect(async client => await doLogIn(client, username, password))
-//             .then(queryResult => {
-//                 if (queryResult instanceof LoginError) {
-//                     throw queryResult;
-//                 }
-//                 done(null, queryResult);
-//             }).catch(err => {
-//                 console.log(err);
-//                 done(err);
-//             });
-//     }
-// ));
-// Telling passport how to serialize the user
-// passport.serializeUser((user, done) => {
-//     done(null, user.username);
-// });
-// app.use(session({
-//     genid() {
-//         return uuid();
-//     },
-//     secret: Math.random().toString().replace(/^0\./g, ''),
-//     resave: false,
-//     saveUninitialized: true,
-//     store: new FileStore()
-// }));
-
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cookieParser());
-// app.use(passport.initialize());
-// app.use(passport.session());
+app.use(expressSession());
 
 // Setting routing for accesing the app
 app.get('/', function (req, res) {
-    res.send('Welcome to the peaceful place!!');
+    res.send('Welcome to the peaceful place');
 });
-/** @namespace login */
 app.post('/login',
-    function (req, res, next) {
-        // Response as JSON file
+    function (req, res) {
         res.set({
             'Content-Type': 'application/json'
         });
-
-        if (req.user) {
-            res.send(String(true));
-            return;
-        }
 
         const username = req.body.username;
         const password = req.body.password;
@@ -155,49 +151,13 @@ app.post('/login',
                 throw queryResult;
             }
 
-            res.send(genJwt(username, new Date()));
+            let jwt = genJwt(username, new Date());
+            res.send(jwt);
         }).catch(() => {
+            res.status(httpStatus.NOT_FOUND);
             res.send(String(null));
         });
-
-
-        // Using passport.js for login authentication
-        // passport.authenticate('local', function (err, allowed) {
-        //     if (err) {
-        //         res.status(httpStatus.unautorized);
-        //         res.send(String(false));
-        //         return;
-        //     }
-
-        //     let savedUser = {
-        //         username: allowed.userAccount.username,
-        //         id: Number(allowed.userAccount.id)
-        //     };
-
-        //     let sessionSaved = {
-        //         personID: Number(allowed.person.id),
-        //         vaccinePatientID: Number(allowed.person.vaccine_patient_id)
-        //     };
-
-        //     req.session.userInfo = sessionSaved;
-
-        //     req.login(savedUser, function done() {
-        //         res.send(String(true));
-        //     });
-        // })(req, res, next);
     });
-app.post('/logout', function (req, res) {
-    // Response as JSON file
-    res.set({
-        'Content-Type': 'application/json'
-    });
-    if (!req.user) {
-        res.send("false");
-        return;
-    }
-    req.logout();
-    res.send("true");
-});
 app.post('/signup', function (req, res) {
     // Response as JSON file
     res.set({
@@ -210,18 +170,20 @@ app.post('/signup', function (req, res) {
                 throw queryResult;
             }
 
+            res.status(httpStatus.CREATED);
             res.send(JSON.parse({
                 success: true,
             }));
         }).catch(err => {
-            res.status(400);
+            res.status(httpStatus.UNAUTHORIZED);
             res.send(JSON.parse({
                 error: true,
                 cause: err
             }));
         });
 });
-app.post('/certificate', function (req, res) {
+app.get('/user', authenticate, method.GET.user);
+app.post('/certificate', authenticate, function (req, res) {
     res.set({
         'Content-Type': 'application/json'
     });
@@ -288,7 +250,7 @@ app.post('/certificate', function (req, res) {
         }
     }
 });
-app.post('/patient', function (req, res) {
+app.post('/patient', authenticate, function (req, res) {
     res.set({
         'Content-Type': 'application/json'
     });
@@ -353,7 +315,7 @@ app.post('/patient', function (req, res) {
         }
     }
 });
-app.post('/records', function (req, res) {
+app.post('/records', authenticate, function (req, res) {
     res.set({
         'Content-Type': 'application/json'
     });
@@ -419,7 +381,7 @@ app.post('/records', function (req, res) {
         }
     }
 });
-app.post('/parenting', function (req, res) {
+app.post('/parenting', authenticate, function (req, res) {
     res.set({
         'Content-Type': 'application/json'
     });
