@@ -100,7 +100,7 @@ const method = {
     GET: {
         /** @type {import('express').RequestHandler} */
         user(req, res) {
-            console.log(typeof decodedJwt(req));
+            // console.log(typeof decodedJwt(req));
             connect(async client => await viewUser(
                 client,
                 decodedJwt(req).username)
@@ -113,6 +113,7 @@ const method = {
                 res.send(result);
 
             }).catch(error => {
+                console.log(error);
                 res.status(httpStatus.NOT_FOUND);
                 res.send('Not found.')
             });
