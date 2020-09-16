@@ -100,7 +100,7 @@ const method = {
     GET: {
         /** @type {import('express').RequestHandler} */
         user(req, res) {
-            console.log(decodedJwt(req));
+            console.log(typeof decodedJwt(req));
             connect(async client => await viewUser(
                 client,
                 decodedJwt(req).username)
