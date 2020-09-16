@@ -1,8 +1,6 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-// const cookieParser = require('cookie-parser');
-// const expressSession = require('express-session');
 const jwt = require('jsonwebtoken');
 const {
     LoginError,
