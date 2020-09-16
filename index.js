@@ -70,8 +70,6 @@ const authenticate = function (req, res, next) {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
 
-    console.log(authHeader, token);
-
     if (token == null) {
         res.status(httpStatus.UNAUTHORIZED);
         res.send('Unauthorized.');
@@ -96,14 +94,13 @@ const authenticate = function (req, res, next) {
 const decodedJwt = function (req) {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
-
-    // console.log(authHeader, jwt.verify(token, process.env.JWT_TOKEN_SECRET));
     return jwt.verify(token, process.env.JWT_TOKEN_SECRET);
 }
 const method = {
     GET: {
         /** @type {import('express').RequestHandler} */
         user(req, res) {
+            console.log(decodedJwt(req));
             connect(async client => await viewUser(
                 client,
                 decodedJwt(req).username)
