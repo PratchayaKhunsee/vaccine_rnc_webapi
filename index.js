@@ -1,8 +1,8 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const expressSession = require('express-session');
+// const cookieParser = require('cookie-parser');
+// const expressSession = require('express-session');
 const jwt = require('jsonwebtoken');
 const {
     LoginError,
@@ -113,7 +113,7 @@ const method = {
 
                 res.status(httpStatus.OK);
                 res.send(result);
-                
+
             }).catch(error => {
                 res.status(httpStatus.NOT_FOUND);
                 res.send('Not found.')
@@ -127,7 +127,7 @@ const method = {
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(expressSession());
+// app.use(expressSession());
 
 // Setting routing for accesing the app
 app.get('/', function (req, res) {
