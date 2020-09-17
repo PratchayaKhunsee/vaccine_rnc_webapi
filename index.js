@@ -1,3 +1,7 @@
+/**
+ * @typedef {import('express').RequestHandler} RequestHandler
+ */
+
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -51,6 +55,16 @@ const httpStatus = {
     OK: 200,
     CREATED: 201
 };
+const handlers = {
+    /** @type {RequestHandler} */
+    unauthorized(req, res, next) {
+        res.set({
+            'Content-Type': 'text/plain'
+        });
+        res.status(httpStatus.UNAUTHORIZED);
+        res.send('UNAUTHORIZED');
+    },
+}
 /**
  * 
  * @param {String} username 
@@ -63,49 +77,51 @@ const genJwt = function (username) {
     }, process.env.JWT_TOKEN_SECRET);
 };
 /**
- * 
  * @type {import('express').RequestHandler}
- **/
-const authenticate = function (req, res, next) {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (token == null) {
-        res.status(httpStatus.UNAUTHORIZED);
-        res.send('Unauthorized.');
-        return;
-    }
-
-    jwt.verify(token, process.env.JWT_TOKEN_SECRET, (err, user) => {
-        if (err) {
-            res.status(httpStatus.UNAUTHORIZED);
-            res.send('Unauthorized.');
-            return;
-        }
-
-        req.user = user;
-        next(); // pass the execution off to whatever request the client intended
-    });
-};
-/**
- * 
- * @type {import('express').RequestHandler}
+ * @returns {Boolean}
  **/
 const decodedJwt = function (req) {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
     return jwt.verify(token, process.env.JWT_TOKEN_SECRET);
-}
+};
+/** 
+ * @type {import('express').RequestHandler}
+ * @returns {Boolean}
+ */
+const verifyJwt = function (req) {
+    return !!decodedJwt(req);
+};
+/**
+ * 
+ * @param {import('express').RequestHandler} [errorHandler] 
+ */
+const auth = function (errorHandler) {
+    /**
+     * @type {import('express').RequestHandler}
+     **/
+    function authenticate(req, res, next) {
+        const verified = verifyJwt(req, res, next);
+
+        if (verified) {
+            next();
+        } else {
+            if (typeof errorHandler == 'function') errorHandler();
+        }
+    }
+
+    return authenticate;
+};
+
 const method = {
     GET: {
         /** @type {import('express').RequestHandler} */
         user(req, res) {
-            // console.log(typeof decodedJwt(req));
             connect(async client => await viewUser(
                 client,
                 decodedJwt(req).username)
             ).then(result => {
-                if(result === null){
+                if (result === null) {
                     throw result;
                 }
 
@@ -120,69 +136,79 @@ const method = {
         }
     },
     POST: {
+        /** @type {import('express').RequestHandler} */
+        login(req, res, next) {
+            res.set({
+                'Content-Type': 'application/json'
+            });
+            let verified = verifyJwt(req, res, next);
 
+            if (verified) {
+                res.send({
+                    verified: true
+                });
+            }
+
+            const username = req.body.username;
+            const password = req.body.password;
+
+            connect(async client => await doLogIn(
+                client,
+                username,
+                password
+            )).then(queryResult => {
+                if (queryResult instanceof LoginError) {
+                    throw queryResult;
+                }
+
+                let jwt = genJwt(username, new Date());
+                res.send({
+                    jwt
+                });
+            }).catch(() => {
+                res.status(httpStatus.NOT_FOUND);
+                res.send(String(null));
+            });
+        },
+        /** @type {import('express').RequestHandler} */
+        signup(req, res, next) {
+            // Response as JSON file
+            res.set({
+                'Content-Type': 'application/json'
+            });
+
+            connect(async client => await doSignUp(client, req.body))
+                .then((queryResult) => {
+                    if (queryResult instanceof SigninError) {
+                        throw queryResult;
+                    }
+
+                    res.status(httpStatus.CREATED);
+                    res.send(JSON.parse({
+                        success: true,
+                    }));
+                }).catch(err => {
+                    res.status(httpStatus.UNAUTHORIZED);
+                    res.send(JSON.parse({
+                        error: true,
+                        cause: err
+                    }));
+                });
+        },
     }
 }
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-// app.use(expressSession());
 
 // Setting routing for accesing the app
 app.get('/', function (req, res) {
     res.send('Welcome to the peaceful place');
 });
-app.post('/login',
-    function (req, res) {
-        res.set({
-            'Content-Type': 'application/json'
-        });
-
-        const username = req.body.username;
-        const password = req.body.password;
-
-        connect(async client => await doLogIn(
-            client,
-            username,
-            password
-        )).then(queryResult => {
-            if (queryResult instanceof LoginError) {
-                throw queryResult;
-            }
-
-            let jwt = genJwt(username, new Date());
-            res.send(jwt);
-        }).catch(() => {
-            res.status(httpStatus.NOT_FOUND);
-            res.send(String(null));
-        });
-    });
-app.post('/signup', function (req, res) {
-    // Response as JSON file
-    res.set({
-        'Content-Type': 'application/json'
-    });
-
-    connect(async client => await doSignUp(client, req.body))
-        .then((queryResult) => {
-            if (queryResult instanceof SigninError) {
-                throw queryResult;
-            }
-
-            res.status(httpStatus.CREATED);
-            res.send(JSON.parse({
-                success: true,
-            }));
-        }).catch(err => {
-            res.status(httpStatus.UNAUTHORIZED);
-            res.send(JSON.parse({
-                error: true,
-                cause: err
-            }));
-        });
-});
-app.get('/user', authenticate, method.GET.user);
-app.post('/certificate', authenticate, function (req, res) {
+app.post('/login', method.POST.login);
+app.post('/signup', method.POST.signup);
+app.get('/user', auth(handlers.unauthorized), method.GET.user);
+app.post('/certificate', auth(handlers.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'
     });
@@ -249,7 +275,7 @@ app.post('/certificate', authenticate, function (req, res) {
         }
     }
 });
-app.post('/patient', authenticate, function (req, res) {
+app.post('/patient', auth(handlers.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'
     });
@@ -314,7 +340,7 @@ app.post('/patient', authenticate, function (req, res) {
         }
     }
 });
-app.post('/records', authenticate, function (req, res) {
+app.post('/records', auth(handlers.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'
     });
@@ -380,7 +406,7 @@ app.post('/records', authenticate, function (req, res) {
         }
     }
 });
-app.post('/parenting', authenticate, function (req, res) {
+app.post('/parenting', auth(handlers.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'
     });
