@@ -64,7 +64,7 @@ const handlers = {
         res.status(httpStatus.UNAUTHORIZED);
         res.send('UNAUTHORIZED');
     },
-}
+};
 /**
  * 
  * @param {String} username 
@@ -85,17 +85,10 @@ const decodedJwt = function (req) {
     const token = authHeader && authHeader.split(' ')[1];
     
     if(token == null){
-        return false;
+        return null;
     }
 
     return jwt.verify(token, process.env.JWT_TOKEN_SECRET);
-};
-/** 
- * @type {import('express').RequestHandler}
- * @returns {Boolean}
- */
-const verifyJwt = function (req) {
-    return !!decodedJwt(req);
 };
 /**
  * 
@@ -106,7 +99,7 @@ const auth = function (errorHandler) {
      * @type {import('express').RequestHandler}
      **/
     function authenticate(req, res, next) {
-        const verified = verifyJwt(req, res, next);
+        const verified = !!decodedJwt(req, res, next);
 
         if (verified) {
             next();
@@ -146,12 +139,15 @@ const method = {
             res.set({
                 'Content-Type': 'application/json'
             });
-            let verified = verifyJwt(req, res, next);
 
-            if (verified) {
+            let decoded = decodedJwt(req, res, next);
+
+            if (decoded !== null) {
+                res.status(httpStatus.OK);
                 res.send({
-                    verified: true
+                    verified: !!decoded
                 });
+                return;
             }
 
             const username = req.body.username;
