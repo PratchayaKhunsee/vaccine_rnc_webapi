@@ -83,6 +83,11 @@ const genJwt = function (username) {
 const decodedJwt = function (req) {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
+    
+    if(token == null){
+        return false;
+    }
+
     return jwt.verify(token, process.env.JWT_TOKEN_SECRET);
 };
 /** 
