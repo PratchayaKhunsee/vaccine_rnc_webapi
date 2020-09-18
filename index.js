@@ -1,7 +1,9 @@
 /**
  * @typedef {import('express').RequestHandler} RequestHandler
  */
+/** @namespace */
 
+// ============ Imported modules =============== //
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -45,16 +47,21 @@ const {
 } = require('./query/parenting');
 const {
     viewUser,
+    editUser
 } = require('./query/user');
 
+// ============ Constants Vars ================= //
 const port = process.env.PORT || 8080;
 const httpStatus = {
+    BAD_REQUEST: 400,
     UNAUTHORIZED: 401,
     FORBIDDEN: 403,
     NOT_FOUND: 404,
     OK: 200,
     CREATED: 201
 };
+
+// =========== Callback Handlers ============= //
 const handlers = {
     /** @type {RequestHandler} */
     unauthorized(req, res, next) {
@@ -65,22 +72,28 @@ const handlers = {
         res.send('UNAUTHORIZED');
     },
 };
+
+// ============= Useful Functions ============= //
+
 /**
- * 
+ * Generates authorization token
  * @param {String} username 
  * @param {Date} generatedAt 
  */
-const genJwt = function (username) {
+const generate_auth_token = function (username) {
     return jwt.sign({
         username,
         iat: new Date().getTime()
     }, process.env.JWT_TOKEN_SECRET);
 };
+
 /**
+ * Decode the request authorization token
+ * 
  * @type {import('express').RequestHandler}
  * @returns {Boolean}
  **/
-const decodedJwt = function (req) {
+const decode_auth_token = function (req) {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
     
@@ -90,7 +103,11 @@ const decodedJwt = function (req) {
 
     return jwt.verify(token, process.env.JWT_TOKEN_SECRET);
 };
+
+// =========== Custom Middleware ============= //
+
 /**
+ * Authentiaction handler
  * 
  * @param {import('express').RequestHandler} [errorHandler] 
  */
@@ -99,7 +116,7 @@ const auth = function (errorHandler) {
      * @type {import('express').RequestHandler}
      **/
     function authenticate(req, res, next) {
-        const verified = !!decodedJwt(req, res, next);
+        const verified = !!decode_auth_token(req, res, next);
 
         if (verified) {
             next();
@@ -111,13 +128,18 @@ const auth = function (errorHandler) {
     return authenticate;
 };
 
+// ====== Request/Response Callback Handler ====== //
+
+/**
+ * Callback handlers for responding the requests
+ */
 const method = {
     GET: {
         /** @type {import('express').RequestHandler} */
         user(req, res) {
             connect(async client => await viewUser(
                 client,
-                decodedJwt(req).username)
+                decode_auth_token(req).username)
             ).then(result => {
                 if (result === null) {
                     throw result;
@@ -140,7 +162,7 @@ const method = {
                 'Content-Type': 'application/json'
             });
 
-            let decoded = decodedJwt(req, res, next);
+            let decoded = decode_auth_token(req, res, next);
 
             if (decoded !== null) {
                 res.status(httpStatus.OK);
@@ -162,7 +184,7 @@ const method = {
                     throw queryResult;
                 }
 
-                let jwt = genJwt(username, new Date());
+                let jwt = generate_auth_token(username, new Date());
                 res.send({
                     jwt
                 });
@@ -196,19 +218,53 @@ const method = {
                     }));
                 });
         },
+    },
+    PATCH: {
+        /** @type {import('express').RequestHandler} */
+        user(req, res, next){
+            res.set({
+                'Content-Type': 'application/json'
+            });
+
+            const decoded = decode_auth_token(req, res, next);
+
+            connect(async client => await editUser(
+                client,
+                decoded.username,
+                req.body,
+                req.body.password || null
+            )).then(queryResult => {
+                if(queryResult == 0){
+                    throw queryResult;
+                }
+
+                res.status(httpStatus.OK);
+                res.send({
+                    updated: true
+                });
+
+            }).catch(error => {
+                res.status(httpStatus.BAD_REQUEST);
+                res.send({
+                    updated: false
+                });
+            });
+        }
     }
 }
 
+// ============= Middleware Usage ============== //
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Setting routing for accesing the app
+// ============= REST API Routing ============== //
 app.get('/', function (req, res) {
     res.send('Welcome to the peaceful place');
 });
 app.post('/login', method.POST.login);
 app.post('/signup', method.POST.signup);
 app.get('/user', auth(handlers.unauthorized), method.GET.user);
+app.patch('/user', auth(handlers.unauthorized), method.PATCH.user);
 app.post('/certificate', auth(handlers.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'
@@ -456,5 +512,6 @@ app.post('/parenting', auth(handlers.unauthorized), function (req, res) {
 app.post('/', function (req, res) {
     res.send('null');
 });
-// Start web server
+
+// ============= Initialization ============= //
 app.listen(port, function () { });

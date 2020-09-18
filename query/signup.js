@@ -53,11 +53,11 @@ async function doSignUp(conn, user) {
 
         let countPerson = await conn.query(
             queryString.check.userAccount,
-            [user.idCardNumber]
+            [user.idNumber]
         );
 
         if (countPerson.rows.length > 0) {
-            throw new IdentityExistError(user.idCardNumber);
+            throw new IdentityExistError(user.idNumber);
         }
 
         let personID = await (await conn.query(
