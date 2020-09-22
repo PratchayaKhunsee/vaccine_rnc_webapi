@@ -126,10 +126,10 @@ async function editUser(client, username, info, password) {
     ];
     Array.prototype.push.apply(values, Object.values(cloned));
     let i = 1;
-    console.log(`UPDATE person SET (${keys.map(x => `${x} = $${i++}`)}) WHERE id = $${i}`);
+    console.log(`UPDATE person SET ${keys.map(x => `${x} = $${i++}`)} WHERE id = $${i}`);
     i = 1;
     let result = await client.query(
-        `UPDATE person SET (${keys.map(x => `${x} = $${i++}`)}) WHERE id = $${i}`,
+        `UPDATE person SET ${keys.map(x => `${x} = $${i++}`)} WHERE id = $${i}`,
         values
     );
 
