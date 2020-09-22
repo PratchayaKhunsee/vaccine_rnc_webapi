@@ -244,6 +244,7 @@ const method = {
                 });
 
             }).catch(error => {
+                console.log(error);
                 res.status(httpStatus.BAD_REQUEST);
                 res.send({
                     updated: false
