@@ -124,7 +124,7 @@ async function editUser(client, username, info, password) {
     let values = [
         Number(user.rows[0].person_id)
     ];
-    Array.prototype.shift.apply(values, Object.values(cloned));
+    Array.prototype.unshift.apply(values, Object.values(cloned));
     let i = 1;
     console.log(`UPDATE person SET ${keys.map(x => `${x} = $${i++}`)} WHERE id = $${i}`);
     i = 1;
