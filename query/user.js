@@ -105,6 +105,10 @@ async function editUser(client, username, info, password) {
     // Password updating
     if(password){
         console.log(password.old, password.new, username);
+        console.log(await client.query(`SELECT * FROM user_account WHERE username $1 AND password = $2`,[
+            username,
+            password.old
+        ]))
         let modified = await client.query(
             `UPDATE user_account SET password = $1 WHERE username = $2 AND password = $3`,
             [
