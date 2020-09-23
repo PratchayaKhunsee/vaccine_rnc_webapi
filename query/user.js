@@ -83,7 +83,7 @@ async function viewUser(client, username) {
 async function editUser(client, username, info, password) {
     let cloned = { ...info };
     for (let attr in cloned) {
-        if (!editableAttr.find(_attr => _attr == attr)) delete info[_attr];
+        if (!editableAttr.find(_attr => _attr == attr)) delete info[attr];
     }
 
     await client.query('BEGIN');
