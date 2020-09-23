@@ -102,13 +102,8 @@ async function editUser(client, username, info, password) {
         return 0;
     }
 
-    // Password updating
-    if(password){
-        // console.log(password.old, password.new, username);
-        // console.log(await client.query(`SELECT * FROM user_account WHERE username = $1 AND password = $2`,[
-        //     username,
-        //     password.old
-        // ]))
+    // Updating..
+    if (password) {
         let modified = await client.query(
             `UPDATE user_account SET password = crypt($1, gen_salt('md5')) WHERE username = $2 AND password = crypt($3, password)`,
             [
@@ -118,28 +113,30 @@ async function editUser(client, username, info, password) {
             ]
         );
 
-        if(modified.rowCount != 1){
+        if (modified.rowCount != 1) {
             await client.query(`ROLLBACK`);
             return 0;
         }
     }
 
     // Updating...
-    let keys = Object.keys(cloned);
-    let values = [
-        Number(user.rows[0].person_id)
-    ];
-    Array.prototype.unshift.apply(values, Object.values(cloned));
-    let i = 1;
-    let result = await client.query(
-        `UPDATE person SET ${keys.map(x => `${x} = $${i++}`)} WHERE id = $${i}`,
-        values
-    );
+    if (info) {
+        let keys = Object.keys(cloned);
+        let values = [
+            Number(user.rows[0].person_id)
+        ];
+        Array.prototype.unshift.apply(values, Object.values(cloned));
+        let i = 1;
+        let result = await client.query(
+            `UPDATE person SET ${keys.map(x => `${x} = $${i++}`)} WHERE id = $${i}`,
+            values
+        );
 
-    // Cancel the user information updating if it has caught an error
-    if(result.rowCount != 1){
-        await client.query('ROLLBACK');
-        return 0;
+        // Cancel the user information updating if it has caught an error
+        if (result.rowCount != 1) {
+            await client.query('ROLLBACK');
+            return 0;
+        }
     }
 
     await client.query('COMMIT');

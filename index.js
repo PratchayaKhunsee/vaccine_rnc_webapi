@@ -231,7 +231,7 @@ const method = {
             connect(async client => await editUser(
                 client,
                 decoded.username,
-                req.body,
+                req.body.person || null,
                 req.body.password || null
             )).then(queryResult => {
                 if(queryResult == 0){
