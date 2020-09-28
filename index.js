@@ -197,21 +197,19 @@ const method = {
     GET: {
         /** @type {import('express').RequestHandler} */
         user(req, res, next) {
+            let decoded = decode_auth_token(req, res, next);
             connect(async client => await viewUser(
                 client,
-                decode_auth_token(req, res, next).username
+                decoded ? decoded.username : ''
             )).then(result => {
-
                 if (result instanceof ErrorWithCode) {
                     throw result;
                 }
 
-                console.log(result);
                 responseHandler.ok(req, res, next, result);
             }).catch(
                 /** @param {ErrorWithCode} error */
                 error => {
-                    console.log(error);
                     responseHandler.contentNotFound(req, res, next, error.toJSON());
                 }
             );
