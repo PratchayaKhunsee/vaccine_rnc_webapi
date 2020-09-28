@@ -219,7 +219,9 @@ const method = {
 
             // For validate token authentication.
             if (decoded !== null) {
-                responseHandler.ok(req, res, next, JSON.stringify(!!decoded));
+                responseHandler.ok(req, res, next, {
+                    verified: !!decoded,
+                });
                 return;
             }
 
