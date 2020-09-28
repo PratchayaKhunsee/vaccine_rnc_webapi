@@ -201,15 +201,20 @@ const method = {
                 client,
                 decode_auth_token(req, res, next).username
             )).then(result => {
-                console.log(result);
+
                 if (result instanceof ErrorWithCode) {
                     throw result;
                 }
 
-                responseHandler.ok(result);
-            }).catch(error => {
-                responseHandler.contentNotFound(req, res, next);
-            });
+                console.log(result);
+                responseHandler.ok(req, res, next, result);
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    console.log(error);
+                    responseHandler.contentNotFound(req, res, next, error.toJSON());
+                }
+            );
         }
     },
     POST: {
@@ -243,7 +248,7 @@ const method = {
                 }
 
                 let token = generate_auth_token(username, new Date());
-                responseHandler.ok(req, res, next, JSON.stringify({ token }));
+                responseHandler.ok(req, res, next, { token });
             }).catch(
                 /**
                  * @param {ErrorWithCode} error
