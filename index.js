@@ -199,8 +199,8 @@ const method = {
         user(req, res, next) {
             connect(async client => await viewUser(
                 client,
-                decode_auth_token(req).username)
-            ).then(result => {
+                decode_auth_token(req, res, next).username
+            )).then(result => {
                 if (result === null) {
                     throw result;
                 }

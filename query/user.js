@@ -50,6 +50,7 @@ const editableAttr = [
  * @param {String} username 
  */
 async function viewUser(client, username) {
+    console.log(username);
 
     // Check the user information by username
     let user = await client.query(
