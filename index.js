@@ -201,7 +201,8 @@ const method = {
                 client,
                 decode_auth_token(req, res, next).username
             )).then(result => {
-                if (result === null) {
+                console.log(result);
+                if (result instanceof ErrorWithCode) {
                     throw result;
                 }
 
