@@ -92,8 +92,63 @@ async function doRemoveParenting(q, parentingID) {
     }
 }
 
+/**
+ * Creeate a parenting ownership for a vaccination patient and a person.
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {Number} vaccine_patient_id 
+ */
+async function createParenting(client, username, vaccinePatientId){
+    try {
+        await client.query('BEGIN');
+        if(!username) throw null;
+
+        var user = await client.query(
+            'SELECT * FROM user_account WHERE username = $1:text',
+            [
+                username
+            ]
+        );
+        if (user.rows.length != 1) {
+            throw null;
+        }
+
+        var person = await client.query(
+            'SELECT * FROM person WHERE id = $1:bigint',
+            [
+                Number(user.rows[0].person_id)
+            ]
+        );
+
+        if (person.rows.length != 1) {
+            throw null;
+        }
+
+        var created = await client.query(
+            `INSERT INTO parenting (vaccine_patient_id,person_id) VALUES($1:bigint,$2:bigint)`,
+            [
+                Number(vaccinePatientId),
+                Number(person.rows[0].id),
+            ]
+        );
+
+        if(created.rowCount != 1){
+            throw null;
+        }
+
+        await client.query('COMMIT');
+
+        return 1;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        return new ParentingError(error);
+    }
+}
+
 module.exports = {
     doViewParenting,
     doCreateParenting,
-    doRemoveParenting
+    doRemoveParenting,
+    createParenting,
+
 };

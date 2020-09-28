@@ -9,6 +9,16 @@
  * @property {Number} [name_prefix]
  * @property {String} [id_number]
  * 
+ * @typedef {Object} UserInfo
+ * 
+ * A user information.
+ * 
+ * @property {String} firstname
+ * @property {String} lastname
+ * @property {Number} gender
+ * @property {Number} name_prefix
+ * @property {String} id_number
+ * 
  * @typedef {Object} PasswordModifier
  * 
  * Optional; Password modifier object
@@ -19,6 +29,7 @@
 
 /** @namespace */
 
+const { ERRORS, ErrorWithCode, } = require('../error');
 /**
  * List of editable user infomation attributes
  */
@@ -39,7 +50,6 @@ const editableAttr = [
  * @param {String} username 
  */
 async function viewUser(client, username) {
-    await client.query('BEGIN');
 
     // Check the user information by username
     let user = await client.query(
@@ -49,7 +59,7 @@ async function viewUser(client, username) {
         ]
     );
     if (user.rows.length != 1) {
-        return new Error;
+        return new ErrorWithCode(ERRORS.USER_NOT_FOUND);
     }
 
     // Get the personal information with person information
@@ -61,14 +71,13 @@ async function viewUser(client, username) {
     );
 
     if (person.rows.length != 1) {
-        await client.query('ROLLBACK');
-        return null;
+        return new ErrorWithCode(ERRORS.USER_NOT_FOUND);
     }
 
-    await client.query('COMMIT');
-    return {
-        ...person.rows[0]
-    };
+    /** @type {UserInfo} */
+    const result = { ... person.rows[0] };
+
+    return result;
 }
 
 // =====================================
@@ -81,66 +90,70 @@ async function viewUser(client, username) {
  * @param {PasswordModifier} [password]
  */
 async function editUser(client, username, info, password) {
-    let cloned = { ...info };
-    for (let attr in cloned) {
-        if (!editableAttr.find(_attr => _attr == attr)) delete info[attr];
-    }
 
-    await client.query('BEGIN');
+    try {
+        let cloned = { ...info };
+        for (let attr in cloned) {
+            if (!editableAttr.find(_attr => _attr == attr)) delete info[attr];
+        }
 
-    // Get the user information by username
-    let user = await client.query(
-        'SELECT person_id FROM user_account WHERE username = $1',
-        [
-            String(username)
-        ]
-    );
+        await client.query('BEGIN');
 
-    // No need to update if it has no found user
-    if (user.rows.length != 1) {
-        await client.query('ROLLBACK');
-        return 0;
-    }
-
-    // Updating..
-    if (password) {
-        let modified = await client.query(
-            `UPDATE user_account SET password = crypt($1, gen_salt('md5')) WHERE username = $2 AND password = crypt($3, password)`,
+        // Get the user information by username
+        let user = await client.query(
+            'SELECT person_id FROM user_account WHERE username = $1',
             [
-                password.new,
-                username,
-                password.old
+                String(username)
             ]
         );
 
-        if (modified.rowCount != 1) {
-            await client.query(`ROLLBACK`);
-            return 0;
+        // No need to update if it has no found user
+        if (user.rows.length != 1) {
+            throw ERRORS.USER_NOT_FOUND;
         }
+
+        // Updating..
+        if (password) {
+            let modified = await client.query(
+                `UPDATE user_account SET password = crypt($1, gen_salt('md5')) WHERE username = $2 AND password = crypt($3, password)`,
+                [
+                    password.new,
+                    username,
+                    password.old
+                ]
+            );
+
+            if (modified.rowCount != 1) {
+                throw ERRORS.MODIFYING_USER_ERROR;
+            }
+        }
+
+        // Updating...
+        if (info) {
+            let keys = Object.keys(cloned);
+            let values = [
+                Number(user.rows[0].person_id)
+            ];
+            Array.prototype.unshift.apply(values, Object.values(cloned));
+            let i = 1;
+            let result = await client.query(
+                `UPDATE person SET ${keys.map(x => `${x} = $${i++}`)} WHERE id = $${i}`,
+                values
+            );
+
+            // Cancel the user information updating if it has caught an error
+            if (result.rowCount != 1) {
+                throw ERRORS.MODIFYING_USER_ERROR;
+            }
+        }
+
+        await client.query('COMMIT');
+        return 1;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        return new ErrorWithCode(error);
     }
 
-    // Updating...
-    if (info) {
-        let keys = Object.keys(cloned);
-        let values = [
-            Number(user.rows[0].person_id)
-        ];
-        Array.prototype.unshift.apply(values, Object.values(cloned));
-        let i = 1;
-        let result = await client.query(
-            `UPDATE person SET ${keys.map(x => `${x} = $${i++}`)} WHERE id = $${i}`,
-            values
-        );
-
-        // Cancel the user information updating if it has caught an error
-        if (result.rowCount != 1) {
-            await client.query('ROLLBACK');
-            return 0;
-        }
-    }
-
-    await client.query('COMMIT');
-    return 1;
 }
 
 // =====================================

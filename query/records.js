@@ -21,9 +21,25 @@
  * @property {String} against 
  * @property {1|2|3} period
  * @property {DateString} date
+ * 
+ * @typedef {'bcg'|'hb'|'opv_early'|'dtp_hb'|'ipv'|'mmr'|'je'|'opv_later'|'dtp'|'hpv'|'dt'} VaccinationProgramName
+ * 
+ * @typedef {Object} VaccinationRecordIdentifer
+ * @property {Number} id
+ * @property {VaccinationProgramName} program
+ * @property {1|2|3} phase
  */
 
-const { PatientNotFoundError, VaccineRecordNotFoundError, RecordError, CreateEmptyRecordError, UpdateRecordIDForPatientError, UpdateVaccinationError, CreateVaccineError, CreateVaccinationProgramError } = require("../error");
+const {
+    PatientNotFoundError,
+    VaccineRecordNotFoundError,
+    RecordError,
+    CreateEmptyRecordError,
+    UpdateRecordIDForPatientError,
+    UpdateVaccinationError,
+    CreateVaccineError,
+    CreateVaccinationProgramError
+} = require("../error");
 
 /**
  * @param {import("../database").PgQueryMethod} q
@@ -46,7 +62,7 @@ async function doViewRecords(q, vaccinePatientID) {
             [Number(patient.rows[0].vaccine_record_id)]
         );
 
-        if(records.rows.length == 0){
+        if (records.rows.length == 0) {
             throw VaccineRecordNotFoundError(Number(vaccinePatientID));
         }
 
@@ -149,10 +165,8 @@ async function doVaccination(q, vaccineData, vaccineRecordID, vaccineRecordData)
         let i = 1;
         Array.prototype.push.apply(vaccineValues, Object.values(vaccineData));
         let createdVaccine = await q(
-            `insert into vaccine ${
-                vaccineData ? `(${vaccineKeys.join(',')})` : ''
-            } ${
-                vaccineData ? `values(${vaccineKeys.map(() => '$' + i++).join(',')})` : ''
+            `insert into vaccine ${vaccineData ? `(${vaccineKeys.join(',')})` : ''
+            } ${vaccineData ? `values(${vaccineKeys.map(() => '$' + i++).join(',')})` : ''
             } returning id`,
             vaccineValues
         );
@@ -201,6 +215,24 @@ async function doVaccination(q, vaccineData, vaccineRecordID, vaccineRecordData)
     } catch (error) {
         await q('rollback');
         return new RecordError(error);
+    }
+}
+
+/**
+ * 
+ * @param {import('pg').Client} client 
+ * @param {String} username
+ * @param {VaccinatonRecordIdentifier} identifier
+ */
+async function getVaccination(client, username, identifier){
+    try {
+        await client.query('BEGIN');
+        
+        let vacDate = await client.query('');  
+        await client.query('COMMIT');
+    } catch (error) {
+        await client.query('ROLLBACK');
+        return error;   
     }
 }
 

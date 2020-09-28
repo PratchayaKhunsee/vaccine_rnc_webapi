@@ -1,94 +1,83 @@
 /**
  * @typedef {Object} UserData
- * @property {String} firstName
- * @property {String} lastName
+ * @property {String} firstname
+ * @property {String} lastname
  * @property {String} username
  * @property {String} password
- * @property {Number|BigInt} namePrefix
- * @property {String[13]} idNumber
+ * @property {Number|BigInt} name_prefix
+ * @property {String[13]} id_number
  * @property {Number|BigInt} gender 
  */
 
 const idValidator = require("thai-id-card");
 const {
-    UserNameExistError,
-    IdentityExistError,
-    InvalidIdNumberError,
-    EmptyInputError,
-    SigninError
+    ERRORS, ErrorWithCode
 } = require("../error");
 
 /**
+ * Create new user account.
+ * 
  * @param {import("pg").Client} conn
  * @param {UserData} user
  */
-async function doSignUp(conn, user) {
+async function signUp(conn, user) {
 
-    if (!idValidator.verify(user.idNumber)) {
-        return new SigninError(new InvalidIdNumberError(user.idNumber));
-    }
-
+    /** The query string set as an object. */
     let queryString = {
-        check: {
-            person: "select * from person where id_number = $1",
-            userAccount: "select * from user_account where username = $1"
-        },
         create: {
-            person: "insert into person (firstname,lastname,gender,name_prefix,id_number) values($1,$2,$3,$4,$5) returning id",
-            userAccount: "insert into user_account (username, password, person_id) values($1, crypt($2, gen_salt('md5')), $3) returning id",
+            person: "INSERT INTO person (firstname,lastname,gender,name_prefix,id_number) VALUES($1,$2,$3,$4,$5) RETURNING id",
+            userAccount: "INSERT INTO user_account (username, password, person_id) VALUES($1, crypt($2, gen_salt('md5')), $3) RETURNING id",
         }
     };
 
     try {
-        await conn.query('begin');
+        await conn.query('BEGIN');
 
-        let countUser = await conn.query(
-            queryString.check.userAccount,
-            [user.username]
-        );
-
-        if (countUser.rows.length > 0) {
-            throw new UserNameExistError(user.username);
+        // Verify id_number
+        if (!idValidator.verify(user.id_number)) {
+            throw ERRORS.INVALID_ID_NUMBER;
         }
 
-        let countPerson = await conn.query(
-            queryString.check.userAccount,
-            [user.idNumber]
-        );
-
-        if (countPerson.rows.length > 0) {
-            throw new IdentityExistError(user.idNumber);
-        }
-
-        let personID = await (await conn.query(
-            queryString.create.person,
+        /**
+         * Result of creating a user account.
+         */
+        let person = await conn.query(
+            queryString.create.userAccount,
             [
-                user.firstName,
-                user.lastName,
+                user.firstname,
+                user.lastname,
                 Number(user.gender),
-                Number(user.namePrefix),
-                user.idNumber
+                Number(user.name_prefix),
+                user.id_number
             ]
-        )).rows[0].id;
+        );
 
-        await conn.query(
+        /**
+         * Result of creating a person information field.
+         */
+        let account = await conn.query(
             queryString.create.userAccount,
             [
                 user.username,
                 user.password,
-                Number(personID)
+                Number(person.rows[0].id)
             ]
         );
 
-        await conn.query('commit');
+        // Cannot created a user account if username is redundant.
+        if (account.rowCount != 1) {
+            throw ERRORS.USERNAME_ALREADY_USED;
+        }
+
+        await conn.query('COMMIT');
 
         return 1;
-    } catch (err) {
-        await conn.query('rollback');
-        return new SigninError(err);
+    } catch (error) {
+        await conn.query('ROLLBACK');
+        return new ErrorWithCode(error);
     }
 }
 
 module.exports = {
-    doSignUp
+    signUp
 };

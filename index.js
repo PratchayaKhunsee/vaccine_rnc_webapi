@@ -14,23 +14,25 @@ const {
     CertificateError,
     PatientError,
     RecordError,
-    ParentingError
+    ParentingError,
+    ERRORS,
+    ErrorWithCode
 } = require('./error');
 const {
     doQuery,
     connect
 } = require('./database');
 const {
-    doSignUp
+    signUp
 } = require('./query/signup');
 const {
-    doLogIn
+    logIn
 } = require('./query/login');
 const {
     doViewRecords,
     doCreateRecord,
     doVaccination
-} = require('./query/record');
+} = require('./query/records');
 const {
     doCreatePatient,
     doViewPatient,
@@ -62,21 +64,79 @@ const httpStatus = {
 };
 
 // =========== Callback Handlers ============= //
-const handlers = {
-    /** @type {RequestHandler} */
-    unauthorized(req, res, next) {
+const responseHandler = {
+    /**
+     * Response to the request with [UNAUTHORIZED] HTTP status code.
+     * @type {RequestHandler}
+     * @param {String} [content]
+     * @returns {void}
+     **/
+    unauthorized(req, res, next, content) {
         res.set({
-            'Content-Type': 'text/plain'
+            'Content-Type': 'application/json'
         });
         res.status(httpStatus.UNAUTHORIZED);
-        res.send('UNAUTHORIZED');
+        res.send(content || '{}');
     },
+    /**
+     * Response to the request with [NOT_FOUND] HTTP status code.
+     * @type {RequestHandler}
+     * @param {String} [content]
+     * @returns {void}
+     **/
+    contentNotFound(req, res, next, content) {
+        res.set({
+            'Content-Type': 'application/json'
+        });
+        res.status(httpStatus.NOT_FOUND);
+        res.send(JSON.stringify(content) || '{}');
+    },
+    /**
+     * Response to the request with [OK] HTTP status code.
+     * @type {RequestHandler}
+     * @param {String} [content]
+     * @returns {void}
+     **/
+    ok(req, res, next, content) {
+        res.set({
+            'Content-Type': 'application/json'
+        });
+        res.status(httpStatus.OK);
+        res.send(JSON.stringify(content) || '{}');
+    },
+    /**
+     * Response to the request with [CREATED] HTTP status code.
+     * @type {RequestHandler}
+     * @param {String} [content]
+     * @returns {void}
+     **/
+    created(req, res, next, content) {
+        res.set({
+            'Content-Type': 'application/json'
+        });
+        res.status(httpStatus.OK);
+        res.send(JSON.stringify(content) || '{}');
+    },
+    /**
+     * Response to the request with [BAD_REQUEST] HTTP status code.
+     * @type {RequestHandler}
+     * @param {String} [content]
+     * @returns {void}
+     **/
+    badRequest(req, res, next, content) {
+        res.set({
+            'Content-Type': 'application/json'
+        });
+        res.status(httpStatus.BAD_REQUEST);
+        res.send(JSON.stringify(content) || '{}');
+    }
 };
 
 // ============= Useful Functions ============= //
 
 /**
- * Generates authorization token
+ * Generates authorization token.
+ * 
  * @param {String} username 
  * @param {Date} generatedAt 
  */
@@ -88,7 +148,7 @@ const generate_auth_token = function (username) {
 };
 
 /**
- * Decode the request authorization token
+ * Decode the request's authorization token.
  * 
  * @type {import('express').RequestHandler}
  * @returns {Boolean}
@@ -96,8 +156,8 @@ const generate_auth_token = function (username) {
 const decode_auth_token = function (req) {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
-    
-    if(token == null){
+
+    if (token == null) {
         return null;
     }
 
@@ -107,7 +167,7 @@ const decode_auth_token = function (req) {
 // =========== Custom Middleware ============= //
 
 /**
- * Authentiaction handler
+ * Authentiaction handler.
  * 
  * @param {import('express').RequestHandler} [errorHandler] 
  */
@@ -131,12 +191,12 @@ const auth = function (errorHandler) {
 // ====== Request/Response Callback Handler ====== //
 
 /**
- * Callback handlers for responding the requests
+ * Callback responseHandler for responding the requests.
  */
 const method = {
     GET: {
         /** @type {import('express').RequestHandler} */
-        user(req, res) {
+        user(req, res, next) {
             connect(async client => await viewUser(
                 client,
                 decode_auth_token(req).username)
@@ -145,111 +205,89 @@ const method = {
                     throw result;
                 }
 
-                res.status(httpStatus.OK);
-                res.send(result);
-
+                responseHandler.ok(result);
             }).catch(error => {
-                console.log(error);
-                res.status(httpStatus.NOT_FOUND);
-                res.send('Not found.')
+                responseHandler.contentNotFound(req, res, next);
             });
         }
     },
     POST: {
         /** @type {import('express').RequestHandler} */
         login(req, res, next) {
-            res.set({
-                'Content-Type': 'application/json'
-            });
-
+            /** Login authentication token.  */
             let decoded = decode_auth_token(req, res, next);
 
+            // For validate token authentication.
             if (decoded !== null) {
-                res.status(httpStatus.OK);
-                res.send({
-                    verified: !!decoded
-                });
+                responseHandler.ok(req, res, next, JSON.stringify(!!decoded));
                 return;
             }
 
             const username = req.body.username;
             const password = req.body.password;
 
-            connect(async client => await doLogIn(
+            if (!(username && password)) {
+                responseHandler.badRequest(req, res, next);
+            }
+
+            connect(async client => await logIn(
                 client,
                 username,
                 password
-            )).then(queryResult => {
-                if (queryResult instanceof LoginError) {
-                    throw queryResult;
+            )).then(result => {
+                if (result instanceof ErrorWithCode) {
+                    throw result;
                 }
 
-                let jwt = generate_auth_token(username, new Date());
-                res.send({
-                    jwt
-                });
-            }).catch(() => {
-                res.status(httpStatus.NOT_FOUND);
-                res.send(String(null));
-            });
+                let token = generate_auth_token(username, new Date());
+                responseHandler.ok(req, res, next, JSON.stringify({ token }));
+            }).catch(
+                /**
+                 * @param {ErrorWithCode} error
+                 */
+                error => {
+                    responseHandler.badRequest(req, res, next, error.toJSON());
+                }
+            );
         },
         /** @type {import('express').RequestHandler} */
         signup(req, res, next) {
-            // Response as JSON file
-            res.set({
-                'Content-Type': 'application/json'
-            });
-
-            connect(async client => await doSignUp(client, req.body))
-                .then((queryResult) => {
-                    if (queryResult instanceof SigninError) {
-                        throw queryResult;
+            connect(async client => await signUp(client, req.body))
+                .then((result) => {
+                    if (result instanceof ErrorWithCode) {
+                        throw result;
                     }
 
-                    res.status(httpStatus.CREATED);
-                    res.send(JSON.parse({
-                        success: true,
-                    }));
-                }).catch(err => {
-                    res.status(httpStatus.UNAUTHORIZED);
-                    res.send(JSON.parse({
-                        error: true,
-                        cause: err
-                    }));
-                });
+                    responseHandler.created(req, res, next);
+                }).catch(
+                    /** @param {ErrorWithCode} err */
+                    err => {
+                        responseHandler.badRequest(req, res, next, err.toJSON());
+                    }
+                );
         },
     },
     PATCH: {
         /** @type {import('express').RequestHandler} */
-        user(req, res, next){
-            res.set({
-                'Content-Type': 'application/json'
-            });
-
+        user(req, res, next) {
             const decoded = decode_auth_token(req, res, next);
-
             connect(async client => await editUser(
                 client,
                 decoded.username,
                 req.body.person || null,
                 req.body.password || null
-            )).then(queryResult => {
-                if(queryResult == 0){
-                    throw queryResult;
+            )).then(result => {
+                if (result instanceof ErrorWithCode) {
+                    throw result;
                 }
 
-                res.status(httpStatus.OK);
-                res.send({
-                    updated: true
-                });
-
-            }).catch(error => {
-                console.log(error);
-                res.status(httpStatus.BAD_REQUEST);
-                res.send({
-                    updated: false
-                });
-            });
+                responseHandler.ok(req, res, next, JSON.stringify(true));
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    responseHandler.badRequest(req, res, next, error.toJSON());
+                }
+            );
 
 
         }
@@ -266,9 +304,9 @@ app.get('/', function (req, res) {
 });
 app.post('/login', method.POST.login);
 app.post('/signup', method.POST.signup);
-app.get('/user', auth(handlers.unauthorized), method.GET.user);
-app.patch('/user', auth(handlers.unauthorized), method.PATCH.user);
-app.post('/certificate', auth(handlers.unauthorized), function (req, res) {
+app.get('/user', auth(responseHandler.unauthorized), method.GET.user);
+app.patch('/user', auth(responseHandler.unauthorized), method.PATCH.user);
+app.post('/certificate', auth(responseHandler.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'
     });
@@ -335,7 +373,7 @@ app.post('/certificate', auth(handlers.unauthorized), function (req, res) {
         }
     }
 });
-app.post('/patient', auth(handlers.unauthorized), function (req, res) {
+app.post('/patient', auth(responseHandler.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'
     });
@@ -400,7 +438,7 @@ app.post('/patient', auth(handlers.unauthorized), function (req, res) {
         }
     }
 });
-app.post('/records', auth(handlers.unauthorized), function (req, res) {
+app.post('/records', auth(responseHandler.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'
     });
@@ -466,7 +504,7 @@ app.post('/records', auth(handlers.unauthorized), function (req, res) {
         }
     }
 });
-app.post('/parenting', auth(handlers.unauthorized), function (req, res) {
+app.post('/parenting', auth(responseHandler.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'
     });
