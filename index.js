@@ -218,7 +218,8 @@ const method = {
         /** @type {import('express').RequestHandler} */
         'records/available/patient': function (req, res, next) {
             let decoded = decode_auth_token(req, res, next);
-            connect((client) => await getAvailablePatients(
+
+            connect(async client => await getAvailablePatients(
                 client, decoded ? decoded.username : ''
             )).then(result => {
                 if (result instanceof ErrorWithCode) throw result;
