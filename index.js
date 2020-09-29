@@ -36,7 +36,8 @@ const {
 const {
     doCreatePatient,
     doViewPatient,
-    doEditPatient
+    doEditPatient,
+    getAvailablePatients
 } = require('./query/patient');
 const {
     doViewCertifications,
@@ -213,6 +214,22 @@ const method = {
                     responseHandler.contentNotFound(req, res, next, error.toJSON());
                 }
             );
+        },
+        /** @type {import('express').RequestHandler} */
+        'records/available/patient': function (req, res, next) {
+            let decoded = decode_auth_token(req, res, next);
+            connect((client) => await getAvailablePatients(
+                client, decoded ? decoded.username : ''
+            )).then(result => {
+                if (result instanceof ErrorWithCode) throw result;
+
+                responseHandler.ok(req, res, next, result);
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    responseHandler.contentNotFound(req, res, next, error.toJSON());
+                }
+            );
         }
     },
     POST: {
@@ -312,6 +329,7 @@ app.post('/login', method.POST.login);
 app.post('/signup', method.POST.signup);
 app.get('/user', auth(responseHandler.unauthorized), method.GET.user);
 app.patch('/user', auth(responseHandler.unauthorized), method.PATCH.user);
+app.get('/records/available/patient', auth(responseHandler.unauthorized), method.GET['records/available/patient']);
 app.post('/certificate', auth(responseHandler.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'

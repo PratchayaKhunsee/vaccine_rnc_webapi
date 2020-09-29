@@ -12,7 +12,9 @@ const {
     PatientError,
     EditPatientProfileError,
     CreatePatientError,
-    UpdatePatientIDForPersonError
+    UpdatePatientIDForPersonError,
+    ERRORS,
+    ErrorWithCode
 } = require("../error");
 
 /**
@@ -131,7 +133,7 @@ async function getAvailablePatients(client, username) {
         );
 
         if (account.rows.length != 1) {
-            throw null;
+            throw ERRORS.USER_NOT_FOUND;
         }
 
         let person = await client.query(
@@ -142,7 +144,7 @@ async function getAvailablePatients(client, username) {
         );
 
         if (person.rows.length != 1) {
-            throw null;
+            throw ERRORS.USER_NOT_FOUND;
         }
 
         let available = await client.query(
@@ -161,14 +163,18 @@ async function getAvailablePatients(client, username) {
         );
 
         if (available.rows.length == 0) {
-            throw null;
+            throw ERRORS.PATIENT_NOT_FOUND;
         }
 
-        return available.rows;
+        /** @type {VaccinePatient[]} */
+        const result = [];
+        Array.prototype.push.apply(result, available.rows);
+
+        return result;
 
     } catch (error) {
         await client.query('ROLLBACK');
-        return new PatientError(error);
+        return new ErrorWithCode(error);
     }
 }
 
