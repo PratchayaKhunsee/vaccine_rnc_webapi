@@ -149,7 +149,7 @@ async function getAvailablePatients(client, username) {
 
         let available = await client.query(
             `SELECT firstname,lastname,id FROM vaccine_patient
-                WHERE id = $1:bigint
+                WHERE id = $1
                 UNION
              SELECT vaccine_patient.firstname,vaccine_patient.lastname,vaccine_patient.id FROM vaccine_patient
                 INNER JOIN parenting ON parenting.vaccine_patient_id = vaccine_patient.id
