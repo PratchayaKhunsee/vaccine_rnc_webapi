@@ -174,6 +174,7 @@ async function getAvailablePatients(client, username) {
 
     } catch (error) {
         await client.query('ROLLBACK');
+        console.log(error);
         return new ErrorWithCode(error);
     }
 }
