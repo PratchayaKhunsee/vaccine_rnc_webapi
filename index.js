@@ -292,7 +292,7 @@ const method = {
                 );
         },
         /** @type {import('express').RequestHandler} */
-        'patient/create'(req, res, next) {
+        'patient/create/self'(req, res, next) {
             let decoded = decode_auth_token(req, res, next);
 
             connect(async client => await createPatient(
@@ -352,7 +352,7 @@ app.post('/signup', method.POST.signup);
 app.get('/user', auth(responseHandler.unauthorized), method.GET.user);
 app.patch('/user', auth(responseHandler.unauthorized), method.PATCH.user);
 app.get('/records/available/patient', auth(responseHandler.unauthorized), method.GET['records/available/patient']);
-app.post('/patient/create', auth(responseHandler.unauthorized), method.POST['patient/create']);
+app.post('/patient/create/self', auth(responseHandler.unauthorized), method.POST['patient/create/self']);
 app.post('/certificate', auth(responseHandler.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'
