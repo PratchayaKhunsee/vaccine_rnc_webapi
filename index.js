@@ -37,7 +37,8 @@ const {
     doCreatePatient,
     doViewPatient,
     doEditPatient,
-    getAvailablePatients
+    getAvailablePatients,
+    createPatient
 } = require('./query/patient');
 const {
     doViewCertifications,
@@ -290,6 +291,26 @@ const method = {
                     }
                 );
         },
+        /** @type {import('express').RequestHandler} */
+        'patient/create'(req, res, next) {
+            let decoded = decode_auth_token(req, res, next);
+
+            connect(async client => await createPatient(
+                client,
+                decoded ? decoded.username : '',
+                req.body
+            )).then((result) => {
+                if (result instanceof ErrorWithCode) throw result;
+                responseHandler.ok(req, res, next, {
+                    created_id: result,
+                });
+            }).catch((error) => {
+                responseHandler.badRequest(
+                    req, res, next,
+                    error instanceof ErrorWithCode ? error.toJSON() : error
+                );
+            });
+        }
     },
     PATCH: {
         /** @type {import('express').RequestHandler} */
@@ -331,6 +352,7 @@ app.post('/signup', method.POST.signup);
 app.get('/user', auth(responseHandler.unauthorized), method.GET.user);
 app.patch('/user', auth(responseHandler.unauthorized), method.PATCH.user);
 app.get('/records/available/patient', auth(responseHandler.unauthorized), method.GET['records/available/patient']);
+app.post('/patient/create', auth(responseHandler.unauthorized), method.POST['patient/create']);
 app.post('/certificate', auth(responseHandler.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'

@@ -2,7 +2,6 @@
  * @typedef {Object} VaccinePatient
  * @property {String} [firstname]
  * @property {String} [lastname]
- * @property {Number} [name_prefix]
  */
 
 /** @namespace */
@@ -180,55 +179,71 @@ async function getAvailablePatients(client, username) {
 }
 
 /**
- * Create a patient.
+ * Create a patient who can hold vaccine records.
  * 
  * @param {import('pg').Client} client 
  * @param {String} username
- * @param {VaccinePatient} details 
+ * @param {VaccinePatient} details
  */
 async function createPatient(client, username, details) {
     try {
         await client.query('BEGIN');
         if (username) {
             let user = await client.query(
-                'SELECT * FROM user_account WHERE username = $1:text',
+                'SELECT * FROM user_account WHERE username = $1',
                 [
                     username
                 ]
             );
             if (user.rows.length != 1) {
-                throw null;
+                throw ERRORS.USER_NOT_FOUND;
             }
 
             var person = await client.query(
-                'SELECT * FROM person WHERE id = $1:bigint',
+                'SELECT * FROM person WHERE id = $1',
                 [
                     Number(user.rows[0].person_id)
                 ]
             );
 
             if (person.rows.length != 1) {
-                throw null;
+                throw ERRORS.USER_NOT_FOUND;
             }
         }
 
         let patient = await client.query(
-            `INSERT INTO vaccine_patient VALUES(firstname = $1:text,lastname = $2:text,text,name_prefix = $3:int)`,
+            `INSERT INTO vaccine_patient VALUES(firstname = $1,lastname = $2) RETURNING id`,
             [
-                person ? person.rows[0].firstname : details.firstname,
-                person ? person.rows[0].lastname : details.lastname,
-                person ? person.rows[0].name_prefix : details.name_prefix,
+                details.firstname,
+                details.lastname
             ]
         );
 
         if (patient.rowCount != 1) {
-            throw null;
+            throw ERRORS.CREATING_PATIENT_ERROR;
         }
 
+        let id = Number(patient.rows[0].id);
+
+        let updatedPerson = await client.query(
+            'UPDATE person SET vaccine_patient_id = $1 WHERE id = $2',
+            [
+                Number(id),
+                Number(person.rows[0].id)
+            ]
+        );
+
+        if(updatedPerson.rowCount != 1){
+            throw ERRORS.CREATING_PATIENT_ERROR;
+        }
+
+
         await client.query('COMMIT');
+
+        return id;
     } catch (error) {
         await client.query('ROLLBACK');
-        return new PatientError(error);
+        return new ErrorWithCode(error);
     }
 }
 
