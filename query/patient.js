@@ -212,7 +212,7 @@ async function createPatient(client, username, details) {
         }
 
         let patient = await client.query(
-            `INSERT INTO vaccine_patient VALUES(firstname = $1,lastname = $2) RETURNING id`,
+            `INSERT INTO vaccine_patient (firstname,lastname) VALUES($1,$2) RETURNING id`,
             [
                 details.firstname,
                 details.lastname
