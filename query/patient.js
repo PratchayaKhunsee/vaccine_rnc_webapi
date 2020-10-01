@@ -242,6 +242,7 @@ async function createPatient(client, username, details) {
 
         return id;
     } catch (error) {
+        console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
