@@ -305,7 +305,7 @@ async function viewRecord(client, username, patient_id) {
             ]
         );
 
-        if(patient.rows.length != 1) throw ERRORS.RECORDS_NOT_FOUND;
+        if (patient.rows.length != 1) throw ERRORS.RECORDS_NOT_FOUND;
 
         let record = await client.query(
             `SELECT * FROM vaccine_record WHERE id = $1`,
@@ -326,10 +326,57 @@ async function viewRecord(client, username, patient_id) {
     }
 }
 
+/**
+ * 
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {Number} patient_id 
+ */
+async function createRecord(client, username, patient_id) {
+    try {
+        await client.query('BEGIN');
+
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw ERRORS.USER_NOT_FOUND;
+
+        let patient = await client.query(
+            'SELECT * FROM vaccine_patient WHERE id = $1',
+            [
+                Number(patient_id)
+            ]
+        );
+
+        if (patient.rows.length != 1) throw ERRORS.CREATING_RECORDS_ERROR;
+
+        let record = await client.query(
+            `INSERT INTO vaccine_record RETURNING id`
+        );
+
+        if (record.rowCount != 1 || record.rows.length != 1) throw ERRORS.CREATING_RECORDS_ERROR;
+
+        let updatePatient = await client.query(
+            'UPDATE FROM vaccine_patient SET vaccine_record_id = $1 WHERE id = $2',
+            [
+                Number(record.rows[0].id),
+                Number(patient_id)
+            ]
+        );
+
+        if(updatePatient.rowCount != 1) throw ERRORS.CREATING_RECORDS_ERROR;
+        
+        await client.query('COMMIT');
+        return true;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        return new ErrorWithCode(error);
+    }
+}
+
 module.exports = {
     doViewRecords,
     doCreateRecord,
     doCreateVaccinationProgram,
     doVaccination,
-    viewRecord
+    viewRecord,
+    createRecord,
 };
