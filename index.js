@@ -370,6 +370,7 @@ app.get('/user', auth(responseHandler.unauthorized), method.GET.user);
 app.patch('/user', auth(responseHandler.unauthorized), method.PATCH.user);
 app.get('/records/available/patient', auth(responseHandler.unauthorized), method.GET['records/available/patient']);
 app.post('/patient/create/self', auth(responseHandler.unauthorized), method.POST['patient/create/self']);
+app.post('/record/view', auth(responseHandler.unauthorized), method.POST['record/view']);
 app.post('/certificate', auth(responseHandler.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'
