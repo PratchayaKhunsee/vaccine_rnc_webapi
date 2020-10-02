@@ -266,7 +266,7 @@ class ErrorWithCode extends Error {
 
     /** Get this error instance as a JSON string. */
     toJSON() {
-        return `{ "name": ${this.errorName}, "code": ${this.errorCode} }`;
+        return { name: this.errorName, code: this.errorCode, };
     }
 }
 
