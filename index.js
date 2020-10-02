@@ -338,7 +338,7 @@ const method = {
             )).then((result) => {
                 if(result instanceof ErrorWithCode) throw result;
 
-                responseHandler.ok(req, res, next, result);
+                responseHandler.created(req, res, next, result);
             }).catch((error) => {
                 responseHandler.contentNotFound(req, res, next, error);
             });
