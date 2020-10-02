@@ -349,7 +349,7 @@ async function createRecord(client, username, patient_id) {
         if (patient.rows.length != 1) throw ERRORS.CREATING_RECORDS_ERROR;
 
         let record = await client.query(
-            `INSERT INTO vaccine_record RETURNING id`
+            `INSERT INTO vaccine_record DEFAULT VALUES RETURNING id`
         );
 
         if (record.rowCount != 1 || record.rows.length != 1) throw ERRORS.CREATING_RECORDS_ERROR;
