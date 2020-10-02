@@ -28,6 +28,49 @@
  * @property {Number} id
  * @property {VaccinationProgramName} program
  * @property {1|2|3} phase
+ * 
+ * @typedef {Object} VaccineRecord
+ * @property {String} id
+ * @property {String}  bcg_first 
+ * @property {String}  hb_first 
+ * @property {String}  hb_second 
+ * @property {String}  opv_early_first 
+ * @property {String}  opv_early_second 
+ * @property {String}  opv_early_third 
+ * @property {String}  dtp_hb_first 
+ * @property {String}  dtp_hb_second 
+ * @property {String}  dtp_hb_third 
+ * @property {String}  ipv_first 
+ * @property {String}  mmr_first 
+ * @property {String}  mmr_second 
+ * @property {String}  je_first 
+ * @property {String}  je_seconds 
+ * @property {String}  opv_later_first 
+ * @property {String}  opv_later_second 
+ * @property {String}  dtp_first
+ * @property {String}  dtp_second 
+ * @property {String}  hpv_first 
+ * @property {String}  dt_first 
+ * @property {String} vaccine_id_bcg_first
+ * @property {String} vaccine_id_hb_first
+ * @property {String} vaccine_id_hb_second
+ * @property {String} vaccine_id_opv_early_first
+ * @property {String} vaccine_id_opv_early_second
+ * @property {String} vaccine_id_opv_early_third
+ * @property {String} vaccine_id_dtp_hb_first
+ * @property {String} vaccine_id_dtp_hb_second
+ * @property {String} vaccine_id_dtp_hb_third
+ * @property {String} vaccine_id_ipv_first
+ * @property {String} vaccine_id_mmr_first
+ * @property {String} vaccine_id_mmr_second
+ * @property {String} vaccine_id_je_first
+ * @property {String} vaccine_id_je_seconds
+ * @property {String} vaccine_id_opv_later_first
+ * @property {String} vaccine_id_opv_later_second
+ * @property {String} vaccine_id_dtp_first
+ * @property {String} vaccine_id_dtp_second
+ * @property {String} vaccine_id_hpv_first
+ * @property {String} vaccine_id_dt_first
  */
 
 const {
@@ -38,8 +81,14 @@ const {
     UpdateRecordIDForPatientError,
     UpdateVaccinationError,
     CreateVaccineError,
-    CreateVaccinationProgramError
+    CreateVaccinationProgramError,
+    ErrorWithCode,
+    ERRORS
 } = require("../error");
+const {
+    checkUserName,
+    isRecordAvailableFor,
+} = require("./_misc");
 
 /**
  * @param {import("../database").PgQueryMethod} q
@@ -224,15 +273,56 @@ async function doVaccination(q, vaccineData, vaccineRecordID, vaccineRecordData)
  * @param {String} username
  * @param {VaccinatonRecordIdentifier} identifier
  */
-async function getVaccination(client, username, identifier){
+async function getVaccination(client, username, identifier) {
     try {
         await client.query('BEGIN');
-        
-        let vacDate = await client.query('');  
+
+        let vacDate = await client.query('');
         await client.query('COMMIT');
     } catch (error) {
         await client.query('ROLLBACK');
-        return error;   
+        return error;
+    }
+}
+
+/**
+ * 
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {Number} patient_id 
+ */
+async function viewRecord(client, username, patient_id) {
+    try {
+        await client.query('BEGIN');
+
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw ERRORS.USER_NOT_FOUND;
+
+        let patient = await client.query(
+            'SELECT * FROM vaccine_patient WHERE id = $1',
+            [
+                Number(checkUser.person.vaccine_patient_id)
+            ]
+        );
+
+        if(patient.rows.length != 1) throw ERRORS.RECORDS_NOT_FOUND;
+
+        let record = await client.query(
+            `SELECT * FROM vaccine_record WHERE id = $1`,
+            [
+                Number(patient.rows[0].vaccine_record_id)
+            ]
+        );
+
+        if (record.rows.length != 1) throw ERRORS.RECORDS_NOT_FOUND;
+        /** @type {VaccineRecord} */
+        let result = { ...record.rows[0] };
+        await client.query('COMMIT');
+
+        return result;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        return new ErrorWithCode(error);
     }
 }
 
@@ -240,5 +330,6 @@ module.exports = {
     doViewRecords,
     doCreateRecord,
     doCreateVaccinationProgram,
-    doVaccination
+    doVaccination,
+    viewRecord
 };

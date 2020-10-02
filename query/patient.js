@@ -15,6 +15,7 @@ const {
     ERRORS,
     ErrorWithCode
 } = require("../error");
+const { checkUserName } = require("./_misc");
 
 /**
  * @param {import("../database").PgQueryMethod} q
@@ -124,27 +125,8 @@ async function doCreatePatient(q, data, personID) {
  */
 async function getAvailablePatients(client, username) {
     try {
-        let account = await client.query(
-            'SELECT * FROM user_account WHERE username = $1',
-            [
-                String(username)
-            ]
-        );
-
-        if (account.rows.length != 1) {
-            throw ERRORS.USER_NOT_FOUND;
-        }
-
-        let person = await client.query(
-            'SELECT * FROM person WHERE id = $1',
-            [
-                Number(account.rows[0].person_id)
-            ]
-        );
-
-        if (person.rows.length != 1) {
-            throw ERRORS.USER_NOT_FOUND;
-        }
+        let checkUser = await checkUserName(client, username);
+        if(!checkUser) throw ERRORS.USER_NOT_FOUND;
 
         let available = await client.query(
             `SELECT firstname,lastname,id FROM vaccine_patient
@@ -156,8 +138,8 @@ async function getAvailablePatients(client, username) {
                 WHERE person.id = $2
             `,
             [
-                Number(person.rows[0].vaccine_patient_id),
-                Number(person.rows[0].id)
+                Number(checkUser.person.vaccine_patient_id),
+                Number(checkUser.person.id)
             ]
         );
 
@@ -188,28 +170,9 @@ async function getAvailablePatients(client, username) {
 async function createPatient(client, username, details) {
     try {
         await client.query('BEGIN');
-        if (username) {
-            let user = await client.query(
-                'SELECT * FROM user_account WHERE username = $1',
-                [
-                    username
-                ]
-            );
-            if (user.rows.length != 1) {
-                throw ERRORS.USER_NOT_FOUND;
-            }
 
-            var person = await client.query(
-                'SELECT * FROM person WHERE id = $1',
-                [
-                    Number(user.rows[0].person_id)
-                ]
-            );
-
-            if (person.rows.length != 1) {
-                throw ERRORS.USER_NOT_FOUND;
-            }
-        }
+        let checkUser = await checkUserName(client, username);
+        if(!checkUser) throw ERRORS.USER_NOT_FOUND;
 
         let patient = await client.query(
             `INSERT INTO vaccine_patient (firstname,lastname) VALUES($1,$2) RETURNING id`,
@@ -242,7 +205,7 @@ async function createPatient(client, username, details) {
 
         return id;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
