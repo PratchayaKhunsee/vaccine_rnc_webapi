@@ -355,7 +355,7 @@ async function createRecord(client, username, patient_id) {
         if (record.rowCount != 1 || record.rows.length != 1) throw ERRORS.CREATING_RECORDS_ERROR;
 
         let updatePatient = await client.query(
-            'UPDATE FROM vaccine_patient SET vaccine_record_id = $1 WHERE id = $2',
+            'UPDATE vaccine_patient SET vaccine_record_id = $1 WHERE id = $2',
             [
                 Number(record.rows[0].id),
                 Number(patient_id)
