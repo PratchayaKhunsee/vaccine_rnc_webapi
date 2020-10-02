@@ -303,7 +303,7 @@ const method = {
                 req.body
             )).then((result) => {
                 if (result instanceof ErrorWithCode) throw result;
-                responseHandler.ok(req, res, next, {
+                responseHandler.created(req, res, next, {
                     created_id: result,
                 });
             }).catch((error) => {
