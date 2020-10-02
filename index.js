@@ -344,11 +344,9 @@ const method = {
             }).catch(
                 /** @param {ErrorWithCode} error */
                 error => {
-                    responseHandler.badRequest(req, res, next, error.toJSON());
+                    responseHandler.badRequest(req, res, next, error);
                 }
             );
-
-
         }
     }
 }

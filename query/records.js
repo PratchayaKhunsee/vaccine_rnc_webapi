@@ -301,7 +301,7 @@ async function viewRecord(client, username, patient_id) {
         let patient = await client.query(
             'SELECT * FROM vaccine_patient WHERE id = $1',
             [
-                Number(checkUser.person.vaccine_patient_id)
+                Number(patient_id)
             ]
         );
 
