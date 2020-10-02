@@ -321,6 +321,8 @@ const method = {
                 decoded ? decoded.username : '',
                 req.body.patient_id
             )).then((result) => {
+                if(result instanceof ErrorWithCode) throw result;
+                
                 responseHandler.ok(req, res, next, result);
             }).catch((error) => {
                 responseHandler.contentNotFound(req, res, next,
