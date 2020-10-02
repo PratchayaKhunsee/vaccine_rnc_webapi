@@ -79,7 +79,7 @@ const responseHandler = {
             'Content-Type': 'application/json'
         });
         res.status(httpStatus.UNAUTHORIZED);
-        res.send(content || '{}');
+        res.send(JSON.stringify(content) || '{}');
     },
     /**
      * Response to the request with [NOT_FOUND] HTTP status code.
@@ -117,7 +117,7 @@ const responseHandler = {
         res.set({
             'Content-Type': 'application/json'
         });
-        res.status(httpStatus.OK);
+        res.status(httpStatus.CREATED);
         res.send(JSON.stringify(content) || '{}');
     },
     /**
@@ -213,7 +213,7 @@ const method = {
             }).catch(
                 /** @param {ErrorWithCode} error */
                 error => {
-                    responseHandler.contentNotFound(req, res, next, error.toJSON());
+                    responseHandler.contentNotFound(req, res, next, error);
                 }
             );
         },
@@ -230,7 +230,7 @@ const method = {
             }).catch(
                 /** @param {ErrorWithCode} error */
                 error => {
-                    responseHandler.contentNotFound(req, res, next, error.toJSON());
+                    responseHandler.contentNotFound(req, res, next, error);
                 }
             );
         }
@@ -272,7 +272,7 @@ const method = {
                  * @param {ErrorWithCode} error
                  */
                 error => {
-                    responseHandler.badRequest(req, res, next, error.toJSON());
+                    responseHandler.badRequest(req, res, next, error);
                 }
             );
         },
@@ -288,7 +288,7 @@ const method = {
                 }).catch(
                     /** @param {ErrorWithCode} err */
                     err => {
-                        responseHandler.badRequest(req, res, next, err.toJSON());
+                        responseHandler.badRequest(req, res, next, err);
                     }
                 );
         },
@@ -306,10 +306,7 @@ const method = {
                     created_id: result,
                 });
             }).catch((error) => {
-                responseHandler.badRequest(
-                    req, res, next,
-                    error instanceof ErrorWithCode ? error.toJSON() : error
-                );
+                responseHandler.badRequest(req, res, next, error);
             });
         },
         /** @type {import('express').RequestHandler} */
@@ -322,13 +319,11 @@ const method = {
                 req.body.patient_id
             )).then((result) => {
                 if(result instanceof ErrorWithCode) throw result;
-                
+
                 responseHandler.ok(req, res, next, result);
             }).catch((error) => {
-                responseHandler.contentNotFound(req, res, next,
-                    error instanceof ErrorWithCode ? error.toJSON() : error
-                );
-            })
+                responseHandler.contentNotFound(req, res, next, error);
+            });
         }
     },
     PATCH: {
@@ -345,7 +340,7 @@ const method = {
                     throw result;
                 }
 
-                responseHandler.ok(req, res, next, JSON.stringify(true));
+                responseHandler.ok(req, res, next, true);
             }).catch(
                 /** @param {ErrorWithCode} error */
                 error => {
