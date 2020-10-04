@@ -385,8 +385,9 @@ async function editRecord(client, username, details) {
         let checkUser = await checkUserName(client, username);
         if (!checkUser) throw ERRORS.USER_NOT_FOUND;
 
-        let available = await isRecordAvailableFor(client, details.id, checkUser.person.id);
+        console.log(checkUser.person, details);
 
+        let available = await isRecordAvailableFor(client, Number(details.id), Number(checkUser.person.id));
         if (!available) throw ERRORS.MODIFYING_RECORDS_ERROR;
 
         let i = 1;
@@ -400,8 +401,6 @@ async function editRecord(client, username, details) {
             str,
             values
         );
-
-        console.log(str, values);
 
         if (record.rowCount != 1) throw ERRORS.MODIFYING_RECORDS_ERROR;
 
