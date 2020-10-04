@@ -388,6 +388,7 @@ async function editRecord(client, username, details) {
         console.log(checkUser.person, details);
 
         let available = await isRecordAvailableFor(client, Number(details.id), Number(checkUser.person.id));
+        console.log(available);
         if (!available) throw ERRORS.MODIFYING_RECORDS_ERROR;
 
         let i = 1;
