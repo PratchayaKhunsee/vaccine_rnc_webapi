@@ -73,7 +73,7 @@ async function isRecordAvailableFor(client, vaccine_record_id, person_id){
 
     console.log(patient.rows);
 
-    let result = !!patient.rows.find(x => Number(x.record_id) == Number(vaccine_record_id));
+    let result = !!patient.rows.find(x => Number(x.vaccine_record_id) == Number(vaccine_record_id));
 
     return result;
 }
