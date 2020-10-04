@@ -404,6 +404,7 @@ async function editRecord(client, username, details) {
         await client.query('COMMIT');
         return true;
     } catch (error) {
+        console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
