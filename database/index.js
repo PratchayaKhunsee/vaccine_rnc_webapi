@@ -22,6 +22,25 @@ const {
     Pool,
     Client
 } = require("pg");
+
+const types = require("pg").types;
+const OID = {
+    datatype: {
+        int8: 20,
+        date: 1082,
+        time: 1083,
+        timestamp: 1114,
+        timestamptz: 1184,
+    }
+};
+
+const typeParser = {
+    int8: value => value !== null ? parseInt(value) : null,
+}
+
+types.setTypeParser(OID.datatype.int8, typeParser.int8);
+// types.setTypeParser(OID.datatype.date, value => new Date(value).toISOString());
+
 // Future use this pooling connection
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,

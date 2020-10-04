@@ -48,7 +48,7 @@ async function checkUserName(client, username) {
  * @param {Number} vaccine_record_id 
  * @param {Number} person_id 
  */
-async function isRecordAvailableFor(client, record_id, person_id){
+async function isRecordAvailableFor(client, vaccine_record_id, person_id){
 
     let person = await client.query(
         'SELECT * FROM person WHERE id = $1',
@@ -70,7 +70,7 @@ async function isRecordAvailableFor(client, record_id, person_id){
         ]
     )
 
-    return !!patient.rows.find(x => Number(x.record_id) == Number(record_id));
+    return !!patient.rows.find(x => Number(x.record_id) == Number(vaccine_record_id));
 }
 
 

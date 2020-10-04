@@ -33,7 +33,8 @@ const {
     doCreateRecord,
     doVaccination,
     viewRecord,
-    createRecord
+    createRecord,
+    editRecord
 } = require('./query/records');
 const {
     doCreatePatient,
@@ -343,6 +344,7 @@ const method = {
                 responseHandler.contentNotFound(req, res, next, error);
             });
         },
+        
     },
     PATCH: {
         /** @type {import('express').RequestHandler} */
@@ -365,7 +367,23 @@ const method = {
                     responseHandler.badRequest(req, res, next, error);
                 }
             );
-        }
+        },
+        /** @type {import('express').RequestHandler} */
+        'record/edit'(req, res, next) {
+            let decoded = decode_auth_token(req, res, next);
+
+            connect(async client => await editRecord(
+                client,
+                decoded ? decoded.username : '',
+                req.body
+            )).then((result) => {
+                if(result instanceof ErrorWithCode) throw result;
+
+                responseHandler.ok(req, res, next, result);
+            }).catch((error) => {
+                responseHandler.badRequest(req, res, next, error);
+            });
+        },
     }
 }
 

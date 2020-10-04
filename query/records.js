@@ -362,8 +362,45 @@ async function createRecord(client, username, patient_id) {
             ]
         );
 
-        if(updatePatient.rowCount != 1) throw ERRORS.CREATING_RECORDS_ERROR;
-        
+        if (updatePatient.rowCount != 1) throw ERRORS.CREATING_RECORDS_ERROR;
+
+        await client.query('COMMIT');
+        return true;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        return new ErrorWithCode(error);
+    }
+}
+
+/**
+ * 
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {VaccineRecord} details 
+ */
+async function editRecord(client, username, details) {
+    try {
+        await client.query('BEGIN');
+
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw ERRORS.USER_NOT_FOUND;
+
+        let available = await isRecordAvailableFor(client, details.id, checkUser.person.id);
+
+        if (!available) throw ERRORS.MODIFYING_RECORDS_ERROR;
+
+        let i = 1;
+        let keys = Object.keys(details);
+        let values = [Number(details.id)];
+        Array.prototype.unshift.apply(values, Object.values(details));
+
+        let record = await client.query(
+            `UPDATE vaccine_record SET ${keys.map((k => `${k} = $${i++}`))} WHERE id = $${i}`,
+            values
+        );
+
+        if (record.rowCount != 1) throw ERRORS.MODIFYING_RECORDS_ERROR;
+
         await client.query('COMMIT');
         return true;
     } catch (error) {
@@ -379,4 +416,5 @@ module.exports = {
     doVaccination,
     viewRecord,
     createRecord,
+    editRecord
 };
