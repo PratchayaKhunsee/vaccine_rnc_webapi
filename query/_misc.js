@@ -58,6 +58,7 @@ async function isRecordAvailableFor(client, vaccine_record_id, person_id){
     );
 
     if(person.rows.length != 1) return false;
+    console.log('person#${person_id} exist.');
 
     let patient = await client.query(
         `   
@@ -68,9 +69,13 @@ async function isRecordAvailableFor(client, vaccine_record_id, person_id){
             Number(person_id),
             Number(person.rows[0].vaccine_patient_id)
         ]
-    )
+    );
 
-    return !!patient.rows.find(x => Number(x.record_id) == Number(vaccine_record_id));
+    console.log(patient.rows);
+
+    let result = !!patient.rows.find(x => Number(x.record_id) == Number(vaccine_record_id));
+
+    return result;
 }
 
 
