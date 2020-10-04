@@ -394,17 +394,21 @@ async function editRecord(client, username, details) {
         let values = [Number(details.id)];
         Array.prototype.unshift.apply(values, Object.values(details));
 
+        let str = `UPDATE vaccine_record SET ${keys.map((k => `${k} = $${i++}`))} WHERE id = $${i}`;
+
         let record = await client.query(
-            `UPDATE vaccine_record SET ${keys.map((k => `${k} = $${i++}`))} WHERE id = $${i}`,
+            str,
             values
         );
+
+        console.log(str, values);
 
         if (record.rowCount != 1) throw ERRORS.MODIFYING_RECORDS_ERROR;
 
         await client.query('COMMIT');
         return true;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
