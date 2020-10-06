@@ -394,7 +394,7 @@ async function editRecord(client, username, details) {
         Array.prototype.unshift.apply(values, Object.values(details));
 
         let record = await client.query(
-            `UPDATE vaccine_record SET ${keys.map((k => `${k} = $${i++}`))} WHERE id = $${i} RETURNING *`,
+            `UPDATE vaccine_record SET ${keys.map((k => `${k} = $${i++}`))} WHERE id = $${i} RETURNING ${keys.join(',')}`,
             values
         );
 
