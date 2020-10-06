@@ -385,10 +385,7 @@ async function editRecord(client, username, details) {
         let checkUser = await checkUserName(client, username);
         if (!checkUser) throw ERRORS.USER_NOT_FOUND;
 
-        console.log(checkUser.person, details);
-
         let available = await isRecordAvailableFor(client, Number(details.id), Number(checkUser.person.id));
-        console.log(available);
         if (!available) throw ERRORS.MODIFYING_RECORDS_ERROR;
 
         let i = 1;
@@ -396,19 +393,19 @@ async function editRecord(client, username, details) {
         let values = [Number(details.id)];
         Array.prototype.unshift.apply(values, Object.values(details));
 
-        let str = `UPDATE vaccine_record SET ${keys.map((k => `${k} = $${i++}`))} WHERE id = $${i}`;
-
         let record = await client.query(
-            str,
+            `UPDATE vaccine_record SET ${keys.map((k => `${k} = $${i++}`))} WHERE id = $${i} RETURNING *`,
             values
         );
 
-        if (record.rowCount != 1) throw ERRORS.MODIFYING_RECORDS_ERROR;
+        if (record.rowCount != 1 || record.rows.length != 1) throw ERRORS.MODIFYING_RECORDS_ERROR;
 
         await client.query('COMMIT');
-        return true;
+
+        /** @type {VaccineRecord} */
+        let result = { ...record.rows[0] };
+        return result;
     } catch (error) {
-        // console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
