@@ -41,7 +41,8 @@ const {
     doViewPatient,
     doEditPatient,
     getAvailablePatients,
-    createPatient
+    createPatientForSelf,
+    createPatientAsChild
 } = require('./query/patient');
 const {
     doViewCertifications,
@@ -299,7 +300,7 @@ const method = {
         'patient/create/self'(req, res, next) {
             let decoded = decode_auth_token(req, res, next);
 
-            connect(async client => await createPatient(
+            connect(async client => await createPatientForSelf(
                 client,
                 decoded ? decoded.username : '',
                 req.body
@@ -341,10 +342,25 @@ const method = {
 
                 responseHandler.created(req, res, next, result);
             }).catch((error) => {
-                responseHandler.contentNotFound(req, res, next, error);
+                responseHandler.badRequest(req, res, next, error);
             });
         },
-        
+        /** @type {import('express').RequestHandler} */
+        'patient/create'(req, res, next){
+            let decoded = decode_auth_token(req, res, next);
+
+            connect(async client => await createPatientAsChild(
+                client,
+                decoded ? decoded.username : '',
+                req.body
+            )).then((result) => {
+                if(result instanceof ErrorWithCode) throw result;
+
+                responseHandler.created(req, res, next, result);
+            }).catch((error) => {
+                responseHandler.badRequest(req, res, next, error);
+            });
+        }
     },
     PATCH: {
         /** @type {import('express').RequestHandler} */
@@ -404,6 +420,7 @@ app.post('/patient/create/self', auth(responseHandler.unauthorized), method.POST
 app.post('/record/view', auth(responseHandler.unauthorized), method.POST['record/view']);
 app.post('/record/create', auth(responseHandler.unauthorized), method.POST['record/create']);
 app.patch('/record/edit', auth(responseHandler.unauthorized), method.PATCH['record/edit']);
+app.post('/patient/create', auth(responseHandler.unauthorized), method.POST['patient/create']);
 app.post('/certificate', auth(responseHandler.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'

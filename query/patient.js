@@ -167,7 +167,7 @@ async function getAvailablePatients(client, username) {
  * @param {String} username
  * @param {VaccinePatient} details
  */
-async function createPatient(client, username, details) {
+async function createPatientForSelf(client, username, details) {
     try {
         await client.query('BEGIN');
 
@@ -268,11 +268,62 @@ async function editPatient(client, username, details) {
     }
 }
 
+/**
+ * Edit the patient information.
+ * 
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {VaccinePatient} details 
+ */
+async function createPatientAsChild(client, username, details){
+    try {
+        await client.query('BEGIN');
+
+        let checkUser = await checkUserName(client, username);
+        if(!checkUser) throw ERRORS.USER_NOT_FOUND;
+
+        let patient = await client.query(
+            `INSERT INTO vaccine_patient (firstname,lastname) VALUES($1,$2) RETURNING id`,
+            [
+                details.firstname,
+                details.lastname
+            ]
+        );
+
+        if (patient.rowCount != 1) {
+            throw ERRORS.CREATING_PATIENT_ERROR;
+        }
+
+        let id = Number(patient.rows[0].id);
+
+        let parenting = await client.query(
+            'INSERT INTO parenting (person_id,vaccine_patient_id) VALUES($1,$2)',
+            [
+                Number(checkUser.person.id),
+                Number(id)
+            ]
+        );
+
+        if(parenting.rowCount != 1){
+            throw ERRORS.CREATING_PATIENT_ERROR;
+        }
+
+        await client.query('COMMIT');
+
+        return id;
+    } catch (error) {
+        // console.log(error);
+        await client.query('ROLLBACK');
+        return new ErrorWithCode(error);
+    }
+}
+
 module.exports = {
     doViewPatient,
     doCreatePatient,
     doEditPatient,
-    createPatient,
+    createPatientForSelf,
+    createPatientAsChild,
     editPatient,
     getAvailablePatients,
 };
