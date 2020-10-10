@@ -71,7 +71,7 @@ async function signUp(conn, user) {
 
         await conn.query('COMMIT');
 
-        return 1;
+        return true;
     } catch (error) {
         await conn.query('ROLLBACK');
         return new ErrorWithCode(error);

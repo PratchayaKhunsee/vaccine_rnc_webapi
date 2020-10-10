@@ -315,10 +315,11 @@ async function viewRecord(client, username, patient_id) {
         );
 
         if (record.rows.length != 1) throw ERRORS.RECORDS_NOT_FOUND;
-        /** @type {VaccineRecord} */
-        let result = { ...record.rows[0] };
+        
         await client.query('COMMIT');
 
+        /** @type {VaccineRecord} */
+        let result = { ...record.rows[0] };
         return result;
     } catch (error) {
         await client.query('ROLLBACK');
@@ -349,7 +350,7 @@ async function createRecord(client, username, patient_id) {
         if (patient.rows.length != 1) throw ERRORS.CREATING_RECORDS_ERROR;
 
         let record = await client.query(
-            `INSERT INTO vaccine_record DEFAULT VALUES RETURNING id`
+            `INSERT INTO vaccine_record DEFAULT VALUES RETURNING *`
         );
 
         if (record.rowCount != 1 || record.rows.length != 1) throw ERRORS.CREATING_RECORDS_ERROR;
@@ -365,7 +366,10 @@ async function createRecord(client, username, patient_id) {
         if (updatePatient.rowCount != 1) throw ERRORS.CREATING_RECORDS_ERROR;
 
         await client.query('COMMIT');
-        return true;
+
+        /** @type {VaccineRecord} */
+        const result = { ...record.rows[0] };
+        return result;
     } catch (error) {
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);

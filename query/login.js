@@ -39,7 +39,7 @@ async function logIn(client, username, password) {
         }
 
         await client.query('COMMIT');
-        return 1;
+        return true;
     } catch (error) {
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);

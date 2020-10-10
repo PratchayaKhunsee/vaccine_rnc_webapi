@@ -136,19 +136,25 @@ async function editUser(client, username, info, password) {
             ];
             Array.prototype.unshift.apply(values, Object.values(cloned));
             let i = 1;
-            let result = await client.query(
-                `UPDATE person SET ${keys.map(x => `${x} = $${i++}`)} WHERE id = $${i}`,
+            var updating = await client.query(
+                `UPDATE person SET ${keys.map(x => `${x} = $${i++}`)} WHERE id = $${i}
+                    RETURNING firstname,lastname,id_number,gender,name_prefix
+                `,
                 values
             );
 
             // Cancel the user information updating if it has caught an error
-            if (result.rowCount != 1) {
+            if (updating.rowCount != 1) {
                 throw ERRORS.MODIFYING_USER_ERROR;
             }
         }
 
         await client.query('COMMIT');
-        return 1;
+
+        /** @type {UserInfo} */
+        const result = { ...updating.rows[0] };
+
+        return result;
     } catch (error) {
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);

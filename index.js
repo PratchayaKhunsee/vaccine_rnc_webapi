@@ -253,7 +253,9 @@ const method = {
                 return;
             }
 
+            /** @type {String} */
             const username = req.body.username;
+            /** @type {String} */
             const password = req.body.password;
 
             if (!(username && password)) {
@@ -288,7 +290,7 @@ const method = {
                         throw result;
                     }
 
-                    responseHandler.created(req, res, next);
+                    responseHandler.created(req, res, next, true);
                 }).catch(
                     /** @param {ErrorWithCode} err */
                     err => {
@@ -306,12 +308,13 @@ const method = {
                 req.body
             )).then((result) => {
                 if (result instanceof ErrorWithCode) throw result;
-                responseHandler.created(req, res, next, {
-                    created_id: result,
-                });
-            }).catch((error) => {
-                responseHandler.badRequest(req, res, next, error);
-            });
+                responseHandler.created(req, res, next, result);
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    responseHandler.badRequest(req, res, next, error);
+                }
+            );
         },
         /** @type {import('express').RequestHandler} */
         'record/view'(req, res, next) {
@@ -322,12 +325,15 @@ const method = {
                 decoded ? decoded.username : '',
                 req.body.patient_id
             )).then((result) => {
-                if(result instanceof ErrorWithCode) throw result;
+                if (result instanceof ErrorWithCode) throw result;
 
                 responseHandler.ok(req, res, next, result);
-            }).catch((error) => {
-                responseHandler.contentNotFound(req, res, next, error);
-            });
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    responseHandler.contentNotFound(req, res, next, error);
+                }
+            );
         },
         /** @type {import('express').RequestHandler} */
         'record/create'(req, res, next) {
@@ -338,15 +344,18 @@ const method = {
                 decoded ? decoded.username : '',
                 req.body.patient_id
             )).then((result) => {
-                if(result instanceof ErrorWithCode) throw result;
+                if (result instanceof ErrorWithCode) throw result;
 
                 responseHandler.created(req, res, next, result);
-            }).catch((error) => {
-                responseHandler.badRequest(req, res, next, error);
-            });
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    responseHandler.badRequest(req, res, next, error);
+                }
+            );
         },
         /** @type {import('express').RequestHandler} */
-        'patient/create'(req, res, next){
+        'patient/create'(req, res, next) {
             let decoded = decode_auth_token(req, res, next);
 
             connect(async client => await createPatientAsChild(
@@ -354,12 +363,15 @@ const method = {
                 decoded ? decoded.username : '',
                 req.body
             )).then((result) => {
-                if(result instanceof ErrorWithCode) throw result;
+                if (result instanceof ErrorWithCode) throw result;
 
                 responseHandler.created(req, res, next, result);
-            }).catch((error) => {
-                responseHandler.badRequest(req, res, next, error);
-            });
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    responseHandler.badRequest(req, res, next, error);
+                }
+            );
         }
     },
     PATCH: {
@@ -372,11 +384,9 @@ const method = {
                 req.body.person || null,
                 req.body.password || null
             )).then(result => {
-                if (result instanceof ErrorWithCode) {
-                    throw result;
-                }
+                if (result instanceof ErrorWithCode) throw result;
 
-                responseHandler.ok(req, res, next, true);
+                responseHandler.ok(req, res, next, result);
             }).catch(
                 /** @param {ErrorWithCode} error */
                 error => {
@@ -393,12 +403,15 @@ const method = {
                 decoded ? decoded.username : '',
                 req.body
             )).then((result) => {
-                if(result instanceof ErrorWithCode) throw result;
+                if (result instanceof ErrorWithCode) throw result;
 
                 responseHandler.ok(req, res, next, result);
-            }).catch((error) => {
-                responseHandler.badRequest(req, res, next, error);
-            });
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    responseHandler.badRequest(req, res, next, error);
+                }
+            );
         },
     }
 }
