@@ -347,6 +347,14 @@ async function removePatient(client, username, vaccinePatientId) {
 
         if (!available) throw ERRORS.REMOVING_PATIENT_ERROR;
 
+        await client.query(
+            'DELETE FROM parenting WHERE person_id = $1 AND vaccine_patient_id = $2',
+            [
+                Number(checkUser.person.id),
+                Number(vaccinePatientId)
+            ]
+        );
+
         let removing = await client.query(
             'DELETE FROM vaccine_patient WHERE id = $1 RETURNING *',
             [
