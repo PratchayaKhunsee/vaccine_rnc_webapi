@@ -73,8 +73,34 @@ async function isRecordAvailableFor(client, vaccine_record_id, person_id){
     return !!patient.rows.find(x => Number(x.vaccine_record_id) == Number(vaccine_record_id));
 }
 
+/**
+ * 
+ * @param {import('pg').Client} client 
+ * @param {Number} vaccine_patient_id 
+ * @param {Number} person_id 
+ */
+async function isPatientAvailableFor(client, vaccine_patient_id, person_id){
+    let available = await client.query(
+        `
+            SELECT vaccine_patient.id FROM vaccine_patient WHERE
+                vaccine_patient.id IN (
+                    SELECT person.vaccine_patient_id FROM person WHERE person.id = $1
+                )
+                OR vaccine_patient.id IN (
+                    SELECT parenting.vaccine_patient_id FROM parenting WHERE parenting.person_id = $1
+                )
+        `,
+        [
+            Number(person_id),
+        ]
+    );
+
+    return !!available.rows.find(e => Number(e.id) === Number(vaccine_patient_id));
+}
+
 
 module.exports = {
     checkUserName,
     isRecordAvailableFor,
+    isPatientAvailableFor
 }

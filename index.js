@@ -43,7 +43,8 @@ const {
     getAvailablePatients,
     createPatientForSelf,
     createPatientAsChild,
-    editPatient
+    editPatient,
+    removePatient
 } = require('./query/patient');
 const {
     doViewCertifications,
@@ -433,6 +434,27 @@ const method = {
                 }
             );
         }
+    },
+    DELETE: {
+        /** @type {import('express').RequestHandler} */
+        'patient/remove'(req,res,next){
+            let decoded = decode_auth_token(req, res, next);
+
+            connect(async client => await removePatient(
+                client,
+                decoded ? decoded.username : '',
+                req.body.patient_id
+            )).then((result) => {
+                if (result instanceof ErrorWithCode) throw result;
+
+                responseHandler.ok(req, res, next, true);
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    responseHandler.badRequest(req, res, next, error);
+                }
+            );
+        }
     }
 }
 
@@ -455,6 +477,7 @@ app.post('/record/create', auth(responseHandler.unauthorized), method.POST['reco
 app.patch('/record/edit', auth(responseHandler.unauthorized), method.PATCH['record/edit']);
 app.post('/patient/create', auth(responseHandler.unauthorized), method.POST['patient/create']);
 app.patch('/patient/edit', auth(responseHandler.unauthorized), method.PATCH['patient/edit']);
+app.delete('/patient/remove', auth(responseHandler.unauthorized), method.DELETE);
 app.post('/certificate', auth(responseHandler.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'

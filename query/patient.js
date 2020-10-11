@@ -22,7 +22,7 @@ const {
     ErrorWithCode
 } = require("../error");
 const {
-    checkUserName
+    checkUserName, isPatientAvailableFor
 } = require("./_misc");
 
 /**
@@ -273,7 +273,7 @@ async function editPatient(client, username, details) {
         let result = { ...edited.rows[0] };
         return result;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
@@ -330,6 +330,41 @@ async function createPatientAsChild(client, username, details) {
     }
 }
 
+/**
+ * 
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {Number} vaccinePatientId 
+ */
+async function removePatient(client, username, vaccinePatientId) {
+    try {
+        await client.query('BEGIN');
+
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw ERRORS.USER_NOT_FOUND;
+
+        let available = await isPatientAvailableFor(client, vaccinePatientId, checkUser.person.id);
+
+        if (!available) throw ERRORS.REMOVING_PATIENT_ERROR;
+
+        let removing = await client.query(
+            'DELETE FROM vaccine_patient WHERE id = $1',
+            [
+                Number(vaccinePatientId)
+            ]
+        );
+
+        if(removing.rowCount != 1) throw ERRORS.REMOVING_PATIENT_ERROR;
+
+        await client.query('COMMIT');
+
+        return true;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        return new ErrorWithCode(error);
+    }
+}
+
 module.exports = {
     doViewPatient,
     doCreatePatient,
@@ -338,4 +373,5 @@ module.exports = {
     createPatientAsChild,
     editPatient,
     getAvailablePatients,
+    removePatient
 };
