@@ -374,9 +374,7 @@ const method = {
                     responseHandler.badRequest(req, res, next, error);
                 }
             );
-        }
-    },
-    PATCH: {
+        },
         /** @type {import('express').RequestHandler} */
         user(req, res, next) {
             const decoded = decode_auth_token(req, res, next);
@@ -435,27 +433,105 @@ const method = {
             );
         }
     },
-    DELETE: {
-        /** @type {import('express').RequestHandler} */
-        'patient/remove'(req,res,next){
-            let decoded = decode_auth_token(req, res, next);
+    // PATCH: {
+    //     /** @type {import('express').RequestHandler} */
+    //     user(req, res, next) {
+    //         const decoded = decode_auth_token(req, res, next);
+    //         connect(async client => await editUser(
+    //             client,
+    //             decoded.username,
+    //             req.body.person || null,
+    //             req.body.password || null
+    //         )).then(result => {
+    //             if (result instanceof ErrorWithCode) throw result;
 
-            connect(async client => await removePatient(
-                client,
-                decoded ? decoded.username : '',
-                req.body.patient_id
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
+    //             responseHandler.ok(req, res, next, result);
+    //         }).catch(
+    //             /** @param {ErrorWithCode} error */
+    //             error => {
+    //                 responseHandler.badRequest(req, res, next, error);
+    //             }
+    //         );
+    //     },
+    //     /** @type {import('express').RequestHandler} */
+    //     'record/edit'(req, res, next) {
+    //         let decoded = decode_auth_token(req, res, next);
 
-                responseHandler.ok(req, res, next, true);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        }
-    }
+    //         connect(async client => await editRecord(
+    //             client,
+    //             decoded ? decoded.username : '',
+    //             req.body
+    //         )).then((result) => {
+    //             if (result instanceof ErrorWithCode) throw result;
+
+    //             responseHandler.ok(req, res, next, result);
+    //         }).catch(
+    //             /** @param {ErrorWithCode} error */
+    //             error => {
+    //                 responseHandler.badRequest(req, res, next, error);
+    //             }
+    //         );
+    //     },
+    //      /** @type {import('express').RequestHandler} */
+    //     'patient/edit'(req,res,next){
+    //         let decoded = decode_auth_token(req, res, next);
+
+    //         connect(async client => await editPatient(
+    //             client,
+    //             decoded ? decoded.username : '',
+    //             req.body
+    //         )).then((result) => {
+    //             if (result instanceof ErrorWithCode) throw result;
+
+    //             responseHandler.ok(req, res, next, result);
+    //         }).catch(
+    //             /** @param {ErrorWithCode} error */
+    //             error => {
+    //                 responseHandler.badRequest(req, res, next, error);
+    //             }
+    //         );
+    //     },
+    //     /** @type {import('express').RequestHandler} */
+    //     'patient/remove'(req,res,next){
+    //         let decoded = decode_auth_token(req, res, next);
+
+    //         connect(async client => await removePatient(
+    //             client,
+    //             decoded ? decoded.username : '',
+    //             req.body.patient_id
+    //         )).then((result) => {
+    //             if (result instanceof ErrorWithCode) throw result;
+
+    //             responseHandler.ok(req, res, next, true);
+    //         }).catch(
+    //             /** @param {ErrorWithCode} error */
+    //             error => {
+    //                 responseHandler.badRequest(req, res, next, error);
+    //             }
+    //         );
+    //     },
+    // },
+    // DELETE: {
+    //     /** @type {import('express').RequestHandler} */
+    //     'patient/remove'(req,res,next){
+    //         let decoded = decode_auth_token(req, res, next);
+
+    //         connect(async client => await removePatient(
+    //             client,
+    //             decoded ? decoded.username : '',
+    //             req.body.patient_id
+    //         )).then((result) => {
+    //             if (result instanceof ErrorWithCode) throw result;
+
+    //             responseHandler.ok(req, res, next, true);
+    //         }).catch(
+    //             /** @param {ErrorWithCode} error */
+    //             error => {
+    //                 responseHandler.badRequest(req, res, next, error);
+    //             }
+    //         );
+    //     }
+    // }
 }
 
 // ============= Middleware Usage ============== //
@@ -469,259 +545,260 @@ app.get('/', function (req, res) {
 app.post('/login', method.POST.login);
 app.post('/signup', method.POST.signup);
 app.get('/user', auth(responseHandler.unauthorized), method.GET.user);
-app.patch('/user', auth(responseHandler.unauthorized), method.PATCH.user);
+app.post('/user', auth(responseHandler.unauthorized), method.POST.user);
 app.get('/records/available/patient', auth(responseHandler.unauthorized), method.GET['records/available/patient']);
 app.post('/patient/create/self', auth(responseHandler.unauthorized), method.POST['patient/create/self']);
 app.post('/record/view', auth(responseHandler.unauthorized), method.POST['record/view']);
 app.post('/record/create', auth(responseHandler.unauthorized), method.POST['record/create']);
-app.patch('/record/edit', auth(responseHandler.unauthorized), method.PATCH['record/edit']);
+app.post('/record/edit', auth(responseHandler.unauthorized), method.POST['record/edit']);
 app.post('/patient/create', auth(responseHandler.unauthorized), method.POST['patient/create']);
-app.patch('/patient/edit', auth(responseHandler.unauthorized), method.PATCH['patient/edit']);
-app.delete('/patient/remove', auth(responseHandler.unauthorized), method.DELETE['patient/remove']);
-app.post('/certificate', auth(responseHandler.unauthorized), function (req, res) {
-    res.set({
-        'Content-Type': 'application/json'
-    });
+app.post('/patient/edit', auth(responseHandler.unauthorized), method.POST['patient/edit']);
+app.post('/patient/remove', auth(responseHandler.unauthorized), method.POST['patient/remove']);
+// app.post('/certificate', auth(responseHandler.unauthorized), function (req, res) {
+//     res.set({
+//         'Content-Type': 'application/json'
+//     });
 
-    switch (req.body.action) {
-        case 'view': {
-            doQuery(async (q) => {
-                let view = await doViewCertifications(
-                    q,
-                    Number(req.session.userInfo.personID)
-                );
+//     switch (req.body.action) {
+//         case 'view': {
+//             doQuery(async (q) => {
+//                 let view = await doViewCertifications(
+//                     q,
+//                     Number(req.session.userInfo.personID)
+//                 );
 
-                if (view instanceof CertificateError) {
-                    throw view;
-                }
+//                 if (view instanceof CertificateError) {
+//                     throw view;
+//                 }
 
-                res.send(JSON.parse(view));
-            }, (err) => {
-                console.log(err);
-                res.send("null");
-            });
-            break;
-        }
-        case 'create': {
-            doQuery(async (q) => {
-                let create = await doCreateCertification(
-                    q,
-                    Number(req.session.userInfo.personID),
-                    Number(req.body.vaccineID),
-                    req.body.data
-                );
+//                 res.send(JSON.parse(view));
+//             }, (err) => {
+//                 console.log(err);
+//                 res.send("null");
+//             });
+//             break;
+//         }
+//         case 'create': {
+//             doQuery(async (q) => {
+//                 let create = await doCreateCertification(
+//                     q,
+//                     Number(req.session.userInfo.personID),
+//                     Number(req.body.vaccineID),
+//                     req.body.data
+//                 );
 
-                if (create instanceof CertificateError) {
-                    throw create;
-                }
+//                 if (create instanceof CertificateError) {
+//                     throw create;
+//                 }
 
-                res.send(String(create == 1));
-            }, () => {
-                res.send("false");
-            });
-            break;
-        }
-        case 'edit': {
-            doQuery(async (q) => {
-                let edit = await doEditCertification(
-                    q,
-                    Number(req.session.userInfo.personID),
-                    Number(req.body.certificationID),
-                    req.body.data
-                );
+//                 res.send(String(create == 1));
+//             }, () => {
+//                 res.send("false");
+//             });
+//             break;
+//         }
+//         case 'edit': {
+//             doQuery(async (q) => {
+//                 let edit = await doEditCertification(
+//                     q,
+//                     Number(req.session.userInfo.personID),
+//                     Number(req.body.certificationID),
+//                     req.body.data
+//                 );
 
-                if (edit instanceof CertificateError) {
-                    throw edit;
-                }
+//                 if (edit instanceof CertificateError) {
+//                     throw edit;
+//                 }
 
-                res.send(String(edit == 1));
-            }, () => {
-                res.send("false");
-            });
-            break;
-        }
-        default: {
-            res.send("null");
-        }
-    }
-});
-app.post('/patient', auth(responseHandler.unauthorized), function (req, res) {
-    res.set({
-        'Content-Type': 'application/json'
-    });
+//                 res.send(String(edit == 1));
+//             }, () => {
+//                 res.send("false");
+//             });
+//             break;
+//         }
+//         default: {
+//             res.send("null");
+//         }
+//     }
+// });
+// app.post('/patient', auth(responseHandler.unauthorized), function (req, res) {
+//     res.set({
+//         'Content-Type': 'application/json'
+//     });
 
-    switch (req.body.action) {
-        case 'view': {
-            doQuery(async (q) => {
-                let view = await doViewPatient(
-                    q,
-                    Number(req.session.userInfo.vaccinePatientID)
-                );
-                delete view.id;
+//     switch (req.body.action) {
+//         case 'view': {
+//             doQuery(async (q) => {
+//                 let view = await doViewPatient(
+//                     q,
+//                     Number(req.session.userInfo.vaccinePatientID)
+//                 );
+//                 delete view.id;
 
-                if (view instanceof PatientError) {
-                    throw view;
-                }
+//                 if (view instanceof PatientError) {
+//                     throw view;
+//                 }
 
-                res.send(JSON.parse(view));
-            }, () => {
-                res.send("null");
-            });
-            break;
-        }
-        case 'create': {
-            doQuery(async (q) => {
-                let create = await doCreatePatient(
-                    q,
-                    req.body.data,
-                    Number(req.session.userInfo.personID)
-                );
+//                 res.send(JSON.parse(view));
+//             }, () => {
+//                 res.send("null");
+//             });
+//             break;
+//         }
+//         case 'create': {
+//             doQuery(async (q) => {
+//                 let create = await doCreatePatient(
+//                     q,
+//                     req.body.data,
+//                     Number(req.session.userInfo.personID)
+//                 );
 
-                if (create instanceof PatientError) {
-                    throw create;
-                }
+//                 if (create instanceof PatientError) {
+//                     throw create;
+//                 }
 
-                res.send(String(create == 1));
-            }, () => {
-                res.send("false");
-            });
-            break;
-        }
-        case 'edit': {
-            doQuery(async (q) => {
-                let edit = await doEditPatient(
-                    q,
-                    Number(req.session.userInfo.vaccinePatientID),
-                    req.body.data
-                );
+//                 res.send(String(create == 1));
+//             }, () => {
+//                 res.send("false");
+//             });
+//             break;
+//         }
+//         case 'edit': {
+//             doQuery(async (q) => {
+//                 let edit = await doEditPatient(
+//                     q,
+//                     Number(req.session.userInfo.vaccinePatientID),
+//                     req.body.data
+//                 );
 
-                if (edit instanceof PatientError) {
-                    throw edit;
-                }
+//                 if (edit instanceof PatientError) {
+//                     throw edit;
+//                 }
 
-                res.send(String(edit == 1));
-            }, () => {
-                res.send("null");
-            });
-            break;
-        }
-        default: {
-            res.send("null");
-        }
-    }
-});
-app.post('/records', auth(responseHandler.unauthorized), function (req, res) {
-    res.set({
-        'Content-Type': 'application/json'
-    });
+//                 res.send(String(edit == 1));
+//             }, () => {
+//                 res.send("null");
+//             });
+//             break;
+//         }
+//         default: {
+//             res.send("null");
+//         }
+//     }
+// });
+// app.post('/records', auth(responseHandler.unauthorized), function (req, res) {
+//     res.set({
+//         'Content-Type': 'application/json'
+//     });
 
-    switch (req.body.action) {
-        case 'view': {
-            doQuery(async (q) => {
-                let view = await doViewRecords(
-                    q,
-                    Number(req.session.userInfo.personID)
-                );
+//     switch (req.body.action) {
+//         case 'view': {
+//             doQuery(async (q) => {
+//                 let view = await doViewRecords(
+//                     q,
+//                     Number(req.session.userInfo.personID)
+//                 );
 
-                if (view instanceof RecordError) {
-                    throw view;
-                }
+//                 if (view instanceof RecordError) {
+//                     throw view;
+//                 }
 
-                res.send(JSON.parse(view));
-            }, () => {
-                res.send("null");
-            });
+//                 res.send(JSON.parse(view));
+//             }, () => {
+//                 res.send("null");
+//             });
 
-            break;
-        }
-        case 'create': {
-            doQuery(async (q) => {
-                let create = await doCreateRecord(
-                    q,
-                    Number(req.session.userInfo.vaccinePatientID)
-                );
+//             break;
+//         }
+//         case 'create': {
+//             doQuery(async (q) => {
+//                 let create = await doCreateRecord(
+//                     q,
+//                     Number(req.session.userInfo.vaccinePatientID)
+//                 );
 
-                if (create instanceof RecordError) {
-                    throw create;
-                }
+//                 if (create instanceof RecordError) {
+//                     throw create;
+//                 }
 
-                res.send(String(create == 1));
-            }, () => {
-                res.send("false")
-            });
+//                 res.send(String(create == 1));
+//             }, () => {
+//                 res.send("false")
+//             });
 
-            break;
-        }
-        case 'vaccinate': {
-            doQuery(async (q) => {
-                let vaccinate = await doVaccination(
-                    q,
-                    req.body.data.vaccine,
-                    Number(req.body.vaccineRecordID),
-                    req.body.data.vaccineRecord
-                );
+//             break;
+//         }
+//         case 'vaccinate': {
+//             doQuery(async (q) => {
+//                 let vaccinate = await doVaccination(
+//                     q,
+//                     req.body.data.vaccine,
+//                     Number(req.body.vaccineRecordID),
+//                     req.body.data.vaccineRecord
+//                 );
 
-                if (vaccinate instanceof RecordError) {
-                    throw vaccinate;
-                }
+//                 if (vaccinate instanceof RecordError) {
+//                     throw vaccinate;
+//                 }
 
-                res.send(String(vaccinate == 1));
-            }, () => {
-                res.send("false");
-            });
-            break;
-        }
-        default: {
-            res.send("null");
-        }
-    }
-});
-app.post('/parenting', auth(responseHandler.unauthorized), function (req, res) {
-    res.set({
-        'Content-Type': 'application/json'
-    });
+//                 res.send(String(vaccinate == 1));
+//             }, () => {
+//                 res.send("false");
+//             });
+//             break;
+//         }
+//         default: {
+//             res.send("null");
+//         }
+//     }
+// });
+// app.post('/parenting', auth(responseHandler.unauthorized), function (req, res) {
+//     res.set({
+//         'Content-Type': 'application/json'
+//     });
 
-    switch (req.body) {
-        case 'view': {
-            doQuery(async (q) => {
-                let view = await doViewParenting(
-                    q,
-                    Number(req.session.userInfo.personID)
-                );
+//     switch (req.body) {
+//         case 'view': {
+//             doQuery(async (q) => {
+//                 let view = await doViewParenting(
+//                     q,
+//                     Number(req.session.userInfo.personID)
+//                 );
 
-                if (view instanceof ParentingError) {
-                    throw view;
-                }
+//                 if (view instanceof ParentingError) {
+//                     throw view;
+//                 }
 
-                res.send(JSON.parse(view));
-            }, () => {
-                res.send("null");
-            });
-            break;
-        }
-        case 'create': {
-            doQuery(async (q) => {
-                let create = await doCreateParenting(
-                    q,
-                    Number(req.session.userInfo.personID),
-                    Number(req.body.vaccinePatientID)
-                );
+//                 res.send(JSON.parse(view));
+//             }, () => {
+//                 res.send("null");
+//             });
+//             break;
+//         }
+//         case 'create': {
+//             doQuery(async (q) => {
+//                 let create = await doCreateParenting(
+//                     q,
+//                     Number(req.session.userInfo.personID),
+//                     Number(req.body.vaccinePatientID)
+//                 );
 
-                if (create instanceof ParentingError) {
-                    throw create;
-                }
+//                 if (create instanceof ParentingError) {
+//                     throw create;
+//                 }
 
-                res.send(String(create == 1));
-            }, () => {
-                res.send("false");
-            });
-            break;
-        }
-        default: {
-            res.send("null");
-        }
-    }
-});
+//                 res.send(String(create == 1));
+//             }, () => {
+//                 res.send("false");
+//             });
+//             break;
+//         }
+//         default: {
+//             res.send("null");
+//         }
+//     }
+// });
+
 app.post('/', function (req, res) {
     res.send('null');
 });

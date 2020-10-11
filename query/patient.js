@@ -348,16 +348,22 @@ async function removePatient(client, username, vaccinePatientId) {
         if (!available) throw ERRORS.REMOVING_PATIENT_ERROR;
 
         let removing = await client.query(
-            'DELETE FROM vaccine_patient WHERE id = $1',
+            'DELETE FROM vaccine_patient WHERE id = $1 RETURNING *',
             [
                 Number(vaccinePatientId)
             ]
         );
 
-        if(removing.rowCount != 1) throw ERRORS.REMOVING_PATIENT_ERROR;
+        if(removing.rowCount != 1 || removing.rows.length != 1) throw ERRORS.REMOVING_PATIENT_ERROR;
 
+        await client.query(
+            'DELETE FROM vaccine_record WHERE id = $1',
+            [
+                Number(removing.rows[0].vaccine_record_id),
+            ]
+        );
         await client.query('COMMIT');
-
+        
         return true;
     } catch (error) {
         await client.query('ROLLBACK');
