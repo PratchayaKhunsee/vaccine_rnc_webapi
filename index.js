@@ -413,8 +413,8 @@ const method = {
                 }
             );
         },
-         /** @type {import('express').RequestHandler} */
-        'patient/edit'(req,res,next){
+        /** @type {import('express').RequestHandler} */
+        'patient/edit'(req, res, next) {
             let decoded = decode_auth_token(req, res, next);
 
             connect(async client => await editPatient(
@@ -425,6 +425,25 @@ const method = {
                 if (result instanceof ErrorWithCode) throw result;
 
                 responseHandler.ok(req, res, next, result);
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    responseHandler.badRequest(req, res, next, error);
+                }
+            );
+        },
+        /** @type {import('express').RequestHandler} */
+        'patient/remove'(req, res, next) {
+            let decoded = decode_auth_token(req, res, next);
+
+            connect(async client => await removePatient(
+                client,
+                decoded ? decoded.username : '',
+                req.body.patient_id
+            )).then((result) => {
+                if (result instanceof ErrorWithCode) throw result;
+
+                responseHandler.ok(req, res, next, true);
             }).catch(
                 /** @param {ErrorWithCode} error */
                 error => {
