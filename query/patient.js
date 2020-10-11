@@ -256,7 +256,7 @@ async function editPatient(client, username, details) {
         let i = 1;
         var edited = await client.query(
             `UPDATE vaccine_patient 
-                SET ${Object.keys(details).map((x, i) => `${x} =  $${i++}`).join(',')} 
+                SET ${Object.keys(details).map(x => `${x} =  $${i++}`).join(',')} 
                 WHERE id = $${i}
                 RETURNING firstname,lastname,id
             `,
