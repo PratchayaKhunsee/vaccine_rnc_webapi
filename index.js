@@ -477,7 +477,7 @@ app.post('/record/create', auth(responseHandler.unauthorized), method.POST['reco
 app.patch('/record/edit', auth(responseHandler.unauthorized), method.PATCH['record/edit']);
 app.post('/patient/create', auth(responseHandler.unauthorized), method.POST['patient/create']);
 app.patch('/patient/edit', auth(responseHandler.unauthorized), method.PATCH['patient/edit']);
-app.delete('/patient/remove', auth(responseHandler.unauthorized), method.DELETE);
+app.delete('/patient/remove', auth(responseHandler.unauthorized), method.DELETE['patient/remove']);
 app.post('/certificate', auth(responseHandler.unauthorized), function (req, res) {
     res.set({
         'Content-Type': 'application/json'
