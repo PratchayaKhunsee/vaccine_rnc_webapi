@@ -1,4 +1,13 @@
 /**
+ * @typedef {Object} Certification
+ * @property {Number} vaccine_id
+ * @property {Number} person_id
+ * @property {String} clinician_signature
+ * @property {String} clinician_prof_status
+ * @property {String} certify_from
+ * @property {String} certify_to
+ * @property {String} adminstering_centre_stamp
+ * 
  * @typedef {Object} CertificationData
  * @property {Number} [vaccine_id]
  * @property {Number} [person_id]
@@ -9,7 +18,8 @@
  * @property {String} [adminstering_centre_stamp]
  */
 
-const { CertificateNotFoundError, CertificateError, CreateCertificationError, UpdateCertificationError } = require("../error");
+const { CertificateNotFoundError, CertificateError, CreateCertificationError, UpdateCertificationError, ErrorWithCode, ERRORS } = require("../error");
+const { isPatientAvailableFor, checkUserName } = require("./_misc");
 
 /**
  * @param {import("../database").PgQueryMethod} q
@@ -65,10 +75,8 @@ async function doCreateCertification(q, personID, vaccineID, data) {
         Array.prototype.push.apply(values, Object.values(cloned));
         let i = 3;
         let certification = await q(
-            `insert into certification (vaccine_id,person_id${
-                keys.length > 0 ? ',' + keys.join(',') : ''
-            }) values ($1,$2${
-                keys.length > 0 ? ',' + keys.map(() => '$' + i++).join(',') : ''
+            `insert into certification (vaccine_id,person_id${keys.length > 0 ? ',' + keys.join(',') : ''
+            }) values ($1,$2${keys.length > 0 ? ',' + keys.map(() => '$' + i++).join(',') : ''
             })`,
             values
         );
@@ -123,8 +131,50 @@ async function doEditCertification(q, certificationID, personID, data) {
     }
 }
 
+/**
+ * 
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {Number} vaccinePatientId 
+ */
+async function getCertification(client, username, vaccinePatientId) {
+    try {
+        await client.query('BEGIN');
+
+        let checkUser = await checkUserName(client, username);
+        if(!checkUser) throw ERRORS.USER_NOT_FOUND;
+
+        let checkPatient = await isPatientAvailableFor(
+            client,
+            vaccinePatientId,
+            Number(checkUser.person.id)
+        );
+        if(!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
+
+        let cert = await client.query(
+            'SELECT * FROM certification WHERE vaccine_patient_id',
+            [
+                Number(vaccinePatientId)
+            ]
+        );
+        
+        if(cert.rows.length == 0) throw ERRORS.CERTIFICATION_NOT_FOUND;
+
+        /** @type {Array<Certification>} */
+        let result = [ ...cert.rows ];
+        
+        await client.query('COMMIT');
+
+        return result;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        return new ErrorWithCode(error);
+    }
+}
+
 module.exports = {
     doCreateCertification,
     doEditCertification,
     doViewCertifications,
+    getCertification,
 };
