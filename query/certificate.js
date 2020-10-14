@@ -152,7 +152,7 @@ async function getCertification(client, username, vaccinePatientId) {
         if(!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
 
         let cert = await client.query(
-            'SELECT * FROM certification WHERE vaccine_patient_id',
+            'SELECT * FROM certification WHERE vaccine_patient_id = $1',
             [
                 Number(vaccinePatientId)
             ]
