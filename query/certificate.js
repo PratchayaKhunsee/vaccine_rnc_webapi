@@ -167,6 +167,7 @@ async function getCertification(client, username, vaccinePatientId) {
 
         return result;
     } catch (error) {
+        console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
