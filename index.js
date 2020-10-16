@@ -515,7 +515,7 @@ app.post('/patient/create', auth(responseHandler.unauthorized), method.POST['pat
 app.post('/patient/edit', auth(responseHandler.unauthorized), method.POST['patient/edit']);
 app.post('/patient/remove', auth(responseHandler.unauthorized), method.POST['patient/remove']);
 app.post('/certificate/view', auth(responseHandler.unauthorized), method.POST['certificate/view']);
-app.post('/certificate/avaialble', auth(responseHandler.unauthorized), method.POST['certificate/available']);
+app.post('/certificate/available', auth(responseHandler.unauthorized), method.POST['certificate/available']);
 app.post('/', function (req, res) {
     res.send('null');
 });
