@@ -18,8 +18,19 @@
  * @property {String} [adminstering_centre_stamp]
  */
 
-const { CertificateNotFoundError, CertificateError, CreateCertificationError, UpdateCertificationError, ErrorWithCode, ERRORS } = require("../error");
-const { isPatientAvailableFor, checkUserName } = require("./_misc");
+const {
+    CertificateNotFoundError,
+    CertificateError,
+    CreateCertificationError,
+    UpdateCertificationError,
+    ErrorWithCode,
+    ERRORS
+} = require("../error");
+const {
+    isPatientAvailableFor,
+    checkUserName,
+    checkPatient
+} = require("./_misc");
 
 /**
  * @param {import("../database").PgQueryMethod} q
@@ -142,14 +153,14 @@ async function getCertification(client, username, vaccinePatientId) {
         await client.query('BEGIN');
 
         let checkUser = await checkUserName(client, username);
-        if(!checkUser) throw ERRORS.USER_NOT_FOUND;
+        if (!checkUser) throw ERRORS.USER_NOT_FOUND;
 
         let checkPatient = await isPatientAvailableFor(
             client,
             vaccinePatientId,
             Number(checkUser.person.id)
         );
-        if(!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
+        if (!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
 
         let cert = await client.query(
             'SELECT * FROM certification WHERE vaccine_patient_id = $1',
@@ -157,17 +168,66 @@ async function getCertification(client, username, vaccinePatientId) {
                 Number(vaccinePatientId)
             ]
         );
-        
-        if(cert.rows.length == 0) throw ERRORS.CERTIFICATION_NOT_FOUND;
+
+        if (cert.rows.length == 0) throw ERRORS.CERTIFICATION_NOT_FOUND;
 
         /** @type {Array<Certification>} */
-        let result = [ ...cert.rows ];
-        
+        let result = [...cert.rows];
+
         await client.query('COMMIT');
 
         return result;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
+        await client.query('ROLLBACK');
+        return new ErrorWithCode(error);
+    }
+}
+
+/**
+ * 
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {Number} vaccinePatientId 
+ */
+async function getAvailableVaccination(client, username, vaccinePatientId) {
+    try {
+        await client.query('BEGIN');
+
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw ERRORS.USER_NOT_FOUND;
+
+        
+        let _checkPatient = await checkPatient(
+            client,
+            Number(vaccinePatientId),
+            Number(checkUser.person.id)
+        );
+
+        if (!_checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
+
+        let rec = await client.query(
+            `SELECT * FROM vaccine_record WHERE id = $1`,
+            [
+                Number(_checkPatient.id)
+            ]
+        );
+
+        if(rec.rows.length != 1) throw ERRORS.RECORDS_NOT_FOUND;
+
+        /** @type {import('./records').VaccineRecord} */
+        let record = { ...rec.rows[0] };
+
+        /** @type {Array<String>} */
+        let result = [];
+        for(let n in record){
+            if(record[n] != null) result.push(n);
+        }
+
+        await client.query('COMMIT');
+
+        return result;
+    } catch (error) {
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
@@ -178,4 +238,5 @@ module.exports = {
     doEditCertification,
     doViewCertifications,
     getCertification,
+    getAvailableVaccination,
 };

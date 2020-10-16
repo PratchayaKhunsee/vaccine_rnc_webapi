@@ -50,27 +50,7 @@
  * @property {String}  dtp_first
  * @property {String}  dtp_second 
  * @property {String}  hpv_first 
- * @property {String}  dt_first 
- * @property {String} vaccine_id_bcg_first
- * @property {String} vaccine_id_hb_first
- * @property {String} vaccine_id_hb_second
- * @property {String} vaccine_id_opv_early_first
- * @property {String} vaccine_id_opv_early_second
- * @property {String} vaccine_id_opv_early_third
- * @property {String} vaccine_id_dtp_hb_first
- * @property {String} vaccine_id_dtp_hb_second
- * @property {String} vaccine_id_dtp_hb_third
- * @property {String} vaccine_id_ipv_first
- * @property {String} vaccine_id_mmr_first
- * @property {String} vaccine_id_mmr_second
- * @property {String} vaccine_id_je_first
- * @property {String} vaccine_id_je_seconds
- * @property {String} vaccine_id_opv_later_first
- * @property {String} vaccine_id_opv_later_second
- * @property {String} vaccine_id_dtp_first
- * @property {String} vaccine_id_dtp_second
- * @property {String} vaccine_id_hpv_first
- * @property {String} vaccine_id_dt_first
+ * @property {String}  dt_first
  */
 
 const {
