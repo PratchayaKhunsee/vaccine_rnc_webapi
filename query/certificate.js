@@ -220,6 +220,13 @@ async function getAvailableVaccination(client, username, vaccinePatientId) {
             ]
         );
 
+        let cert = await client.query(
+            `SELECT vaccine_against FROM certifaction WHERE vaccine_patient_id = $1`,
+            [
+                Number(_checkPatient.id)
+            ]
+        );
+
         if (rec.rows.length != 1) throw ERRORS.RECORDS_NOT_FOUND;
 
         /** @type {import('./records').VaccineRecord} */
@@ -228,7 +235,7 @@ async function getAvailableVaccination(client, username, vaccinePatientId) {
         /** @type {Array<String>} */
         let result = [];
         for (let n in record) {
-            if (record[n] !== null && n !== 'id') result.push(n);
+            if (record[n] !== null && n !== 'id' && !cert.rows.find(k => k == n)) result.push(n);
         }
 
         await client.query('COMMIT');
@@ -279,7 +286,6 @@ async function createCertification(client, username, context) {
 
         return result;
     } catch (error) {
-        console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
