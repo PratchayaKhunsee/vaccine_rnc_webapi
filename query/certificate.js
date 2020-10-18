@@ -235,7 +235,8 @@ async function getAvailableVaccination(client, username, vaccinePatientId) {
         /** @type {Array<String>} */
         let result = [];
         for (let n in record) {
-            if (record[n] !== null && n !== 'id' && !cert.rows.find(k => k == n)) result.push(n);
+            if (record[n] !== null && n !== 'id' && !cert.rows.find(k => k.vaccine_against == n))
+                result.push(n);
         }
 
         await client.query('COMMIT');
