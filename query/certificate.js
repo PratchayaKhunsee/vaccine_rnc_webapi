@@ -279,6 +279,7 @@ async function createCertification(client, username, context) {
 
         return result;
     } catch (error) {
+        console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
