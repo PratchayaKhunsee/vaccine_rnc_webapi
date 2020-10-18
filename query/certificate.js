@@ -256,7 +256,7 @@ async function createCertification(client, username, context) {
 
         let _checkPatient = await checkPatient(
             client,
-            Number(vaccinePatientId),
+            Number(context.patient_id),
             Number(checkUser.person.id)
         );
 
