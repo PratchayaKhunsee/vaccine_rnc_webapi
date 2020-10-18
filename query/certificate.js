@@ -1,12 +1,19 @@
 /**
  * @typedef {Object} Certification
- * @property {Number} vaccine_id
- * @property {Number} person_id
+ * @property {Number} vaccine_patient_id
  * @property {String} clinician_signature
  * @property {String} clinician_prof_status
  * @property {String} certify_from
  * @property {String} certify_to
  * @property {String} adminstering_centre_stamp
+ * @property {String} vaccine_against
+ * @property {String} vaccine_description
+ * @property {String} vaccine_manufacturer
+ * @property {String} vaccine_batch_number
+ * 
+ * @typedef {Object} CertificationCreatingContext
+ * @property {Number} patient_id
+ * @property {String} against
  * 
  * @typedef {Object} CertificationData
  * @property {Number} [vaccine_id]
@@ -197,7 +204,7 @@ async function getAvailableVaccination(client, username, vaccinePatientId) {
         let checkUser = await checkUserName(client, username);
         if (!checkUser) throw ERRORS.USER_NOT_FOUND;
 
-        
+
         let _checkPatient = await checkPatient(
             client,
             Number(vaccinePatientId),
@@ -213,18 +220,62 @@ async function getAvailableVaccination(client, username, vaccinePatientId) {
             ]
         );
 
-        if(rec.rows.length != 1) throw ERRORS.RECORDS_NOT_FOUND;
+        if (rec.rows.length != 1) throw ERRORS.RECORDS_NOT_FOUND;
 
         /** @type {import('./records').VaccineRecord} */
         let record = { ...rec.rows[0] };
 
         /** @type {Array<String>} */
         let result = [];
-        for(let n in record){
-            if(record[n] !== null && n !== 'id') result.push(n);
+        for (let n in record) {
+            if (record[n] !== null && n !== 'id') result.push(n);
         }
 
         await client.query('COMMIT');
+
+        return result;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        return new ErrorWithCode(error);
+    }
+}
+
+/**
+ * 
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {CertificationCreatingContext} context
+ */
+async function createCertification(client, username, context) {
+    try {
+        await client.query('BEGIN');
+
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw ERRORS.USER_NOT_FOUND;
+
+
+        let _checkPatient = await checkPatient(
+            client,
+            Number(vaccinePatientId),
+            Number(checkUser.person.id)
+        );
+
+        if (!_checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
+
+        let cert = await client.query(
+            `INSERT INTO certification (against,vaccine_patient_id) VALUES($1,$2)
+                RETURNING *
+            `,
+            [
+                String(context.against),
+                Number(context.patient_id)
+            ]
+        );
+
+        if (cert.rowCount == 0 && cert.rows.length == 0) throw ERRORS.CREATING_CERT_ERROR;
+        await client.query('COMMIT');
+        /** @type {Certification} */
+        let result = { ...cert.rows[0] };
 
         return result;
     } catch (error) {
@@ -239,4 +290,5 @@ module.exports = {
     doViewCertifications,
     getCertification,
     getAvailableVaccination,
+    createCertification
 };

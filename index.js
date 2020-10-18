@@ -47,11 +47,9 @@ const {
     removePatient
 } = require('./query/patient');
 const {
-    doViewCertifications,
-    doCreateCertification,
-    doEditCertification,
     getCertification,
-    getAvailableVaccination
+    getAvailableVaccination,
+    createCertification
 } = require('./query/certificate');
 const {
     doViewParenting,
@@ -454,7 +452,7 @@ const method = {
             );
         },
         /** @type {import('express').RequestHandler} */
-        'certificate/view'(req, res, next){
+        'certificate/view'(req, res, next) {
             let decoded = decode_auth_token(req, res, next);
 
             connect(async client => await getCertification(
@@ -473,7 +471,7 @@ const method = {
             );
         },
         /** @type {import('express').RequestHandler} */
-        'certificate/available'(req, res, next){
+        'certificate/available'(req, res, next) {
             let decoded = decode_auth_token(req, res, next);
 
             connect(async client => await getAvailableVaccination(
@@ -481,7 +479,25 @@ const method = {
                 decoded ? decoded.username : '',
                 req.body.patient_id
             )).then((result) => {
-                console.log(result);
+                // console.log(result);
+                if (result instanceof ErrorWithCode) throw result;
+
+                responseHandler.ok(req, res, next, result);
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    responseHandler.badRequest(req, res, next, error);
+                }
+            );
+        },
+        /** @type {import('express').RequestHandler} */
+        'certificate/create'(req, res, next) {
+            let decoded = decode_auth_token(req, res, next);
+            connect(async client => await createCertification(
+                client,
+                decoded ? decoded.username : '',
+                req.body
+            )).then((result) => {
                 if (result instanceof ErrorWithCode) throw result;
 
                 responseHandler.ok(req, res, next, result);
@@ -517,6 +533,7 @@ app.post('/patient/edit', auth(responseHandler.unauthorized), method.POST['patie
 app.post('/patient/remove', auth(responseHandler.unauthorized), method.POST['patient/remove']);
 app.post('/certificate/view', auth(responseHandler.unauthorized), method.POST['certificate/view']);
 app.post('/certificate/available', auth(responseHandler.unauthorized), method.POST['certificate/available']);
+app.post('/certificate/create', auth(responseHandler.unauthorized), method.POST['certificate/create']);
 app.post('/', function (req, res) {
     res.send('null');
 });
