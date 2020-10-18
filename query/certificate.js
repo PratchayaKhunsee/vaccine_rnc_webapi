@@ -221,7 +221,7 @@ async function getAvailableVaccination(client, username, vaccinePatientId) {
         );
 
         let cert = await client.query(
-            `SELECT vaccine_against FROM certifaction WHERE vaccine_patient_id = $1`,
+            `SELECT vaccine_against FROM certification WHERE vaccine_patient_id = $1`,
             [
                 Number(_checkPatient.id)
             ]
