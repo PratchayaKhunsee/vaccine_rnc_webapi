@@ -263,7 +263,7 @@ async function createCertification(client, username, context) {
         if (!_checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
 
         let cert = await client.query(
-            `INSERT INTO certification (against,vaccine_patient_id) VALUES($1,$2)
+            `INSERT INTO certification (vaccine_against,vaccine_patient_id) VALUES($1,$2)
                 RETURNING *
             `,
             [
