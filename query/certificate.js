@@ -378,6 +378,7 @@ async function viewCertificate(client, username, selection) {
 
         return result;
     } catch (error) {
+        console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
