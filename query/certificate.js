@@ -362,7 +362,7 @@ async function viewCertificate(client, username, selection) {
         if (!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
 
         let cert = await client.query(
-            'SELECT * FROM certification WHERE vaccine_patient_id = $1 && id = $2',
+            'SELECT * FROM certification WHERE vaccine_patient_id = $1 AND id = $2',
             [
                 Number(selection.patient_id),
                 Number(selection.certificate_id)
