@@ -26,6 +26,7 @@ const {
 const types = require("pg").types;
 const OID = {
     datatype: {
+        bytea: 17,
         int8: 20,
         date: 1082,
         time: 1083,
@@ -36,10 +37,12 @@ const OID = {
 
 const typeParser = {
     int8: value => value !== null ? parseInt(value) : null,
+    bytea: value => value !== null ? btoa(value) : null,
 }
 
-types.setTypeParser(OID.datatype.int8, typeParser.int8);
-// types.setTypeParser(OID.datatype.date, value => new Date(value).toISOString());
+for(let type in typeParser){
+    types.setTypeParser(OID.datatype[type], typeParser[type]);
+}
 
 // Future use this pooling connection
 const pool = new Pool({
@@ -66,6 +69,7 @@ function dequeueAll() {
 }
 
 /**
+ * Attempt to use database connection with limited.
  * 
  * @param {QueryAsyncFunction} success
  * @param {ErrorCallback} error

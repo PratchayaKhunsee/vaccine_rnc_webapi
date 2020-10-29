@@ -49,7 +49,8 @@ const {
 const {
     getCertification,
     getAvailableVaccination,
-    createCertification
+    createCertification,
+    getBrieflyCertificates
 } = require('./query/certificate');
 const {
     doViewParenting,
@@ -507,7 +508,26 @@ const method = {
                     responseHandler.badRequest(req, res, next, error);
                 }
             );
-        }
+        },
+        /** @type {import('express').RequestHandler} */
+        'certificate/list'(req, res, next) {
+            let decoded = decode_auth_token(req, res, next);
+
+            connect(async client => await getBrieflyCertificates(
+                client,
+                decoded ? decoded.username : '',
+                req.body.patient_id
+            )).then((result) => {
+                if (result instanceof ErrorWithCode) throw result;
+
+                responseHandler.ok(req, res, next, result);
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    responseHandler.badRequest(req, res, next, error);
+                }
+            );
+        },
     },
 }
 
@@ -534,6 +554,7 @@ app.post('/patient/remove', auth(responseHandler.unauthorized), method.POST['pat
 app.post('/certificate/view', auth(responseHandler.unauthorized), method.POST['certificate/view']);
 app.post('/certificate/available', auth(responseHandler.unauthorized), method.POST['certificate/available']);
 app.post('/certificate/create', auth(responseHandler.unauthorized), method.POST['certificate/create']);
+app.post('/certificate/list', auth(responseHandler.unauthorized), method.POST['certificate/list']);
 app.post('/', function (req, res) {
     res.send('null');
 });
