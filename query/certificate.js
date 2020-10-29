@@ -347,7 +347,7 @@ async function getBrieflyCertificates(client, username, vaccinePatientId) {
  * @param {String} username 
  * @param {CertificationSelectingContext} selection 
  */
-async function getCertificateData(client, username, selection) {
+async function viewCertificate(client, username, selection) {
     try {
         await client.query('BEGIN');
 
@@ -356,22 +356,23 @@ async function getCertificateData(client, username, selection) {
 
         let checkPatient = await isPatientAvailableFor(
             client,
-            vaccinePatientId,
+            selection.patient_id,
             Number(checkUser.person.id)
         );
         if (!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
 
         let cert = await client.query(
-            'SELECT vaccine_against,id FROM certification WHERE vaccine_patient_id = $1',
+            'SELECT * FROM certification WHERE vaccine_patient_id = $1 && id = $2',
             [
-                Number(vaccinePatientId)
+                Number(selection.patient_id),
+                Number(selection.certificate_id)
             ]
         );
 
-        if (cert.rows.length == 0) throw ERRORS.CERTIFICATION_NOT_FOUND;
+        if (cert.rows.length != 1) throw ERRORS.CERTIFICATION_NOT_FOUND;
 
-        /** @type {Array<Certification>} */
-        let result = [...cert.rows];
+        /** @type {Certification} */
+        let result = cert.rows[0];
 
         await client.query('COMMIT');
 
@@ -390,5 +391,5 @@ module.exports = {
     getAvailableVaccination,
     createCertification,
     getBrieflyCertificates,
-    getCertificateData,
+    viewCertificate,
 };

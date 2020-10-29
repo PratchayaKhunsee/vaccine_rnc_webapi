@@ -50,7 +50,9 @@ const {
     getCertification,
     getAvailableVaccination,
     createCertification,
-    getBrieflyCertificates
+    getBrieflyCertificates,
+    getCertificateData,
+    viewCertificate
 } = require('./query/certificate');
 const {
     doViewParenting,
@@ -456,10 +458,10 @@ const method = {
         'certificate/view'(req, res, next) {
             let decoded = decode_auth_token(req, res, next);
 
-            connect(async client => await getCertification(
+            connect(async client => await viewCertificate(
                 client,
                 decoded ? decoded.username : '',
-                req.body.patient_id
+                req.body,
             )).then((result) => {
                 if (result instanceof ErrorWithCode) throw result;
 
@@ -555,6 +557,7 @@ app.post('/certificate/view', auth(responseHandler.unauthorized), method.POST['c
 app.post('/certificate/available', auth(responseHandler.unauthorized), method.POST['certificate/available']);
 app.post('/certificate/create', auth(responseHandler.unauthorized), method.POST['certificate/create']);
 app.post('/certificate/list', auth(responseHandler.unauthorized), method.POST['certificate/list']);
+
 app.post('/', function (req, res) {
     res.send('null');
 });
