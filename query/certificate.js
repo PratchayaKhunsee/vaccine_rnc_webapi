@@ -410,7 +410,9 @@ async function editCertificate(client, username, certificate) {
         let tableNames = Object.keys(certificate).filter(x => x != 'id' && x != 'vaccine_patient_id');
         let values = [];
         for (let k of tableNames) {
-            values.push(certificate[k]);
+            let v = certificate[k];
+            console.log(typeof v);
+            values.push(v);
         }
         values.push(Number(certificate.id));
         let i = 1;
