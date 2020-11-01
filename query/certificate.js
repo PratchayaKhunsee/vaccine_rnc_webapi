@@ -414,10 +414,10 @@ async function editCertificate(client, username, certificate) {
         }
         values.push(Number(certificate.id));
         let i = 1;
-        console.log(`UPDATE certificate SET ${tableNames.map(x => `${x} = $${i++}`).join(',')} WHERE id = $${i++}
+        console.log(`UPDATE certification SET ${tableNames.map(x => `${x} = $${i++}`).join(',')} WHERE id = $${i++}
         RETURNING ${tableNames.join(',')}`);
         let certUpdated = await client.query(
-            `UPDATE certificate SET ${tableNames.map(x => `${x} = $${i++}`).join(',')} WHERE id = $${i++}
+            `UPDATE certification SET ${tableNames.map(x => `${x} = $${i++}`).join(',')} WHERE id = $${i++}
             RETURNING ${tableNames.join(',')}`,
             values
         );
