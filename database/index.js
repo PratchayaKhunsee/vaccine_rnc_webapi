@@ -37,7 +37,7 @@ const OID = {
 
 const typeParser = {
     int8: value => value !== null ? parseInt(value) : null,
-    bytea: value => value !== null ? btoa(value) : null,
+    // bytea: value => value !== null ? btoa(value) : null,
 }
 
 for(let type in typeParser){
