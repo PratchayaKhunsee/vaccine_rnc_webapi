@@ -393,7 +393,7 @@ async function viewCertificate(client, username, selection) {
  */
 async function editCertificate(client, username, certificate) {
     try {
-        console.log(certificate);
+        // console.log(certificate);
         await client.query('BEGIN');
 
         let checkUser = await checkUserName(client, username);
