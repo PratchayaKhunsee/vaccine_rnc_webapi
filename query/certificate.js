@@ -414,8 +414,10 @@ async function editCertificate(client, username, certificate) {
         }
         values.push(Number(certificate.id));
         let i = 1;
+        console.log(`UPDATE certificate SET (${tableNames.map(x => `${x} = ${i++}`).join(',')}) WHERE id = ${i++}
+        RETURNING ${tableNames.join(',')}`);
         let certUpdated = await client.query(
-            `UPDATE certificate SET ${tableNames.map(x => `${x} = ${i++}`).join(',')} WHERE id = ${i++}
+            `UPDATE certificate SET (${tableNames.map(x => `${x} = ${i++}`).join(',')}) WHERE id = ${i++}
             RETURNING ${tableNames.join(',')}`,
             values
         );
@@ -429,7 +431,7 @@ async function editCertificate(client, username, certificate) {
 
         return result;
     } catch (error) {
-        
+
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
