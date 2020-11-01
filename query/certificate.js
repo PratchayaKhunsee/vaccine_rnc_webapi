@@ -431,7 +431,7 @@ async function editCertificate(client, username, certificate) {
 
         return result;
     } catch (error) {
-
+        console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
