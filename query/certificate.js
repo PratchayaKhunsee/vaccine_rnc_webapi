@@ -393,6 +393,7 @@ async function viewCertificate(client, username, selection) {
  */
 async function editCertificate(client, username, certificate) {
     try {
+        console.log(certificate);
         await client.query('BEGIN');
 
         let checkUser = await checkUserName(client, username);
@@ -428,7 +429,7 @@ async function editCertificate(client, username, certificate) {
 
         return result;
     } catch (error) {
-        console.log(error);
+        
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
