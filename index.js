@@ -51,7 +51,7 @@ const {
     getAvailableVaccination,
     createCertification,
     getBrieflyCertificates,
-    getCertificateData,
+    editCertificate,
     viewCertificate
 } = require('./query/certificate');
 const {
@@ -530,6 +530,25 @@ const method = {
                 }
             );
         },
+        /** @type {import('express').RequestHandler} */
+        'certificate/edit'(req, res, next) {
+            let decoded = decode_auth_token(req, res, next);
+
+            connect(async client => await editCertificate(
+                client,
+                decoded ? decoded.username : '',
+                req.body
+            )).then((result) => {
+                if (result instanceof ErrorWithCode) throw result;
+
+                responseHandler.ok(req, res, next, result);
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    responseHandler.badRequest(req, res, next, error);
+                }
+            );
+        },
     },
 }
 
@@ -557,9 +576,9 @@ app.post('/certificate/view', auth(responseHandler.unauthorized), method.POST['c
 app.post('/certificate/available', auth(responseHandler.unauthorized), method.POST['certificate/available']);
 app.post('/certificate/create', auth(responseHandler.unauthorized), method.POST['certificate/create']);
 app.post('/certificate/list', auth(responseHandler.unauthorized), method.POST['certificate/list']);
-
+app.post('/certificate/edit', auth(responseHandler.unauthorized), method.POST['certificate/edit']);
 app.post('/', function (req, res) {
-    res.send('null');
+    res.send('Did you feel empty?');
 });
 
 // ============= Initialization ============= //

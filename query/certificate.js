@@ -1,5 +1,6 @@
 /**
  * @typedef {Object} Certification
+ * @property {Number} id
  * @property {Number} vaccine_patient_id
  * @property {String} clinician_signature
  * @property {String} clinician_prof_status
@@ -384,6 +385,55 @@ async function viewCertificate(client, username, selection) {
     }
 }
 
+/**
+ * 
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {Certification} certificate 
+ */
+async function editCertificate(client, username, certificate) {
+    try {
+        await client.query('BEGIN');
+
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw ERRORS.USER_NOT_FOUND;
+
+        let checkPatient = await isPatientAvailableFor(
+            client,
+            certificate.vaccine_patient_id,
+            Number(checkUser.person.id)
+        );
+
+        if (!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
+
+        let tableNames = Object.keys(certificate).filter(x => x != 'id' && x != 'vaccine_patient_id');
+        let values = [];
+        for (let k of tableNames) {
+            values.push(certificate[k]);
+        }
+        values.push(Number(certificate.id));
+        let i = 1;
+        let certUpdated = await client.query(
+            `UPDATE certificate SET ${tableNames.map(x => `${x} = ${i++}`).join(',')} WHERE id = ${i++}
+            RETURNING ${tableNames.join(',')}`,
+            values
+        );
+
+        if (certUpdated.rowCount != 1 || certUpdated.rowCount != 1) throw ERRORS.MODIFYING_CERT_ERROR;
+
+        /** @type {Certification} */
+        let result = certUpdated.rows[0];
+
+        await client.query('COMMIT');
+
+        return result;
+    } catch (error) {
+        console.log(error);
+        await client.query('ROLLBACK');
+        return new ErrorWithCode(error);
+    }
+}
+
 module.exports = {
     doCreateCertification,
     doEditCertification,
@@ -393,4 +443,5 @@ module.exports = {
     createCertification,
     getBrieflyCertificates,
     viewCertificate,
+    editCertificate
 };
