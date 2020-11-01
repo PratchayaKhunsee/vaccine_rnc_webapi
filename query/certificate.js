@@ -401,7 +401,7 @@ async function editCertificate(client, username, certificate) {
 
         let checkPatient = await isPatientAvailableFor(
             client,
-            certificate.vaccine_patient_id,
+            Number(certificate.vaccine_patient_id),
             Number(checkUser.person.id)
         );
 
@@ -414,10 +414,10 @@ async function editCertificate(client, username, certificate) {
         }
         values.push(Number(certificate.id));
         let i = 1;
-        console.log(`UPDATE certificate SET (${tableNames.map(x => `${x} = ${i++}`).join(',')}) WHERE id = ${i++}
+        console.log(`UPDATE certificate SET (${tableNames.map(x => `${x} = $${i++}`).join(',')}) WHERE id = $${i++}
         RETURNING ${tableNames.join(',')}`);
         let certUpdated = await client.query(
-            `UPDATE certificate SET (${tableNames.map(x => `${x} = ${i++}`).join(',')}) WHERE id = ${i++}
+            `UPDATE certificate SET (${tableNames.map(x => `${x} = $${i++}`).join(',')}) WHERE id = $${i++}
             RETURNING ${tableNames.join(',')}`,
             values
         );
