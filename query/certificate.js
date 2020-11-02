@@ -424,6 +424,7 @@ async function editCertificate(client, username, certificate) {
         let values = [];
         for (let k of tableNames) {
             let v = cert[k];
+            console.log(k, v);
             values.push(v);
         }
         values.push(Number(cert.id));
