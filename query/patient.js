@@ -374,7 +374,7 @@ async function removePatient(client, username, vaccinePatientId) {
 
         return true;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }

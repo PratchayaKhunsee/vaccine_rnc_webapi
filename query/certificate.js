@@ -391,7 +391,7 @@ async function viewCertificate(client, username, selection) {
 
         return result;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
@@ -424,7 +424,7 @@ async function editCertificate(client, username, certificate) {
         let values = [];
         for (let k of tableNames) {
             let v = cert[k];
-            console.log(k, v);
+            // console.log(k, v);
             values.push(v);
         }
         values.push(Number(cert.id));
@@ -449,7 +449,7 @@ async function editCertificate(client, username, certificate) {
 
         return result;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
