@@ -393,8 +393,11 @@ async function viewCertificate(client, username, selection) {
  */
 async function editCertificate(client, username, certificate) {
     try {
-        // console.log(certificate);
         await client.query('BEGIN');
+
+        let cert = { ...certificate };
+        if('clinician_signature' in cert) cert.clinician_signature = atob(cert.clinician_signature);
+        if('adminstering_centre_stamp' in cert) cert.adminstering_centre_stamp = atob(cert.adminstering_centre_stamp);
 
         let checkUser = await checkUserName(client, username);
         if (!checkUser) throw ERRORS.USER_NOT_FOUND;
@@ -407,17 +410,14 @@ async function editCertificate(client, username, certificate) {
 
         if (!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
 
-        let tableNames = Object.keys(certificate).filter(x => x != 'id' && x != 'vaccine_patient_id');
+        let tableNames = Object.keys(cert).filter(x => x != 'id' && x != 'vaccine_patient_id');
         let values = [];
         for (let k of tableNames) {
-            let v = certificate[k];
-            // console.log(typeof v);
+            let v = cert[k];
             values.push(v);
         }
-        values.push(Number(certificate.id));
+        values.push(Number(cert.id));
         let i = 1;
-        // console.log(`UPDATE certification SET ${tableNames.map(x => `${x} = $${i}`).join(',')} WHERE id = $${i++}
-        // RETURNING ${tableNames.join(',')}`, values);
         let certUpdated = await client.query(
             `UPDATE certification SET ${tableNames.map(x => `${x} = $${i++}`).join(',')} WHERE id = $${i}
             RETURNING ${tableNames.join(',')}`,
@@ -433,7 +433,6 @@ async function editCertificate(client, username, certificate) {
 
         return result;
     } catch (error) {
-        console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
