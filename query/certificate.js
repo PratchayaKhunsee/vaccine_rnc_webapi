@@ -397,18 +397,18 @@ async function editCertificate(client, username, certificate) {
 
         let cert = { ...certificate };
 
-        if ('clinician_signature' in cert) {
-            cert.clinician_signature = Buffer.from(
-                cert.clinician_signature,
-                'base64'
-            ).toString('ascii');
-        }
-        if ('adminstering_centre_stamp' in cert) {
-            cert.adminstering_centre_stamp = Buffer.from(
-                cert.adminstering_centre_stamp,
-                'base64'
-            ).toString('ascii');
-        }
+        // if ('clinician_signature' in cert) {
+        //     cert.clinician_signature = Buffer.from(
+        //         cert.clinician_signature,
+        //         'base64'
+        //     ).toString('ascii');
+        // }
+        // if ('adminstering_centre_stamp' in cert) {
+        //     cert.adminstering_centre_stamp = Buffer.from(
+        //         cert.adminstering_centre_stamp,
+        //         'base64'
+        //     ).toString('ascii');
+        // }
         let checkUser = await checkUserName(client, username);
         if (!checkUser) throw ERRORS.USER_NOT_FOUND;
 
