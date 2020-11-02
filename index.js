@@ -554,7 +554,9 @@ const method = {
 
 // ============= Middleware Usage ============== //
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({
+    limit: '3mb',
+}));
 
 // ============= REST API Routing ============== //
 app.get('/', function (req, res) {
