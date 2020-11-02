@@ -436,7 +436,7 @@ async function editCertificate(client, username, certificate) {
                 }`).join(',')} WHERE id = $${i}
             RETURNING ${tableNames.map(
                     x => x == 'clinician_signature' || x == 'administring_centre_stamp' ?
-                        `decode(${x}, 'base64')` : x).join(',')}`,
+                        `encode(${x}, 'base64')` : x).join(',')}`,
             values
         );
 
