@@ -363,7 +363,19 @@ async function viewCertificate(client, username, selection) {
         if (!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
 
         let cert = await client.query(
-            'SELECT * FROM certification WHERE vaccine_patient_id = $1 AND id = $2',
+            `SELECT 
+                id,
+                vaccine_patient_id,
+                vaccine_briefing,
+                vaccine_against,
+                vaccine_manufacturer
+                vaccine_batch_number,
+                encode(clinician_signature,'base64') as clinician_signature,
+                clinician_prof_status,
+                certify_from,
+                certify_to,
+                encode(administring_centre_stamp, 'base64') as administring_centre_stamp
+            FROM certification WHERE vaccine_patient_id = $1 AND id = $2`,
             [
                 Number(selection.patient_id),
                 Number(selection.certificate_id)
