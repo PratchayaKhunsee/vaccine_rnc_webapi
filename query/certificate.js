@@ -370,11 +370,11 @@ async function viewCertificate(client, username, selection) {
                 vaccine_against,
                 vaccine_manufacturer
                 vaccine_batch_number,
-                encode(clinician_signature,'base64') as clinician_signature,
+                encode(clinician_signature,'base64') AS clinician_signature,
                 clinician_prof_status,
                 certify_from,
                 certify_to,
-                encode(administring_centre_stamp, 'base64') as administring_centre_stamp
+                encode(administring_centre_stamp, 'base64') AS administring_centre_stamp
             FROM certification WHERE vaccine_patient_id = $1 AND id = $2`,
             [
                 Number(selection.patient_id),
@@ -436,7 +436,7 @@ async function editCertificate(client, username, certificate) {
                 }`).join(',')} WHERE id = $${i}
             RETURNING ${tableNames.map(
                     x => x == 'clinician_signature' || x == 'administring_centre_stamp' ?
-                        `encode(${x}, 'base64')` : x).join(',')}`,
+                        `encode(${x}, 'base64') AS ${x}` : x).join(',')}`,
             values
         );
 

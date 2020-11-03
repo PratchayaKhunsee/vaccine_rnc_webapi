@@ -99,7 +99,6 @@ const responseHandler = {
         res.set({
             'Content-Type': 'application/json'
         });
-        // console.log(content, JSON.stringify(content));
         res.status(httpStatus.NOT_FOUND);
         res.send(JSON.stringify(content) || '{}');
     },
