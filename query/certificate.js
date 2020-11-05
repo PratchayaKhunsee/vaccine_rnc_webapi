@@ -502,7 +502,7 @@ async function getCertificatesByIDs(client, username, certificateIDs) {
 
         return result;
     } catch (error) {
-        // console.log(error);
+        console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
