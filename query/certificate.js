@@ -497,9 +497,9 @@ async function getFullCertificates(client, username, selection) {
             ]
         );
 
-        console.log(selection.patient_id, cert.rows);
+        // console.log(selection.patient_id, cert.rows);
 
-        if (cert.rows.length != 1) throw ERRORS.CERTIFICATION_NOT_FOUND;
+        if (cert.rows.length == 0) throw ERRORS.CERTIFICATION_NOT_FOUND;
 
         /** @type {Array<Certification>} */
         let result = cert.rows;
