@@ -497,10 +497,12 @@ async function getFullCertificates(client, username, selection) {
             ]
         );
 
+        console.log(selection.patient_id, cert.rows);
+
         if (cert.rows.length != 1) throw ERRORS.CERTIFICATION_NOT_FOUND;
 
-        /** @type {Certification} */
-        let result = cert.rows[0];
+        /** @type {Array<Certification>} */
+        let result = cert.rows;
 
         await client.query('COMMIT');
 
