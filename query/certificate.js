@@ -431,8 +431,8 @@ async function editCertificate(client, username, certificate) {
         let i = 1;
         let certUpdated = await client.query(
             `UPDATE certification SET ${tableNames.map(x => `${x} = ${x == 'adminstring_centre_stamp' || x == 'clinician_signature' ?
-                    `decode($${i++},'base64')` :
-                    '$' + i++
+                `decode($${i++},'base64')` :
+                '$' + i++
                 }`).join(',')} WHERE id = $${i}
             RETURNING ${tableNames.map(
                     x => x == 'clinician_signature' || x == 'administring_centre_stamp' ?
@@ -454,6 +454,59 @@ async function editCertificate(client, username, certificate) {
         return new ErrorWithCode(error);
     }
 }
+/**
+ * 
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {Array<Number>} certificateIDs 
+ */
+async function getCertificatesByIDs(client, username, certificateIDs) {
+    try {
+        await client.query('BEGIN');
+
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw ERRORS.USER_NOT_FOUND;
+
+        let checkPatient = await isPatientAvailableFor(
+            client,
+            selection.patient_id,
+            Number(checkUser.person.id)
+        );
+        if (!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
+
+        let cert = await client.query(
+            `SELECT 
+                id,
+                vaccine_patient_id,
+                vaccine_briefing,
+                vaccine_against,
+                vaccine_manufacturer
+                vaccine_batch_number,
+                encode(clinician_signature,'base64') AS clinician_signature,
+                clinician_prof_status,
+                certify_from,
+                certify_to,
+                encode(administring_centre_stamp, 'base64') AS administring_centre_stamp
+            FROM certification WHERE id IN ($1)`,
+            [
+                [...certificateIDs].map(x => Number(x)),
+            ]
+        );
+
+        if (cert.rows.length != 1) throw ERRORS.CERTIFICATION_NOT_FOUND;
+
+        /** @type {Certification} */
+        let result = cert.rows[0];
+
+        await client.query('COMMIT');
+
+        return result;
+    } catch (error) {
+        // console.log(error);
+        await client.query('ROLLBACK');
+        return new ErrorWithCode(error);
+    }
+}
 
 module.exports = {
     doCreateCertification,
@@ -464,5 +517,6 @@ module.exports = {
     createCertification,
     getBrieflyCertificates,
     viewCertificate,
-    editCertificate
+    editCertificate,
+    getCertificatesByIDs
 };

@@ -52,7 +52,8 @@ const {
     createCertification,
     getBrieflyCertificates,
     editCertificate,
-    viewCertificate
+    viewCertificate,
+    getCertificatesByIDs
 } = require('./query/certificate');
 const {
     doViewParenting,
@@ -548,6 +549,25 @@ const method = {
                 }
             );
         },
+        /** @type {import('express').RequestHandler} */
+        'certificate/list/full'(req, res, next) {
+            let decoded = decode_auth_token(req, res, next);
+
+            connect(async client => await getCertificatesByIDs(
+                client,
+                decoded ? decoded.username : '',
+                req.body
+            )).then((result) => {
+                if (result instanceof ErrorWithCode) throw result;
+
+                responseHandler.ok(req, res, next, result);
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    responseHandler.badRequest(req, res, next, error);
+                }
+            );
+        },
     },
 }
 
@@ -578,8 +598,9 @@ app.post('/certificate/available', auth(responseHandler.unauthorized), method.PO
 app.post('/certificate/create', auth(responseHandler.unauthorized), method.POST['certificate/create']);
 app.post('/certificate/list', auth(responseHandler.unauthorized), method.POST['certificate/list']);
 app.post('/certificate/edit', auth(responseHandler.unauthorized), method.POST['certificate/edit']);
+app.post('/certificate/list/full', auth(responseHandler.unauthorized), method.POST['certificate/list/full']);
 app.post('/', function (req, res) {
-    res.send('Did you feel empty?');
+    res.send('Did you feel empty inside of your body?');
 });
 
 // ============= Initialization ============= //
