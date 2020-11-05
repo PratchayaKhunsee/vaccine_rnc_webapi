@@ -24,6 +24,10 @@
  * @property {Number} patient_id
  * @property {Number} certificate_id
  * 
+ * @typedef {Object} CertificationFilteringContext
+ * @property {Number} patient_id
+ * @property {Array<Number>} [certificate_id_list]
+ * 
  * @typedef {Object} CertificationData
  * @property {Number} [vaccine_id]
  * @property {Number} [person_id]
@@ -458,9 +462,9 @@ async function editCertificate(client, username, certificate) {
  * 
  * @param {import('pg').Client} client 
  * @param {String} username 
- * @param {Array<Number>} certificateIDs 
+ * @param {CertificationFilteringContext} selection
  */
-async function getCertificatesByIDs(client, username, certificateIDs) {
+async function getFullCertificates(client, username, selection) {
     try {
         await client.query('BEGIN');
 
@@ -487,9 +491,9 @@ async function getCertificatesByIDs(client, username, certificateIDs) {
                 certify_from,
                 certify_to,
                 encode(administring_centre_stamp, 'base64') AS administring_centre_stamp
-            FROM certification WHERE id IN ($1)`,
+            FROM certification WHERE vaccine_patient_id = $1`,
             [
-                [...certificateIDs].map(x => Number(x)),
+                Number(selection.patient_id),
             ]
         );
 
@@ -518,5 +522,5 @@ module.exports = {
     getBrieflyCertificates,
     viewCertificate,
     editCertificate,
-    getCertificatesByIDs
+    getFullCertificates
 };

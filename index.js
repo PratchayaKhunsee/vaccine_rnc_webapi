@@ -53,7 +53,7 @@ const {
     getBrieflyCertificates,
     editCertificate,
     viewCertificate,
-    getCertificatesByIDs
+    getFullCertificates
 } = require('./query/certificate');
 const {
     doViewParenting,
@@ -553,7 +553,7 @@ const method = {
         'certificate/list/full'(req, res, next) {
             let decoded = decode_auth_token(req, res, next);
 
-            connect(async client => await getCertificatesByIDs(
+            connect(async client => await getFullCertificates(
                 client,
                 decoded ? decoded.username : '',
                 req.body
