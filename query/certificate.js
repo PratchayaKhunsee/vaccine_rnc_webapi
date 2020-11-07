@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} Certification
+ * @typedef {Object} CertificationBody
  * @property {Number} id
  * @property {Number} vaccine_patient_id
  * @property {String} clinician_signature
@@ -11,6 +11,12 @@
  * @property {String} vaccine_description
  * @property {String} vaccine_manufacturer
  * @property {String} vaccine_batch_number
+ * 
+ * @typedef {Object} CertificationHeader
+ * @property {Number} sex
+ * @property {String} nationality
+ * @property {String} signature
+ * @property {String} against_description
  * 
  * @typedef {Object} CertificationBriefing
  * @property {Number} vaccine_patient_id
@@ -27,6 +33,13 @@
  * @typedef {Object} CertificationFilteringContext
  * @property {Number} patient_id
  * @property {Array<Number>} [certificate_id_list]
+ * 
+ * @typedef {Object} CertHeaderEditingContext
+ * @property {Number} patient_id
+ * @property {Number} [sex]
+ * @property {String} [nationality]
+ * @property {String} [signature]
+ * @property {String} [against_description]
  * 
  * @typedef {Object} CertificationData
  * @property {Number} [vaccine_id]
@@ -191,7 +204,7 @@ async function getCertification(client, username, vaccinePatientId) {
 
         if (cert.rows.length == 0) throw ERRORS.CERTIFICATION_NOT_FOUND;
 
-        /** @type {Array<Certification>} */
+        /** @type {Array<CertificationBody>} */
         let result = [...cert.rows];
 
         await client.query('COMMIT');
@@ -295,7 +308,7 @@ async function createCertification(client, username, context) {
 
         if (cert.rowCount == 0 && cert.rows.length == 0) throw ERRORS.CREATING_CERT_ERROR;
         await client.query('COMMIT');
-        /** @type {Certification} */
+        /** @type {CertificationBody} */
         let result = { ...cert.rows[0] };
 
         return result;
@@ -388,7 +401,7 @@ async function viewCertificate(client, username, selection) {
 
         if (cert.rows.length != 1) throw ERRORS.CERTIFICATION_NOT_FOUND;
 
-        /** @type {Certification} */
+        /** @type {CertificationBody} */
         let result = cert.rows[0];
 
         await client.query('COMMIT');
@@ -405,7 +418,7 @@ async function viewCertificate(client, username, selection) {
  * 
  * @param {import('pg').Client} client 
  * @param {String} username 
- * @param {Certification} certificate 
+ * @param {CertificationBody} certificate 
  */
 async function editCertificate(client, username, certificate) {
     try {
@@ -446,7 +459,7 @@ async function editCertificate(client, username, certificate) {
 
         if (certUpdated.rowCount != 1 || certUpdated.rowCount != 1) throw ERRORS.MODIFYING_CERT_ERROR;
 
-        /** @type {Certification} */
+        /** @type {CertificationBody} */
         let result = certUpdated.rows[0];
 
         await client.query('COMMIT');
@@ -497,11 +510,9 @@ async function getFullCertificates(client, username, selection) {
             ]
         );
 
-        // console.log(selection.patient_id, cert.rows);
-
         if (cert.rows.length == 0) throw ERRORS.CERTIFICATION_NOT_FOUND;
 
-        /** @type {Array<Certification>} */
+        /** @type {Array<CertificationBody>} */
         let result = cert.rows;
 
         await client.query('COMMIT');
@@ -509,6 +520,109 @@ async function getFullCertificates(client, username, selection) {
         return result;
     } catch (error) {
         console.log(error);
+        await client.query('ROLLBACK');
+        return new ErrorWithCode(error);
+    }
+}
+
+/**
+ * 
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {Number} patient_id 
+ */
+async function viewCertificateHeader(client, username, patient_id) {
+    try {
+        await client.query('BEGIN');
+
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw ERRORS.USER_NOT_FOUND;
+
+        let checkPatient = await isPatientAvailableFor(
+            client,
+            patient_id,
+            Number(checkUser.person.id)
+        );
+        if (!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
+
+        let certHearder = await client.query(
+            `SELECT
+                sex,
+                nationality,
+                encode(signature, 'base64') as signature,
+                against_description
+             FROM vaccine_patient
+                WHERE id = $1
+            `,
+            [
+                Number(vaccinePatientId)
+            ]
+        );
+
+        if (certHearder.rows.length != 1) throw ERRORS.CERTIFICATION_NOT_FOUND;
+
+        /** @type {CertificationHeader} */
+        let result = certHearder.rows[0];
+
+        await client.query('COMMIT');
+
+        return result;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        return new ErrorWithCode(error);
+    }
+}
+
+/**
+ * 
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {CertHeaderEditingContext} context 
+ */
+async function editCertificateHeader(client, username, context) {
+    try {
+        await client.query('BEGIN');
+
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw ERRORS.USER_NOT_FOUND;
+
+        let checkPatient = await isPatientAvailableFor(
+            client,
+            Number(context.patient_id),
+            Number(checkUser.person.id)
+        );
+        if (!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
+
+        let keys = [];
+        let values = [];
+        let i = 1;
+        for (let name in context) {
+            if (name == 'sex' || name == 'nationality'
+                || name == 'against_description' || name == 'signature'
+            ) {
+                keys.push(name);
+                values.push(values);
+            }
+        }
+
+        let certHearder = await client.query(
+            `UPDATE vaccine_patient 
+                SET ${keys.map(x => `${x} = ${x == 'signature' ? `encode($${i++})` : `$${i++}`}`).join(',')}
+                WHERE id = ${i++}
+                RETURNING ${key.join(',')}
+            `,
+            values
+        );
+
+        if (certHearder.rowCount != 1 || certHearder.rows.length != 1) throw ERRORS.MODIFYING_PATIENT_ERROR;
+
+        /** @type {CertificationHeader} */
+        let result = certHearder.rows[0];
+
+        await client.query('COMMIT');
+
+        return result;
+    } catch (error) {
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
@@ -524,5 +638,7 @@ module.exports = {
     getBrieflyCertificates,
     viewCertificate,
     editCertificate,
-    getFullCertificates
+    getFullCertificates,
+    viewCertificateHeader,
+    editCertificateHeader,
 };
