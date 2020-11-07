@@ -594,7 +594,7 @@ const method = {
             connect(async client => await viewCertificateHeader (
                 client,
                 decoded ? decoded.username : '',
-                req.body
+                req.body.patient_id
             )).then((result) => {
                 if (result instanceof ErrorWithCode) throw result;
 
