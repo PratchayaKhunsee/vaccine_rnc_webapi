@@ -613,7 +613,7 @@ async function editCertificateHeader(client, username, context) {
             `UPDATE vaccine_patient 
                 SET ${keys.map(x => `${x} = ${x == 'signature' ? `encode($${i++})` : `$${i++}`}`).join(',')}
                 WHERE id = ${i++}
-                RETURNING ${key.join(',')}
+                RETURNING ${keys.join(',')}
             `,
             values
         );
