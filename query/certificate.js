@@ -627,7 +627,7 @@ async function editCertificateHeader(client, username, context) {
         let certHearder = await client.query(
             `UPDATE vaccine_patient 
                 SET ${tableContext}
-                WHERE id = ${i}
+                WHERE id = $${i}
                 RETURNING ${returningContext}
             `,
             values
