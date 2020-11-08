@@ -558,11 +558,11 @@ async function viewCertificateHeader(client, username, patient_id) {
                 WHERE id = $1
             `,
             [
-                Number(vaccinePatientId)
+                Number(patient_id)
             ]
         );
 
-        if (certHearder.rows.length != 1) throw ERRORS.CERTIFICATION_NOT_FOUND;
+        if (certHearder.rows.length != 1) throw ERRORS.PATIENT_NOT_FOUND;
 
         /** @type {CertificationHeader} */
         let result = certHearder.rows[0];
