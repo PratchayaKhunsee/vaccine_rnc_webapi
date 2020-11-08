@@ -9,12 +9,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const {
-    LoginError,
-    SigninError,
-    CertificateError,
-    PatientError,
-    RecordError,
-    ParentingError,
+    
     ERRORS,
     ErrorWithCode
 } = require('./error');
@@ -29,17 +24,11 @@ const {
     logIn
 } = require('./query/login');
 const {
-    doViewRecords,
-    doCreateRecord,
-    doVaccination,
     viewRecord,
     createRecord,
     editRecord
 } = require('./query/records');
 const {
-    doCreatePatient,
-    doViewPatient,
-    doEditPatient,
     getAvailablePatients,
     createPatientForSelf,
     createPatientAsChild,
@@ -47,19 +36,19 @@ const {
     removePatient
 } = require('./query/patient');
 const {
-    getCertification,
     getAvailableVaccination,
     createCertification,
     getBrieflyCertificates,
     editCertificate,
     viewCertificate,
     getFullCertificates,
-    editCertificateHeader
+    editCertificateHeader,
+    viewCertificateHeader
 } = require('./query/certificate');
-const {
-    doViewParenting,
-    doCreateParenting
-} = require('./query/parenting');
+// const {
+//     doViewParenting,
+//     doCreateParenting
+// } = require('./query/parenting');
 const {
     viewUser,
     editUser
