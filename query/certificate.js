@@ -49,6 +49,10 @@
  * @property {String} [certify_from]
  * @property {String} [certify_to]
  * @property {String} [adminstering_centre_stamp]
+ * 
+ * @typedef {Object} FullCertificate
+ * @property {CertificationHeader} header
+ * @property {CertificationBody} list
  */
 
 const {
@@ -512,8 +516,29 @@ async function getFullCertificates(client, username, selection) {
 
         if (cert.rows.length == 0) throw ERRORS.CERTIFICATION_NOT_FOUND;
 
-        /** @type {Array<CertificationBody>} */
-        let result = cert.rows;
+        let certHeader = await client.query(
+            `SELECT
+                fullname_in_cert,
+                sex,
+                nationality,
+                encode(signature, 'base64') as signature,
+                against_description
+                date_of_birth
+             FROM vaccine_patient
+                WHERE id = $1
+            `,
+            [
+                Number(selection.patient_id)
+            ]
+        );
+
+        if (certHeader.rows.length != 1) throw ERRORS.PATIENT_NOT_FOUND;
+
+        /** @type {FullCertificate} */
+        let result = {
+            header: certHeader,
+            list: cert.rows,
+        };
 
         await client.query('COMMIT');
 
@@ -532,7 +557,7 @@ async function getFullCertificates(client, username, selection) {
  * @param {Number} patient_id 
  */
 async function viewCertificateHeader(client, username, patient_id) {
-    console.log(patient_id)
+    // console.log(patient_id)
     try {
         await client.query('BEGIN');
 
@@ -546,7 +571,7 @@ async function viewCertificateHeader(client, username, patient_id) {
         );
         if (!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
 
-        let certHearder = await client.query(
+        let certHeader = await client.query(
             `SELECT
                 fullname_in_cert,
                 sex,
@@ -562,10 +587,10 @@ async function viewCertificateHeader(client, username, patient_id) {
             ]
         );
 
-        if (certHearder.rows.length != 1) throw ERRORS.PATIENT_NOT_FOUND;
+        if (certHeader.rows.length != 1) throw ERRORS.PATIENT_NOT_FOUND;
 
         /** @type {CertificationHeader} */
-        let result = certHearder.rows[0];
+        let result = certHeader.rows[0];
 
         await client.query('COMMIT');
 
@@ -620,17 +645,15 @@ async function editCertificateHeader(client, username, context) {
 
         let tableContext = keys.map(x => `${x} = ${x == 'signature' ? `decode($${i++}, 'base64')` : `$${i++}`}`).join(',');
         let returningContext = keys.map(x => x == 'signature' ? `encode(${x}, 'base64') AS ${x}` : x).join(',');
-        console.log(
-            // tableContext,
-            // returningContext,
-            `UPDATE vaccine_patient 
-                SET ${tableContext}
-                WHERE id = $${i}
-                RETURNING ${returningContext}`,
-            values
-        );
+        // console.log(
+        //     `UPDATE vaccine_patient 
+        //         SET ${tableContext}
+        //         WHERE id = $${i}
+        //         RETURNING ${returningContext}`,
+        //     values
+        // );
 
-        let certHearder = await client.query(
+        let certHeader = await client.query(
             `UPDATE vaccine_patient 
                 SET ${tableContext}
                 WHERE id = $${i}
@@ -639,10 +662,10 @@ async function editCertificateHeader(client, username, context) {
             values
         );
 
-        if (certHearder.rowCount != 1 || certHearder.rows.length != 1) throw ERRORS.MODIFYING_PATIENT_ERROR;
+        if (certHeader.rowCount != 1 || certHeader.rows.length != 1) throw ERRORS.MODIFYING_PATIENT_ERROR;
 
         /** @type {CertificationHeader} */
-        let result = certHearder.rows[0];
+        let result = certHeader.rows[0];
 
         await client.query('COMMIT');
 
