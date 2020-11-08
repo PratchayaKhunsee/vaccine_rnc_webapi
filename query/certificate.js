@@ -601,10 +601,16 @@ async function editCertificateHeader(client, username, context) {
 
         let keys = [];
         let values = [];
+
         let i = 1;
         for (let name in context) {
-            if (name == 'sex' || name == 'nationality'
-                || name == 'against_description' || name == 'signature'
+            if (
+                name == 'sex'
+                || name == 'nationality'
+                || name == 'against_description'
+                || name == 'signature'
+                || name == 'fullname_in_cert'
+                || name == 'date_of_birth'
             ) {
                 keys.push(name);
                 values.push(context[name]);
@@ -619,7 +625,7 @@ async function editCertificateHeader(client, username, context) {
             // returningContext,
             `UPDATE vaccine_patient 
                 SET ${tableContext}
-                WHERE id = ${i}
+                WHERE id = $${i}
                 RETURNING ${returningContext}`,
             values
         );
