@@ -536,7 +536,7 @@ async function getFullCertificates(client, username, selection) {
 
         /** @type {FullCertificate} */
         let result = {
-            header: certHeader,
+            header: certHeader.rows[0],
             list: cert.rows,
         };
 
