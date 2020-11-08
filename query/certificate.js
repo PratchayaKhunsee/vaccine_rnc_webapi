@@ -547,10 +547,12 @@ async function viewCertificateHeader(client, username, patient_id) {
 
         let certHearder = await client.query(
             `SELECT
+                fullname_in_cert,
                 sex,
                 nationality,
                 encode(signature, 'base64') as signature,
                 against_description
+                date_of_birth
              FROM vaccine_patient
                 WHERE id = $1
             `,
@@ -568,6 +570,7 @@ async function viewCertificateHeader(client, username, patient_id) {
 
         return result;
     } catch (error) {
+        console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
