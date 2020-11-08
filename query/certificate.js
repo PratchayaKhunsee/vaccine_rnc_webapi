@@ -532,6 +532,7 @@ async function getFullCertificates(client, username, selection) {
  * @param {Number} patient_id 
  */
 async function viewCertificateHeader(client, username, patient_id) {
+    console.log(patient_id)
     try {
         await client.query('BEGIN');
 
@@ -540,7 +541,7 @@ async function viewCertificateHeader(client, username, patient_id) {
 
         let checkPatient = await isPatientAvailableFor(
             client,
-            patient_id,
+            Number(patient_id),
             Number(checkUser.person.id)
         );
         if (!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
