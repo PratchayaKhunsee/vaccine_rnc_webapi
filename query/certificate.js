@@ -597,6 +597,8 @@ async function editCertificateHeader(client, username, context) {
         );
         if (!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
 
+        // console.log(context);
+
         let keys = [];
         let values = [];
         let i = 1;
@@ -605,7 +607,7 @@ async function editCertificateHeader(client, username, context) {
                 || name == 'against_description' || name == 'signature'
             ) {
                 keys.push(name);
-                values.push(values);
+                values.push(context[name]);
             }
         }
         values.push(Number(context.patient_id));
