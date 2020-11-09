@@ -645,13 +645,13 @@ async function editCertificateHeader(client, username, context) {
 
         let tableContext = keys.map(x => `${x} = ${x == 'signature' ? `decode($${i++}, 'base64')` : `$${i++}`}`).join(',');
         let returningContext = keys.map(x => x == 'signature' ? `encode(${x}, 'base64') AS ${x}` : x).join(',');
-        // console.log(
-        //     `UPDATE vaccine_patient 
-        //         SET ${tableContext}
-        //         WHERE id = $${i}
-        //         RETURNING ${returningContext}`,
-        //     values
-        // );
+        console.log(
+            `UPDATE vaccine_patient 
+                SET ${tableContext}
+                WHERE id = $${i}
+                RETURNING ${returningContext}`,
+            values
+        );
 
         let certHeader = await client.query(
             `UPDATE vaccine_patient 
