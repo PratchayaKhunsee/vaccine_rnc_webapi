@@ -577,7 +577,7 @@ async function viewCertificateHeader(client, username, patient_id) {
                 sex,
                 nationality,
                 encode(signature, 'base64') as signature,
-                against_description
+                against_description,
                 date_of_birth
              FROM vaccine_patient
                 WHERE id = $1

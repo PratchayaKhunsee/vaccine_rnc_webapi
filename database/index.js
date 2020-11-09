@@ -38,10 +38,6 @@ const OID = {
 const typeParser = {
     int8: value => value !== null ? parseInt(value) : null,
     bytea: value => value !== null ? Buffer.from(value).toString('base64') : null,
-    date: value => {
-        console.log(value);
-        return value;
-    }
 }
 
 for(let type in typeParser){
