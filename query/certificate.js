@@ -590,7 +590,7 @@ async function viewCertificateHeader(client, username, patient_id) {
         if (certHeader.rows.length != 1) throw ERRORS.PATIENT_NOT_FOUND;
 
         /** @type {CertificationHeader} */
-        let result = certHeader.rows[0];
+        let result = { ...certHeader.rows[0] };
 
         await client.query('COMMIT');
 
