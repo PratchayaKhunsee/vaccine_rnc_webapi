@@ -568,7 +568,7 @@ const method = {
                 req.body
             )).then((result) => {
                 if (result instanceof ErrorWithCode) throw result;
-
+                
                 responseHandler.ok(req, res, next, result);
             }).catch(
                 /** @param {ErrorWithCode} error */
@@ -586,7 +586,7 @@ const method = {
                 req.body.patient_id
             )).then((result) => {
                 if (result instanceof ErrorWithCode) throw result;
-
+                console.log(result);
                 responseHandler.ok(req, res, next, result);
             }).catch(
                 /** @param {ErrorWithCode} error */
