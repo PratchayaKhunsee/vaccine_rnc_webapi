@@ -501,13 +501,13 @@ async function getFullCertificates(client, username, selection) {
                 vaccine_patient_id,
                 vaccine_briefing,
                 vaccine_against,
-                vaccine_manufacturer
+                vaccine_manufacturer,
                 vaccine_batch_number,
                 encode(clinician_signature,'base64') AS clinician_signature,
                 clinician_prof_status,
                 certify_from,
                 certify_to,
-                encode(administring_centre_stamp, 'base64') AS administring_centre_stamp
+                encode(administring_centre_stamp, 'base64') AS administring_centre_stamp,
             FROM certification WHERE vaccine_patient_id = $1`,
             [
                 Number(selection.patient_id),
@@ -522,7 +522,7 @@ async function getFullCertificates(client, username, selection) {
                 sex,
                 nationality,
                 encode(signature, 'base64') as signature,
-                against_description
+                against_description,
                 date_of_birth
              FROM vaccine_patient
                 WHERE id = $1
