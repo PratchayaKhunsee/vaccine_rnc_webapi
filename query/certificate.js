@@ -507,7 +507,7 @@ async function getFullCertificates(client, username, selection) {
                 clinician_prof_status,
                 certify_from,
                 certify_to,
-                encode(administring_centre_stamp, 'base64') AS administring_centre_stamp,
+                encode(administring_centre_stamp, 'base64') AS administring_centre_stamp
             FROM certification WHERE vaccine_patient_id = $1`,
             [
                 Number(selection.patient_id),
