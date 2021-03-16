@@ -232,6 +232,11 @@ const method = {
                     responseHandler.contentNotFound(req, res, next, error);
                 }
             );
+        },
+        /** @type {import('express').RequestHandler} */
+        'download/android/app.apk': function(req, res, next){
+            let path = __dirname + '/assets/app-release.apk';
+            res.download(path);
         }
     },
     POST: {
@@ -608,6 +613,7 @@ app.use(bodyParser.json({
 app.get('/', function (req, res) {
     res.send('Welcome to the peaceful place');
 });
+app.get('/download/android/app.apk', method.GET['download/android/app.apk']);
 app.post('/login', method.POST.login);
 app.post('/signup', method.POST.signup);
 app.get('/user', auth(responseHandler.unauthorized), method.GET.user);
