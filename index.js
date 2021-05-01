@@ -6,15 +6,13 @@
 // ============ Imported modules =============== //
 const express = require('express');
 const app = express();
-const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const {
-    
+
     ERRORS,
     ErrorWithCode
 } = require('./error');
 const {
-    doQuery,
     connect
 } = require('./database');
 const {
@@ -45,10 +43,6 @@ const {
     editCertificateHeader,
     viewCertificateHeader
 } = require('./query/certificate');
-// const {
-//     doViewParenting,
-//     doCreateParenting
-// } = require('./query/parenting');
 const {
     viewUser,
     editUser
@@ -234,8 +228,8 @@ const method = {
             );
         },
         /** @type {import('express').RequestHandler} */
-        'download/android/app.apk': function(req, res, next){
-            let path = __dirname + '/assets/app-release.apk';
+        'download/android': function (req, res, next) {
+            let path = __dirname + '/assets/vaccine-records-n-certs.apk';
             res.download(path);
         }
     },
@@ -573,7 +567,7 @@ const method = {
                 req.body
             )).then((result) => {
                 if (result instanceof ErrorWithCode) throw result;
-                
+
                 responseHandler.ok(req, res, next, result);
             }).catch(
                 /** @param {ErrorWithCode} error */
@@ -582,10 +576,10 @@ const method = {
                 }
             );
         },
-         /** @type {import('express').RequestHandler} */
-         'certificate/view/header'(req, res, next) {
+        /** @type {import('express').RequestHandler} */
+        'certificate/view/header'(req, res, next) {
             let decoded = decode_auth_token(req, res, next);
-            connect(async client => await viewCertificateHeader (
+            connect(async client => await viewCertificateHeader(
                 client,
                 decoded ? decoded.username : '',
                 req.body.patient_id
@@ -604,16 +598,14 @@ const method = {
 }
 
 // ============= Middleware Usage ============== //
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json({
-    limit: '3mb',
-}));
+app.use(express.urlencoded({ extended: true, }));
+app.use(express.json({ limit: '3mb', }))
 
 // ============= REST API Routing ============== //
 app.get('/', function (req, res) {
     res.send('Welcome to the peaceful place');
 });
-app.get('/download/android/app.apk', method.GET['download/android/app.apk']);
+app.get('/download/android', method.GET['download/android']);
 app.post('/login', method.POST.login);
 app.post('/signup', method.POST.signup);
 app.get('/user', auth(responseHandler.unauthorized), method.GET.user);
