@@ -8,7 +8,6 @@ const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
 const {
-
     ERRORS,
     ErrorWithCode
 } = require('./error');
@@ -597,13 +596,15 @@ const method = {
     },
 }
 
+app.set('view engine', 'ejs');
+
 // ============= Middleware Usage ============== //
 app.use(express.urlencoded({ extended: true, }));
-app.use(express.json({ limit: '3mb', }))
+app.use(express.json({ limit: '3mb', }));
 
 // ============= REST API Routing ============== //
 app.get('/', function (req, res) {
-    res.send('Welcome to the peaceful place');
+    res.render('index', { title: 'Records and Certification of Vaccination Application' });
 });
 app.get('/download/android', method.GET['download/android']);
 app.post('/login', method.POST.login);
