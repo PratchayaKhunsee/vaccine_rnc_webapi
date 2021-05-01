@@ -597,6 +597,7 @@ const method = {
 }
 
 app.set('view engine', 'ejs');
+app.set('views',`${__dirname}/views`);
 
 // ============= Middleware Usage ============== //
 app.use(express.urlencoded({ extended: true, }));
