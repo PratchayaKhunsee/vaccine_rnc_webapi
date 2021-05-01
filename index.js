@@ -605,7 +605,7 @@ app.use(express.json({ limit: '3mb', }));
 
 // ============= REST API Routing ============== //
 app.get('/', function (req, res) {
-    res.render('index', { title: 'Records and Certification of Vaccination Application' });
+    res.render('index.ejs', { title: 'Records and Certification of Vaccination Application' });
 });
 app.get('/download/android', method.GET['download/android']);
 app.post('/login', method.POST.login);
