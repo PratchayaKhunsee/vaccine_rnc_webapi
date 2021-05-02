@@ -1,636 +1,647 @@
-/**
- * @typedef {import('express').RequestHandler} RequestHandler
- */
-/** @namespace */
+// /**
+//  * @typedef {import('express').RequestHandler} RequestHandler
+//  */
+// /** @namespace */
 
 // ============ Imported modules =============== //
-const express = require('express');
-const app = express();
-const jwt = require('jsonwebtoken');
-const {
-    ERRORS,
-    ErrorWithCode
-} = require('./error');
-const {
-    connect
-} = require('./database');
-const {
-    signUp
-} = require('./query/signup');
-const {
-    logIn
-} = require('./query/login');
-const {
-    viewRecord,
-    createRecord,
-    editRecord
-} = require('./query/records');
-const {
-    getAvailablePatients,
-    createPatientForSelf,
-    createPatientAsChild,
-    editPatient,
-    removePatient
-} = require('./query/patient');
-const {
-    getAvailableVaccination,
-    createCertification,
-    getBrieflyCertificates,
-    editCertificate,
-    viewCertificate,
-    getFullCertificates,
-    editCertificateHeader,
-    viewCertificateHeader
-} = require('./query/certificate');
-const {
-    viewUser,
-    editUser
-} = require('./query/user');
+// const express = require('express');
+// const app = express();
+// const jwt = require('jsonwebtoken');
+// const {
+//     ERRORS,
+//     ErrorWithCode
+// } = require('./error');
+// const {
+//     connect
+// } = require('./database');
+// const {
+//     signUp
+// } = require('./query/signup');
+// const {
+//     logIn
+// } = require('./query/login');
+// const {
+//     viewRecord,
+//     createRecord,
+//     editRecord
+// } = require('./query/records');
+// const {
+//     getAvailablePatients,
+//     createPatientForSelf,
+//     createPatientAsChild,
+//     editPatient,
+//     removePatient
+// } = require('./query/patient');
+// const {
+//     getAvailableVaccination,
+//     createCertification,
+//     getBrieflyCertificates,
+//     editCertificate,
+//     viewCertificate,
+//     getFullCertificates,
+//     editCertificateHeader,
+//     viewCertificateHeader
+// } = require('./query/certificate');
+// const {
+//     viewUser,
+//     editUser
+// } = require('./query/user');
 
-// ============ Constants Vars ================= //
-const port = process.env.PORT || 8080;
-const httpStatus = {
-    BAD_REQUEST: 400,
-    UNAUTHORIZED: 401,
-    FORBIDDEN: 403,
-    NOT_FOUND: 404,
-    OK: 200,
-    CREATED: 201
-};
+// const App = require('./main/app');
+// const routes = require('./main/routes');
 
-// =========== Callback Handlers ============= //
-const responseHandler = {
-    /**
-     * Response to the request with [UNAUTHORIZED] HTTP status code.
-     * @type {RequestHandler}
-     * @param {String} [content]
-     * @returns {void}
-     **/
-    unauthorized(req, res, next, content) {
-        res.set({
-            'Content-Type': 'application/json'
-        });
-        res.status(httpStatus.UNAUTHORIZED);
-        res.send(JSON.stringify(content) || '{}');
-    },
-    /**
-     * Response to the request with [NOT_FOUND] HTTP status code.
-     * @type {RequestHandler}
-     * @param {String} [content]
-     * @returns {void}
-     **/
-    contentNotFound(req, res, next, content) {
-        res.set({
-            'Content-Type': 'application/json'
-        });
-        res.status(httpStatus.NOT_FOUND);
-        res.send(JSON.stringify(content) || '{}');
-    },
-    /**
-     * Response to the request with [OK] HTTP status code.
-     * @type {RequestHandler}
-     * @param {String} [content]
-     * @returns {void}
-     **/
-    ok(req, res, next, content) {
-        res.set({
-            'Content-Type': 'application/json'
-        });
-        res.status(httpStatus.OK);
-        res.send(JSON.stringify(content) || '{}');
-    },
-    /**
-     * Response to the request with [CREATED] HTTP status code.
-     * @type {RequestHandler}
-     * @param {String} [content]
-     * @returns {void}
-     **/
-    created(req, res, next, content) {
-        res.set({
-            'Content-Type': 'application/json'
-        });
-        res.status(httpStatus.CREATED);
-        res.send(JSON.stringify(content) || '{}');
-    },
-    /**
-     * Response to the request with [BAD_REQUEST] HTTP status code.
-     * @type {RequestHandler}
-     * @param {String} [content]
-     * @returns {void}
-     **/
-    badRequest(req, res, next, content) {
-        res.set({
-            'Content-Type': 'application/json'
-        });
-        res.status(httpStatus.BAD_REQUEST);
-        res.send(JSON.stringify(content) || '{}');
-    }
-};
+// // ============ Constants Vars ================= //
+// const port = process.env.PORT || 8080;
+// const httpStatus = {
+//     BAD_REQUEST: 400,
+//     UNAUTHORIZED: 401,
+//     FORBIDDEN: 403,
+//     NOT_FOUND: 404,
+//     OK: 200,
+//     CREATED: 201
+// };
 
-// ============= Useful Functions ============= //
+// // =========== Callback Handlers ============= //
+// const responseHandler = {
+//     /**
+//      * Response to the request with [UNAUTHORIZED] HTTP status code.
+//      * @type {RequestHandler}
+//      * @param {String} [content]
+//      * @returns {void}
+//      **/
+//     unauthorized(req, res, next, content) {
+//         res.set({
+//             'Content-Type': 'application/json'
+//         });
+//         res.status(httpStatus.UNAUTHORIZED);
+//         res.send(JSON.stringify(content) || '{}');
+//     },
+//     /**
+//      * Response to the request with [NOT_FOUND] HTTP status code.
+//      * @type {RequestHandler}
+//      * @param {String} [content]
+//      * @returns {void}
+//      **/
+//     contentNotFound(req, res, next, content) {
+//         res.set({
+//             'Content-Type': 'application/json'
+//         });
+//         res.status(httpStatus.NOT_FOUND);
+//         res.send(JSON.stringify(content) || '{}');
+//     },
+//     /**
+//      * Response to the request with [OK] HTTP status code.
+//      * @type {RequestHandler}
+//      * @param {String} [content]
+//      * @returns {void}
+//      **/
+//     ok(req, res, next, content) {
+//         res.set({
+//             'Content-Type': 'application/json'
+//         });
+//         res.status(httpStatus.OK);
+//         res.send(JSON.stringify(content) || '{}');
+//     },
+//     /**
+//      * Response to the request with [CREATED] HTTP status code.
+//      * @type {RequestHandler}
+//      * @param {String} [content]
+//      * @returns {void}
+//      **/
+//     created(req, res, next, content) {
+//         res.set({
+//             'Content-Type': 'application/json'
+//         });
+//         res.status(httpStatus.CREATED);
+//         res.send(JSON.stringify(content) || '{}');
+//     },
+//     /**
+//      * Response to the request with [BAD_REQUEST] HTTP status code.
+//      * @type {RequestHandler}
+//      * @param {String} [content]
+//      * @returns {void}
+//      **/
+//     badRequest(req, res, next, content) {
+//         res.set({
+//             'Content-Type': 'application/json'
+//         });
+//         res.status(httpStatus.BAD_REQUEST);
+//         res.send(JSON.stringify(content) || '{}');
+//     }
+// };
 
-/**
- * Generates authorization token.
- * 
- * @param {String} username 
- * @param {Date} generatedAt 
- */
-const generate_auth_token = function (username) {
-    return jwt.sign({
-        username,
-        iat: new Date().getTime()
-    }, process.env.JWT_TOKEN_SECRET);
-};
+// // ============= Useful Functions ============= //
 
-/**
- * Decode the request's authorization token.
- * 
- * @type {import('express').RequestHandler}
- * @returns {Boolean}
- **/
-const decode_auth_token = function (req) {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
+// /**
+//  * Generates authorization token.
+//  * 
+//  * @param {String} username 
+//  * @param {Date} generatedAt 
+//  */
+// const generate_auth_token = function (username) {
+//     return jwt.sign({
+//         username,
+//         iat: new Date().getTime()
+//     }, process.env.JWT_TOKEN_SECRET);
+// };
 
-    if (token == null) {
-        return null;
-    }
+// /**
+//  * Decode the request's authorization token.
+//  * 
+//  * @type {import('express').RequestHandler}
+//  * @returns {Boolean}
+//  **/
+// const decode_auth_token = function (req) {
+//     const authHeader = req.headers.authorization;
+//     const token = authHeader && authHeader.split(' ')[1];
 
-    return jwt.verify(token, process.env.JWT_TOKEN_SECRET);
-};
+//     if (token == null) {
+//         return null;
+//     }
 
-// =========== Custom Middleware ============= //
+//     return jwt.verify(token, process.env.JWT_TOKEN_SECRET);
+// };
 
-/**
- * Authentiaction handler.
- * 
- * @param {import('express').RequestHandler} [errorHandler] 
- */
-const auth = function (errorHandler) {
-    /**
-     * @type {import('express').RequestHandler}
-     **/
-    function authenticate(req, res, next) {
-        const verified = !!decode_auth_token(req, res, next);
+// // =========== Custom Middleware ============= //
 
-        if (verified) {
-            next();
-        } else {
-            if (typeof errorHandler == 'function') errorHandler();
-        }
-    }
+// /**
+//  * Authentiaction handler.
+//  * 
+//  * @param {import('express').RequestHandler} [errorHandler] 
+//  */
+// const auth = function (errorHandler) {
+//     /**
+//      * @type {import('express').RequestHandler}
+//      **/
+//     function authenticate(req, res, next) {
+//         const verified = !!decode_auth_token(req, res, next);
 
-    return authenticate;
-};
+//         if (verified) {
+//             next();
+//         } else {
+//             if (typeof errorHandler == 'function') errorHandler();
+//         }
+//     }
 
-// ====== Request/Response Callback Handler ====== //
+//     return authenticate;
+// };
 
-/**
- * Callback responseHandler for responding the requests.
- */
-const method = {
-    GET: {
-        /** @type {import('express').RequestHandler} */
-        user(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
-            connect(async client => await viewUser(
-                client,
-                decoded ? decoded.username : ''
-            )).then(result => {
-                if (result instanceof ErrorWithCode) {
-                    throw result;
-                }
+// // ====== Request/Response Callback Handler ====== //
 
-                responseHandler.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.contentNotFound(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'records/available/patient': function (req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+// /**
+//  * Callback responseHandler for responding the requests.
+//  */
+// const method = {
+//     GET: {
+//         /** @type {import('express').RequestHandler} */
+//         user(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
+//             connect(async client => await viewUser(
+//                 client,
+//                 decoded ? decoded.username : ''
+//             )).then(result => {
+//                 if (result instanceof ErrorWithCode) {
+//                     throw result;
+//                 }
 
-            connect(async client => await getAvailablePatients(
-                client, decoded ? decoded.username : ''
-            )).then(result => {
-                if (result instanceof ErrorWithCode) throw result;
+//                 responseHandler.ok(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.contentNotFound(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'records/available/patient': function (req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
 
-                responseHandler.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.contentNotFound(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'download/android': function (req, res, next) {
-            let path = __dirname + '/assets/vaccine-records-n-certs.apk';
-            res.download(path);
-        }
-    },
-    POST: {
-        /** @type {import('express').RequestHandler} */
-        login(req, res, next) {
-            /** Login authentication token.  */
-            let decoded = decode_auth_token(req, res, next);
+//             connect(async client => await getAvailablePatients(
+//                 client, decoded ? decoded.username : ''
+//             )).then(result => {
+//                 if (result instanceof ErrorWithCode) throw result;
 
-            // For validate token authentication.
-            if (decoded !== null) {
-                responseHandler.ok(req, res, next, {
-                    verified: !!decoded,
-                });
-                return;
-            }
+//                 responseHandler.ok(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.contentNotFound(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'download/android': function (req, res, next) {
+//             let path = __dirname + '/assets/vaccine-records-n-certs.apk';
+//             res.download(path);
+//         }
+//     },
+//     POST: {
+//         /** @type {import('express').RequestHandler} */
+//         login(req, res, next) {
+//             /** Login authentication token.  */
+//             let decoded = decode_auth_token(req, res, next);
 
-            /** @type {String} */
-            const username = req.body.username;
-            /** @type {String} */
-            const password = req.body.password;
+//             // For validate token authentication.
+//             if (decoded !== null) {
+//                 responseHandler.ok(req, res, next, {
+//                     verified: !!decoded,
+//                 });
+//                 return;
+//             }
 
-            if (!(username && password)) {
-                responseHandler.badRequest(req, res, next);
-            }
+//             /** @type {String} */
+//             const username = req.body.username;
+//             /** @type {String} */
+//             const password = req.body.password;
 
-            connect(async client => await logIn(
-                client,
-                username,
-                password
-            )).then(result => {
-                if (result instanceof ErrorWithCode) {
-                    throw result;
-                }
+//             if (!(username && password)) {
+//                 responseHandler.badRequest(req, res, next);
+//             }
 
-                let token = generate_auth_token(username, new Date());
-                responseHandler.ok(req, res, next, { token });
-            }).catch(
-                /**
-                 * @param {ErrorWithCode} error
-                 */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        signup(req, res, next) {
-            connect(async client => await signUp(client, req.body))
-                .then((result) => {
-                    if (result instanceof ErrorWithCode) {
-                        throw result;
-                    }
+//             connect(async client => await logIn(
+//                 client,
+//                 username,
+//                 password
+//             )).then(result => {
+//                 if (result instanceof ErrorWithCode) {
+//                     throw result;
+//                 }
 
-                    responseHandler.created(req, res, next, true);
-                }).catch(
-                    /** @param {ErrorWithCode} err */
-                    err => {
-                        responseHandler.badRequest(req, res, next, err);
-                    }
-                );
-        },
-        /** @type {import('express').RequestHandler} */
-        'patient/create/self'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+//                 let token = generate_auth_token(username, new Date());
+//                 responseHandler.ok(req, res, next, { token });
+//             }).catch(
+//                 /**
+//                  * @param {ErrorWithCode} error
+//                  */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         signup(req, res, next) {
+//             connect(async client => await signUp(client, req.body))
+//                 .then((result) => {
+//                     if (result instanceof ErrorWithCode) {
+//                         throw result;
+//                     }
 
-            connect(async client => await createPatientForSelf(
-                client,
-                decoded ? decoded.username : '',
-                req.body
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
-                responseHandler.created(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'record/view'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+//                     responseHandler.created(req, res, next, true);
+//                 }).catch(
+//                     /** @param {ErrorWithCode} err */
+//                     err => {
+//                         responseHandler.badRequest(req, res, next, err);
+//                     }
+//                 );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'patient/create/self'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
 
-            connect(async client => await viewRecord(
-                client,
-                decoded ? decoded.username : '',
-                req.body.patient_id
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
+//             connect(async client => await createPatientForSelf(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body
+//             )).then((result) => {
+//                 if (result instanceof ErrorWithCode) throw result;
+//                 responseHandler.created(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'record/view'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
 
-                responseHandler.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.contentNotFound(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'record/create'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+//             connect(async client => await viewRecord(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body.patient_id
+//             )).then((result) => {
+//                 if (result instanceof ErrorWithCode) throw result;
 
-            connect(async client => await createRecord(
-                client,
-                decoded ? decoded.username : '',
-                req.body.patient_id
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
+//                 responseHandler.ok(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.contentNotFound(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'record/create'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
 
-                responseHandler.created(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'patient/create'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+//             connect(async client => await createRecord(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body.patient_id
+//             )).then((result) => {
+//                 if (result instanceof ErrorWithCode) throw result;
 
-            connect(async client => await createPatientAsChild(
-                client,
-                decoded ? decoded.username : '',
-                req.body
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
+//                 responseHandler.created(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'patient/create'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
 
-                responseHandler.created(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        user(req, res, next) {
-            const decoded = decode_auth_token(req, res, next);
-            connect(async client => await editUser(
-                client,
-                decoded.username,
-                req.body.person || null,
-                req.body.password || null
-            )).then(result => {
-                if (result instanceof ErrorWithCode) throw result;
+//             connect(async client => await createPatientAsChild(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body
+//             )).then((result) => {
+//                 if (result instanceof ErrorWithCode) throw result;
 
-                responseHandler.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'record/edit'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+//                 responseHandler.created(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         user(req, res, next) {
+//             const decoded = decode_auth_token(req, res, next);
+//             connect(async client => await editUser(
+//                 client,
+//                 decoded.username,
+//                 req.body.person || null,
+//                 req.body.password || null
+//             )).then(result => {
+//                 if (result instanceof ErrorWithCode) throw result;
 
-            connect(async client => await editRecord(
-                client,
-                decoded ? decoded.username : '',
-                req.body
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
+//                 responseHandler.ok(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'record/edit'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
 
-                responseHandler.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'patient/edit'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+//             connect(async client => await editRecord(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body
+//             )).then((result) => {
+//                 if (result instanceof ErrorWithCode) throw result;
 
-            connect(async client => await editPatient(
-                client,
-                decoded ? decoded.username : '',
-                req.body
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
+//                 responseHandler.ok(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'patient/edit'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
 
-                responseHandler.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'patient/remove'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+//             connect(async client => await editPatient(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body
+//             )).then((result) => {
+//                 if (result instanceof ErrorWithCode) throw result;
 
-            connect(async client => await removePatient(
-                client,
-                decoded ? decoded.username : '',
-                req.body.patient_id
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
+//                 responseHandler.ok(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'patient/remove'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
 
-                responseHandler.ok(req, res, next, true);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'certificate/view'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+//             connect(async client => await removePatient(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body.patient_id
+//             )).then((result) => {
+//                 if (result instanceof ErrorWithCode) throw result;
 
-            connect(async client => await viewCertificate(
-                client,
-                decoded ? decoded.username : '',
-                req.body,
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
+//                 responseHandler.ok(req, res, next, true);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'certificate/view'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
 
-                responseHandler.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'certificate/available'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+//             connect(async client => await viewCertificate(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body,
+//             )).then((result) => {
+//                 if (result instanceof ErrorWithCode) throw result;
 
-            connect(async client => await getAvailableVaccination(
-                client,
-                decoded ? decoded.username : '',
-                req.body.patient_id
-            )).then((result) => {
-                // console.log(result);
-                if (result instanceof ErrorWithCode) throw result;
+//                 responseHandler.ok(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'certificate/available'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
 
-                responseHandler.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'certificate/create'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
-            connect(async client => await createCertification(
-                client,
-                decoded ? decoded.username : '',
-                req.body
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
+//             connect(async client => await getAvailableVaccination(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body.patient_id
+//             )).then((result) => {
+//                 // console.log(result);
+//                 if (result instanceof ErrorWithCode) throw result;
 
-                responseHandler.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'certificate/list'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+//                 responseHandler.ok(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'certificate/create'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
+//             connect(async client => await createCertification(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body
+//             )).then((result) => {
+//                 if (result instanceof ErrorWithCode) throw result;
 
-            connect(async client => await getBrieflyCertificates(
-                client,
-                decoded ? decoded.username : '',
-                req.body.patient_id
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
+//                 responseHandler.ok(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'certificate/list'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
 
-                responseHandler.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'certificate/edit'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+//             connect(async client => await getBrieflyCertificates(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body.patient_id
+//             )).then((result) => {
+//                 if (result instanceof ErrorWithCode) throw result;
 
-            connect(async client => await editCertificate(
-                client,
-                decoded ? decoded.username : '',
-                req.body
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
+//                 responseHandler.ok(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'certificate/edit'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
 
-                responseHandler.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'certificate/list/full'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+//             connect(async client => await editCertificate(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body
+//             )).then((result) => {
+//                 if (result instanceof ErrorWithCode) throw result;
 
-            connect(async client => await getFullCertificates(
-                client,
-                decoded ? decoded.username : '',
-                req.body
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
+//                 responseHandler.ok(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'certificate/list/full'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
 
-                responseHandler.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'certificate/edit/header'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+//             connect(async client => await getFullCertificates(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body
+//             )).then((result) => {
+//                 if (result instanceof ErrorWithCode) throw result;
 
-            connect(async client => await editCertificateHeader(
-                client,
-                decoded ? decoded.username : '',
-                req.body
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
+//                 responseHandler.ok(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'certificate/edit/header'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
 
-                responseHandler.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {import('express').RequestHandler} */
-        'certificate/view/header'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
-            connect(async client => await viewCertificateHeader(
-                client,
-                decoded ? decoded.username : '',
-                req.body.patient_id
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
-                console.log(result);
-                responseHandler.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    responseHandler.badRequest(req, res, next, error);
-                }
-            );
-        },
-    },
-}
+//             connect(async client => await editCertificateHeader(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body
+//             )).then((result) => {
+//                 if (result instanceof ErrorWithCode) throw result;
 
-app.set('view engine', 'ejs');
-app.set('views',`${__dirname}/views`);
+//                 responseHandler.ok(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//         /** @type {import('express').RequestHandler} */
+//         'certificate/view/header'(req, res, next) {
+//             let decoded = decode_auth_token(req, res, next);
+//             connect(async client => await viewCertificateHeader(
+//                 client,
+//                 decoded ? decoded.username : '',
+//                 req.body.patient_id
+//             )).then((result) => {
+//                 if (result instanceof ErrorWithCode) throw result;
+//                 console.log(result);
+//                 responseHandler.ok(req, res, next, result);
+//             }).catch(
+//                 /** @param {ErrorWithCode} error */
+//                 error => {
+//                     responseHandler.badRequest(req, res, next, error);
+//                 }
+//             );
+//         },
+//     },
+// }
 
-// ============= Middleware Usage ============== //
-app.use(express.urlencoded({ extended: true, }));
-app.use(express.json({ limit: '3mb', }));
+// app.set('view engine', 'ejs');
+// app.set('views',`${__dirname}/views`);
 
-// ============= REST API Routing ============== //
-app.get('/', function (req, res) {
-    res.render('index.ejs', { title: 'Records and Certification of Vaccination Application' });
+// // ============= Middleware Usage ============== //
+// app.use(express.urlencoded({ extended: true, }));
+// app.use(express.json({ limit: '3mb', }));
+
+// // ============= REST API Routing ============== //
+// app.get('/', function (req, res) {
+//     res.render('index.ejs', { title: 'Records and Certification of Vaccination Application' });
+// });
+// app.get('/download/android', method.GET['download/android']);
+// app.post('/login', method.POST.login);
+// app.post('/signup', method.POST.signup);
+// app.get('/user', auth(responseHandler.unauthorized), method.GET.user);
+// app.post('/user', auth(responseHandler.unauthorized), method.POST.user);
+// app.get('/records/available/patient', auth(responseHandler.unauthorized), method.GET['records/available/patient']);
+// app.post('/patient/create/self', auth(responseHandler.unauthorized), method.POST['patient/create/self']);
+// app.post('/record/view', auth(responseHandler.unauthorized), method.POST['record/view']);
+// app.post('/record/create', auth(responseHandler.unauthorized), method.POST['record/create']);
+// app.post('/record/edit', auth(responseHandler.unauthorized), method.POST['record/edit']);
+// app.post('/patient/create', auth(responseHandler.unauthorized), method.POST['patient/create']);
+// app.post('/patient/edit', auth(responseHandler.unauthorized), method.POST['patient/edit']);
+// app.post('/patient/remove', auth(responseHandler.unauthorized), method.POST['patient/remove']);
+// app.post('/certificate/view', auth(responseHandler.unauthorized), method.POST['certificate/view']);
+// app.post('/certificate/available', auth(responseHandler.unauthorized), method.POST['certificate/available']);
+// app.post('/certificate/create', auth(responseHandler.unauthorized), method.POST['certificate/create']);
+// app.post('/certificate/list', auth(responseHandler.unauthorized), method.POST['certificate/list']);
+// app.post('/certificate/edit', auth(responseHandler.unauthorized), method.POST['certificate/edit']);
+// app.post('/certificate/list/full', auth(responseHandler.unauthorized), method.POST['certificate/list/full']);
+// app.post('/certificate/view/header', auth(responseHandler.unauthorized), method.POST['certificate/view/header']);
+// app.post('/certificate/edit/header', auth(responseHandler.unauthorized), method.POST['certificate/edit/header']);
+// app.post('/', function (req, res) {
+//     res.send('Did you feel empty inside of your body?');
+// });
+
+// // ============= Initialization ============= //
+// app.listen(port, function () { });
+
+const app = require('./main/app');
+const routes = require('./main/routes');
+
+routes();
+app.listen(process.env.PORT || 8080, () => {
+    console.log('App working.');
 });
-app.get('/download/android', method.GET['download/android']);
-app.post('/login', method.POST.login);
-app.post('/signup', method.POST.signup);
-app.get('/user', auth(responseHandler.unauthorized), method.GET.user);
-app.post('/user', auth(responseHandler.unauthorized), method.POST.user);
-app.get('/records/available/patient', auth(responseHandler.unauthorized), method.GET['records/available/patient']);
-app.post('/patient/create/self', auth(responseHandler.unauthorized), method.POST['patient/create/self']);
-app.post('/record/view', auth(responseHandler.unauthorized), method.POST['record/view']);
-app.post('/record/create', auth(responseHandler.unauthorized), method.POST['record/create']);
-app.post('/record/edit', auth(responseHandler.unauthorized), method.POST['record/edit']);
-app.post('/patient/create', auth(responseHandler.unauthorized), method.POST['patient/create']);
-app.post('/patient/edit', auth(responseHandler.unauthorized), method.POST['patient/edit']);
-app.post('/patient/remove', auth(responseHandler.unauthorized), method.POST['patient/remove']);
-app.post('/certificate/view', auth(responseHandler.unauthorized), method.POST['certificate/view']);
-app.post('/certificate/available', auth(responseHandler.unauthorized), method.POST['certificate/available']);
-app.post('/certificate/create', auth(responseHandler.unauthorized), method.POST['certificate/create']);
-app.post('/certificate/list', auth(responseHandler.unauthorized), method.POST['certificate/list']);
-app.post('/certificate/edit', auth(responseHandler.unauthorized), method.POST['certificate/edit']);
-app.post('/certificate/list/full', auth(responseHandler.unauthorized), method.POST['certificate/list/full']);
-app.post('/certificate/view/header', auth(responseHandler.unauthorized), method.POST['certificate/view/header']);
-app.post('/certificate/edit/header', auth(responseHandler.unauthorized), method.POST['certificate/edit/header']);
-app.post('/', function (req, res) {
-    res.send('Did you feel empty inside of your body?');
-});
-
-// ============= Initialization ============= //
-app.listen(port, function () { });
