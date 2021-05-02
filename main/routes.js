@@ -1,6 +1,8 @@
 const app = require('./app');
 const response = require('./response');
 const jwt = require('jsonwebtoken');
+const path = require('path');
+
 /**
  * @typedef {import('express').RequestHandler} RequestHandler
  */
@@ -139,8 +141,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'download/android': function (req, res, next) {
-            let path = __dirname + '/assets/vaccine-records-n-certs.apk';
-            res.download(path);
+            res.download(path.dirname(require.main.filename) + '/assets/vaccine-records-n-certs.apk');
         }
     },
     POST: {
@@ -505,7 +506,6 @@ const METHOD = {
         },
     }
 };
-
 
 function routes() {
     app.get('/', function (req, res) {
