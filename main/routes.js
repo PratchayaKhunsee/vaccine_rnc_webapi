@@ -538,6 +538,8 @@ function routes() {
         'record/view',
         'record/create',
         'record/edit',
+        'patient/create',
+        'patient/edit',
         'patient/remove',
         'certificate/view',
         'certificate/available',
