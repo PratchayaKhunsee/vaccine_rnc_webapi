@@ -515,23 +515,41 @@ function routes() {
     app.post('/login', METHOD.POST.login);
     app.post('/signup', METHOD.POST.signup);
     app.get('/user', createAuthenticateCallback(response.unauthorized), METHOD.GET.user);
-    app.post('/user', createAuthenticateCallback(response.unauthorized), METHOD.POST.user);
     app.get('/records/available/patient', createAuthenticateCallback(response.unauthorized), METHOD.GET['records/available/patient']);
-    app.post('/patient/create/self', createAuthenticateCallback(response.unauthorized), METHOD.POST['patient/create/self']);
-    app.post('/record/view', createAuthenticateCallback(response.unauthorized), METHOD.POST['record/view']);
-    app.post('/record/create', createAuthenticateCallback(response.unauthorized), METHOD.POST['record/create']);
-    app.post('/record/edit', createAuthenticateCallback(response.unauthorized), METHOD.POST['record/edit']);
-    app.post('/patient/create', createAuthenticateCallback(response.unauthorized), METHOD.POST['patient/create']);
-    app.post('/patient/edit', createAuthenticateCallback(response.unauthorized), METHOD.POST['patient/edit']);
-    app.post('/patient/remove', createAuthenticateCallback(response.unauthorized), METHOD.POST['patient/remove']);
-    app.post('/certificate/view', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/view']);
-    app.post('/certificate/available', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/available']);
-    app.post('/certificate/create', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/create']);
-    app.post('/certificate/list', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/list']);
-    app.post('/certificate/edit', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/edit']);
-    app.post('/certificate/list/full', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/list/full']);
-    app.post('/certificate/view/header', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/view/header']);
-    app.post('/certificate/edit/header', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/edit/header']);
+    // app.post('/user', createAuthenticateCallback(response.unauthorized), METHOD.POST.user);
+    // app.post('/patient/create/self', createAuthenticateCallback(response.unauthorized), METHOD.POST['patient/create/self']);
+    // app.post('/record/view', createAuthenticateCallback(response.unauthorized), METHOD.POST['record/view']);
+    // app.post('/record/create', createAuthenticateCallback(response.unauthorized), METHOD.POST['record/create']);
+    // app.post('/record/edit', createAuthenticateCallback(response.unauthorized), METHOD.POST['record/edit']);
+    // app.post('/patient/create', createAuthenticateCallback(response.unauthorized), METHOD.POST['patient/create']);
+    // app.post('/patient/edit', createAuthenticateCallback(response.unauthorized), METHOD.POST['patient/edit']);
+    // app.post('/patient/remove', createAuthenticateCallback(response.unauthorized), METHOD.POST['patient/remove']);
+    // app.post('/certificate/view', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/view']);
+    // app.post('/certificate/available', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/available']);
+    // app.post('/certificate/create', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/create']);
+    // app.post('/certificate/list', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/list']);
+    // app.post('/certificate/edit', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/edit']);
+    // app.post('/certificate/list/full', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/list/full']);
+    // app.post('/certificate/view/header', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/view/header']);
+    // app.post('/certificate/edit/header', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/edit/header']);
+    for(let url of [
+        'user',
+        'patient/create/self',
+        'record/view',
+        'record/create',
+        'record/edit',
+        'patient/remove',
+        'certificate/view',
+        'certificate/available',
+        'certificate/create',
+        'certificate/list',
+        'certificate/edit',
+        'certificate/list/full',
+        'certificate/view/header',
+        'certificate/edit/header'
+    ]){
+        app.post('/'+ url, createAuthenticateCallback(response.unauthorized), METHOD.POST[url]);
+    }
     app.post('/', function (req, res) {
         res.send('Did you feel empty inside of your body?');
     });
