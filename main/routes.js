@@ -148,7 +148,7 @@ const METHOD = {
         /** @type {RequestHandler} */
         'login'(req, res, next) {
             /** Login authentication token.  */
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
 
             // For validate token authentication.
             if (decoded !== null) {
@@ -205,7 +205,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'patient/create/self'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
 
             connect(async client => await createPatientForSelf(
                 client,
@@ -223,7 +223,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'record/view'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
 
             connect(async client => await viewRecord(
                 client,
@@ -242,7 +242,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'record/create'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
 
             connect(async client => await createRecord(
                 client,
@@ -261,7 +261,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'patient/create'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
 
             connect(async client => await createPatientAsChild(
                 client,
@@ -280,7 +280,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         user(req, res, next) {
-            const decoded = decode_auth_token(req, res, next);
+            const decoded = Token.decode(req, res, next);
             connect(async client => await editUser(
                 client,
                 decoded.username,
@@ -299,7 +299,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'record/edit'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
 
             connect(async client => await editRecord(
                 client,
@@ -318,7 +318,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'patient/edit'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
 
             connect(async client => await editPatient(
                 client,
@@ -337,7 +337,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'patient/remove'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
 
             connect(async client => await removePatient(
                 client,
@@ -356,7 +356,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'certificate/view'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
 
             connect(async client => await viewCertificate(
                 client,
@@ -374,7 +374,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'certificate/available'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
 
             connect(async client => await getAvailableVaccination(
                 client,
@@ -394,7 +394,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'certificate/create'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
             connect(async client => await createCertification(
                 client,
                 decoded ? decoded.username : '',
@@ -412,7 +412,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'certificate/list'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
 
             connect(async client => await getBrieflyCertificates(
                 client,
@@ -431,7 +431,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'certificate/edit'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
 
             connect(async client => await editCertificate(
                 client,
@@ -450,7 +450,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'certificate/list/full'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
 
             connect(async client => await getFullCertificates(
                 client,
@@ -469,7 +469,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'certificate/edit/header'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
 
             connect(async client => await editCertificateHeader(
                 client,
@@ -488,7 +488,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'certificate/view/header'(req, res, next) {
-            let decoded = decode_auth_token(req, res, next);
+            let decoded = Token.decode(req, res, next);
             connect(async client => await viewCertificateHeader(
                 client,
                 decoded ? decoded.username : '',
