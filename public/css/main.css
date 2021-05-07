@@ -5,6 +5,8 @@
     max-width: 100%;
     padding: 8px;
     line-height: 64px;
+    font-family: sans-serif;
+    font-size: 48px;
 }
 
 .download-button > img{
