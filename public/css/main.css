@@ -1,14 +1,19 @@
 .download-button{
+    display: inline-block;
     border-radius: 1em;
     background-color: black;
     max-width: 100%;
     padding: 8px;
+    line-height: 64px;
 }
 
 .download-button > img{
+    vertical-align: middle;
+    max-height: 64px;
     min-height: 64px;
 }
 
 .download-button > img + span{
+    vertical-align: middle;
     color: white;
 }
