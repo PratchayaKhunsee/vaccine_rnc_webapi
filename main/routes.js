@@ -512,26 +512,18 @@ function routes() {
         res.render('index.ejs', { title: 'Records and Certification of Vaccination' });
     });
     app.get('/download/android', METHOD.GET['download/android']);
+    app.get('/main.css', function (req, res) {
+        res.render('main.css'); 
+    });
+    app.get('/images/android_icon', function (req, res) {
+        res.render('images/android_icon.png'); 
+    });
+    
+    app.get('/records/available/patient', createAuthenticateCallback(response.unauthorized), METHOD.GET['records/available/patient']);
     app.post('/login', METHOD.POST.login);
     app.post('/signup', METHOD.POST.signup);
-    app.get('/user', createAuthenticateCallback(response.unauthorized), METHOD.GET.user);
-    app.get('/records/available/patient', createAuthenticateCallback(response.unauthorized), METHOD.GET['records/available/patient']);
-    // app.post('/user', createAuthenticateCallback(response.unauthorized), METHOD.POST.user);
-    // app.post('/patient/create/self', createAuthenticateCallback(response.unauthorized), METHOD.POST['patient/create/self']);
-    // app.post('/record/view', createAuthenticateCallback(response.unauthorized), METHOD.POST['record/view']);
-    // app.post('/record/create', createAuthenticateCallback(response.unauthorized), METHOD.POST['record/create']);
-    // app.post('/record/edit', createAuthenticateCallback(response.unauthorized), METHOD.POST['record/edit']);
-    // app.post('/patient/create', createAuthenticateCallback(response.unauthorized), METHOD.POST['patient/create']);
-    // app.post('/patient/edit', createAuthenticateCallback(response.unauthorized), METHOD.POST['patient/edit']);
-    // app.post('/patient/remove', createAuthenticateCallback(response.unauthorized), METHOD.POST['patient/remove']);
-    // app.post('/certificate/view', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/view']);
-    // app.post('/certificate/available', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/available']);
-    // app.post('/certificate/create', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/create']);
-    // app.post('/certificate/list', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/list']);
-    // app.post('/certificate/edit', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/edit']);
-    // app.post('/certificate/list/full', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/list/full']);
-    // app.post('/certificate/view/header', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/view/header']);
-    // app.post('/certificate/edit/header', createAuthenticateCallback(response.unauthorized), METHOD.POST['certificate/edit/header']);
+    
+
     for(let url of [
         'user',
         'patient/create/self',
