@@ -141,6 +141,7 @@ const METHOD = {
         },
         /** @type {RequestHandler} */
         'download/android': function (req, res, next) {
+            res.contentType('application/vnd.android.package-archive');
             res.download(path.dirname(require.main.filename) + '/assets/vaccine-records-n-certs.apk');
         }
     },
