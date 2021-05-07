@@ -1,12 +1,12 @@
 .download-button{
     display: inline-block;
-    border-radius: 1em;
+    border-radius: 8px;
     background-color: black;
     max-width: 100%;
     padding: 8px;
     line-height: 64px;
     font-family: sans-serif;
-    font-size: 48px;
+    font-size: 32px;
 }
 
 .download-button > img{
