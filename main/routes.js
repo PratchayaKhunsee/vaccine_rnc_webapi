@@ -508,6 +508,7 @@ const METHOD = {
 };
 
 function routes() {
+    
     app.get('/', function (req, res) {
         res.render('index.ejs', { title: 'Records and Certification of Vaccination' });
     });
