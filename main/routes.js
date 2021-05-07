@@ -513,12 +513,12 @@ function routes() {
         res.render('index.ejs', { title: 'Records and Certification of Vaccination' });
     });
     app.get('/download/android', METHOD.GET['download/android']);
-    app.get('/main.css', function (req, res) {
-        res.render('main.css'); 
-    });
-    app.get('/images/android_icon', function (req, res) {
-        res.render('images/android_icon.png'); 
-    });
+    // app.get('/main.css', function (req, res) {
+    //     res.render('main.css'); 
+    // });
+    // app.get('/images/android_icon', function (req, res) {
+    //     res.render('images/android_icon.png'); 
+    // });
     
     app.get('/records/available/patient', createAuthenticateCallback(response.unauthorized), METHOD.GET['records/available/patient']);
     app.post('/login', METHOD.POST.login);
