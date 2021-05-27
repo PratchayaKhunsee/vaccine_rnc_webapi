@@ -9,7 +9,7 @@ app.set('view engine', 'ejs');
 // ============= Middleware Usage ============== //
 
 app.use(express.urlencoded({ extended: true, }));
-app.use(express.json({ limit: '3mb', }));
+app.use(express.json({ limit: '10mb', }));
 app.use(express.static(path.dirname(require.main.filename) + '/public'));
 
 

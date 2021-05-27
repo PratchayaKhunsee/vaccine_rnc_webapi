@@ -2,6 +2,7 @@ const app = require('./app');
 const response = require('./response');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+const multer = require('multer');
 
 /**
  * @typedef {import('express').RequestHandler} RequestHandler
@@ -200,6 +201,7 @@ const METHOD = {
                 }).catch(
                     /** @param {ErrorWithCode} err */
                     err => {
+                        console.log(err);
                         response.badRequest(req, res, next, err);
                     }
                 );
@@ -509,24 +511,31 @@ const METHOD = {
 };
 
 function routes() {
-    
+    const upload = multer({
+        dest: '/.upload',
+    });
+
     app.get('/', function (req, res) {
         res.render('index.ejs', { title: 'Records and Certification of Vaccination' });
     });
     app.get('/download/android', METHOD.GET['download/android']);
-    // app.get('/main.css', function (req, res) {
-    //     res.render('main.css'); 
-    // });
-    // app.get('/images/android_icon', function (req, res) {
-    //     res.render('images/android_icon.png'); 
-    // });
-    
     app.get('/records/available/patient', createAuthenticateCallback(response.unauthorized), METHOD.GET['records/available/patient']);
     app.post('/login', METHOD.POST.login);
     app.post('/signup', METHOD.POST.signup);
-    
+    app.post('/certificate/edit', upload.fields([
+        {
+            name: 'clinician_signature',
+        },
+        {
+            name: 'administring_centre_stamp'
+        },
+        
+    ]));
 
-    for(let url of [
+
+
+
+    for (let url of [
         'user',
         'patient/create/self',
         'record/view',
@@ -543,8 +552,8 @@ function routes() {
         'certificate/list/full',
         'certificate/view/header',
         'certificate/edit/header'
-    ]){
-        app.post('/'+ url, createAuthenticateCallback(response.unauthorized), METHOD.POST[url]);
+    ]) {
+        app.post('/' + url, createAuthenticateCallback(response.unauthorized), METHOD.POST[url]);
     }
     app.post('/', function (req, res) {
         res.send('Did you feel empty inside of your body?');
