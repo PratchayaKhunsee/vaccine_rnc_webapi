@@ -519,15 +519,15 @@ function routes() {
     app.get('/records/available/patient', createAuthenticateCallback(response.unauthorized), METHOD.GET['records/available/patient']);
     app.post('/login', METHOD.POST.login);
     app.post('/signup', METHOD.POST.signup);
-    app.post('/certificate/edit', upload.fields([
-        {
-            name: 'clinician_signature',
-        },
-        {
-            name: 'administring_centre_stamp'
-        },
+    // app.post('/certificate/edit', upload.fields([
+    //     {
+    //         name: 'clinician_signature',
+    //     },
+    //     {
+    //         name: 'administring_centre_stamp'
+    //     },
         
-    ]));
+    // ]));
 
     for (let url of [
         'user',
