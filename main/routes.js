@@ -2,7 +2,6 @@ const app = require('./app');
 const response = require('./response');
 const jwt = require('jsonwebtoken');
 const path = require('path');
-const multer = require('multer');
 
 /**
  * @typedef {import('express').RequestHandler} RequestHandler
@@ -512,9 +511,6 @@ const METHOD = {
 };
 
 function routes() {
-    const upload = multer({
-        dest: '/.upload',
-    });
 
     app.get('/', function (req, res) {
         res.render('index.ejs', { title: 'Records and Certification of Vaccination' });
@@ -532,9 +528,6 @@ function routes() {
         },
         
     ]));
-
-
-
 
     for (let url of [
         'user',
