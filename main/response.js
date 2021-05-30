@@ -10,7 +10,8 @@ const httpStatus = {
     FORBIDDEN: 403,
     NOT_FOUND: 404,
     OK: 200,
-    CREATED: 201
+    CREATED: 201,
+    NO_CONTENT: 204,
 };
 
 /**
@@ -54,6 +55,10 @@ const response = {
      * Response to the request with [BAD_REQUEST] HTTP status code.
      **/
     badRequest: createJSONResponse(httpStatus.BAD_REQUEST),
+    /**
+     * Response to the request with [NO_CONTENT] HTTP status code.
+     */
+    noContent: createJSONResponse(httpStatus.NO_CONTENT),
 };
 
 module.exports = response;

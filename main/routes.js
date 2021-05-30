@@ -218,81 +218,6 @@ const METHOD = {
                 );
         },
         /** @type {RequestHandler} */
-        'patient/create/self'(req, res, next) {
-            let decoded = Token.decode(req, res, next);
-
-            connect(async client => await createPatientForSelf(
-                client,
-                decoded ? decoded.username : '',
-                req.body
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
-                response.created(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    response.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {RequestHandler} */
-        'record/view'(req, res, next) {
-            let decoded = Token.decode(req, res, next);
-
-            connect(async client => await viewRecord(
-                client,
-                decoded ? decoded.username : '',
-                req.body.patient_id
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
-
-                response.ok(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    response.contentNotFound(req, res, next, error);
-                }
-            );
-        },
-        /** @type {RequestHandler} */
-        'record/create'(req, res, next) {
-            let decoded = Token.decode(req, res, next);
-
-            connect(async client => await createRecord(
-                client,
-                decoded ? decoded.username : '',
-                req.body.patient_id
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
-
-                response.created(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    response.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {RequestHandler} */
-        'patient/create'(req, res, next) {
-            let decoded = Token.decode(req, res, next);
-
-            connect(async client => await createPatientAsChild(
-                client,
-                decoded ? decoded.username : '',
-                req.body
-            )).then((result) => {
-                if (result instanceof ErrorWithCode) throw result;
-
-                response.created(req, res, next, result);
-            }).catch(
-                /** @param {ErrorWithCode} error */
-                error => {
-                    response.badRequest(req, res, next, error);
-                }
-            );
-        },
-        /** @type {RequestHandler} */
         'user/info/edit'(req, res, next) {
             const decoded = Token.decode(req, res, next);
             connect(async client => await editUserInfo(
@@ -330,6 +255,44 @@ const METHOD = {
             );
         },
         /** @type {RequestHandler} */
+        'record/view'(req, res, next) {
+            let decoded = Token.decode(req, res, next);
+
+            connect(async client => await viewRecord(
+                client,
+                decoded ? decoded.username : '',
+                req.body.patient_id
+            )).then((result) => {
+                if (result instanceof ErrorWithCode) throw result;
+
+                response.ok(req, res, next, result);
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    response.noContent(req, res, next, error);
+                }
+            );
+        },
+        /** @type {RequestHandler} */
+        'record/create'(req, res, next) {
+            let decoded = Token.decode(req, res, next);
+
+            connect(async client => await createRecord(
+                client,
+                decoded ? decoded.username : '',
+                req.body.patient_id
+            )).then((result) => {
+                if (result instanceof ErrorWithCode) throw result;
+
+                response.created(req, res, next, result);
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    response.badRequest(req, res, next, error);
+                }
+            );
+        },
+        /** @type {RequestHandler} */
         'record/edit'(req, res, next) {
             let decoded = Token.decode(req, res, next);
 
@@ -341,6 +304,43 @@ const METHOD = {
                 if (result instanceof ErrorWithCode) throw result;
 
                 response.ok(req, res, next, result);
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    response.badRequest(req, res, next, error);
+                }
+            );
+        },
+        /** @type {RequestHandler} */
+        'patient/create'(req, res, next) {
+            let decoded = Token.decode(req, res, next);
+
+            connect(async client => await createPatientAsChild(
+                client,
+                decoded ? decoded.username : '',
+                req.body
+            )).then((result) => {
+                if (result instanceof ErrorWithCode) throw result;
+
+                response.created(req, res, next, result);
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
+                    response.badRequest(req, res, next, error);
+                }
+            );
+        },
+        /** @type {RequestHandler} */
+        'patient/create/self'(req, res, next) {
+            let decoded = Token.decode(req, res, next);
+
+            connect(async client => await createPatientForSelf(
+                client,
+                decoded ? decoded.username : '',
+                req.body
+            )).then((result) => {
+                if (result instanceof ErrorWithCode) throw result;
+                response.created(req, res, next, result);
             }).catch(
                 /** @param {ErrorWithCode} error */
                 error => {
@@ -553,11 +553,11 @@ function routes() {
     for (let url of [
         'user/info/edit',
         'user/account/edit',
-        'patient/create/self',
         'record/view',
         'record/create',
         'record/edit',
         'patient/create',
+        'patient/create/self',
         'patient/edit',
         'patient/remove',
         'certificate/view',
