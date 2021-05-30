@@ -179,6 +179,7 @@ const METHOD = {
                 username,
                 password
             )).then(result => {
+                console.log(result);
                 if (result instanceof ErrorWithCode) {
                     throw result;
                 }
