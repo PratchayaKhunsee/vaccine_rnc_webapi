@@ -38,7 +38,12 @@ async function signUp(conn, user) {
         //     throw ERRORS.INVALID_ID_NUMBER;
         // }
 
-        console.log(user);
+        console.log(user, [
+            user.firstname,
+            user.lastname,
+            Number(user.gender),
+            Number(user.name_prefix)
+        ]);
 
         /**
          * Result of creating a user account.
