@@ -169,6 +169,8 @@ async function editUserAccount(client, username, password) {
                 ]
             );
 
+            console.log(modified.rows);
+
             if (modified.rowCount != 1) {
                 throw ERRORS.MODIFYING_USER_ERROR;
             }
@@ -179,7 +181,7 @@ async function editUserAccount(client, username, password) {
         return true;
     } catch (error) {
         console.log(error);
-        
+
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
