@@ -74,7 +74,7 @@ async function viewUser(client, username) {
     }
 
     /** @type {UserInfo} */
-    const result = { ... person.rows[0] };
+    const result = { ...person.rows[0] };
 
     return result;
 }
@@ -88,7 +88,7 @@ async function viewUser(client, username) {
  * @param {UserEditableInfo} info
  * @param {PasswordModifier} [password]
  */
-async function editUser(client, username, info, password) {
+async function editUserInfo(client, username, info, password) {
 
     try {
         let cloned = { ...info };
@@ -111,30 +111,6 @@ async function editUser(client, username, info, password) {
             throw ERRORS.USER_NOT_FOUND;
         }
 
-        // console.log(password);
-
-        // Updating user password
-        if (password) {
-            // console.log(username, password);
-
-            let modified = await client.query(
-                `UPDATE user_account SET password = crypt($1, gen_salt('md5')) WHERE username = $2 AND password = crypt($3, password)`,
-                [
-                    password.new,
-                    username,
-                    password.old
-                ]
-            );
-
-            if (modified.rowCount != 1) {
-                throw ERRORS.MODIFYING_USER_ERROR;
-            }
-
-            console.log('success password modified');
-        }
-
-        console.log(info)
-
         // Updating user information.
         if (info) {
             let keys = Object.keys(cloned);
@@ -154,6 +130,8 @@ async function editUser(client, username, info, password) {
             if (updating.rowCount != 1) {
                 throw ERRORS.MODIFYING_USER_ERROR;
             }
+        } else {
+            throw ERRORS.MODIFYING_USER_ERROR;
         }
 
         await client.query('COMMIT');
@@ -169,20 +147,47 @@ async function editUser(client, username, info, password) {
 
 }
 
-// /**
-//  * Edit some user information
-//  * @param {import('pg').Client} client
-//  * @param {String} username  
-//  * @param {PasswordModifier} password
-//  */
-// async function editUserPassword(client, username, password){
+/**
+ * Edit user account information like password.
+ * @param {import('pg').Client} client
+ * @param {String} username  
+ * @param {PasswordModifier} password 
+ */
+async function editUserAccount(client, username, password) {
+    try {
+        await client.query('BEGIN');
 
-// }
+        if (password) {
+
+            var modified = await client.query(
+                `UPDATE user_account SET password = crypt($1, gen_salt('md5')) WHERE username = $2 AND password = crypt($3, password)`,
+                [
+                    password.new,
+                    username,
+                    password.old
+                ]
+            );
+
+            if (modified.rowCount != 1) {
+                throw ERRORS.MODIFYING_USER_ERROR;
+            }
+        } else {
+            throw ERRORS.MODIFYING_USER_ERROR;
+        }
+
+        return true;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        return new ErrorWithCode(error);
+    }
+
+}
 
 // =====================================
 
 /** Exported modules */
 module.exports = {
     viewUser,
-    editUser
+    editUserInfo,
+    editUserAccount
 }

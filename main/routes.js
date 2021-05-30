@@ -49,7 +49,8 @@ const {
 } = require('../query/certificate');
 const {
     viewUser,
-    editUser
+    editUserInfo,
+    editUserAccount
 } = require('../query/user');
 
 /**
@@ -292,9 +293,9 @@ const METHOD = {
             );
         },
         /** @type {RequestHandler} */
-        'user/edit'(req, res, next) {
+        'user/info/edit'(req, res, next) {
             const decoded = Token.decode(req, res, next);
-            connect(async client => await editUser(
+            connect(async client => await editUserInfo(
                 client,
                 decoded.username,
                 req.body.person || null,
@@ -307,6 +308,24 @@ const METHOD = {
                 /** @param {ErrorWithCode} error */
                 error => {
                     console.log(error);
+                    response.badRequest(req, res, next, error);
+                }
+            );
+        },
+        /** @type {RequestHandler} */
+        'user/account/edit'(req, res, next){
+            const decoded = Token.decode(req, res, next);
+            connect(async client => await editUserAccount(
+                client,
+                decoded.username,
+                req.body.password || null
+            )).then(result => {
+                if (result instanceof ErrorWithCode) throw result;
+
+                response.ok(req, res, next, result);
+            }).catch(
+                /** @param {ErrorWithCode} error */
+                error => {
                     response.badRequest(req, res, next, error);
                 }
             );
@@ -533,7 +552,8 @@ function routes() {
     app.post('/signup', METHOD.POST.signup);
 
     for (let url of [
-        'user/edit',
+        'user/info/edit',
+        'user/account/edit',
         'patient/create/self',
         'record/view',
         'record/create',
