@@ -527,7 +527,7 @@ function routes() {
     });
     app.get('/download/android', METHOD.GET['download/android']);
     app.get('/records/available/patient', createAuthenticateCallback(response.unauthorized), METHOD.GET['records/available/patient']);
-    app.get('/user/view',createAuthenticateCallback(response.unauthorized), METHOD.GET.user);
+    app.get('/user/view',createAuthenticateCallback(response.unauthorized), METHOD.GET['user/view']);
     app.post('/login', METHOD.POST.login);
     app.post('/signup', METHOD.POST.signup);
 
