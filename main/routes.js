@@ -164,8 +164,12 @@ const METHOD = {
             /** @type {String} */
             const password = req.body.password;
 
+            console.log(req.body)
+
+
             if (!(username && password)) {
                 response.badRequest(req, res, next);
+                return;
             }
 
             connect(async client => await logIn(
