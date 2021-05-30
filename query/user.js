@@ -111,11 +111,11 @@ async function editUser(client, username, info, password) {
             throw ERRORS.USER_NOT_FOUND;
         }
 
-        console.log(password);
+        // console.log(password);
 
         // Updating user password
         if (password) {
-            console.log(username, password);
+            // console.log(username, password);
 
             let modified = await client.query(
                 `UPDATE user_account SET password = crypt($1, gen_salt('md5')) WHERE username = $2 AND password = crypt($3, password)`,
@@ -132,6 +132,8 @@ async function editUser(client, username, info, password) {
 
             console.log('success password modified');
         }
+
+        console.log(info)
 
         // Updating user information.
         if (info) {
