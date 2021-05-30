@@ -23,6 +23,8 @@ async function logIn(client, username, password) {
             ]
         );
 
+        console.log(userAccount.rows);
+
         if (userAccount.rows.length != 1) {
             throw ERRORS.LOGIN_AUTH_ERROR;
         }
