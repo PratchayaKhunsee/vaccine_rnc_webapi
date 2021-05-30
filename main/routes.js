@@ -457,6 +457,7 @@ const METHOD = {
             }).catch(
                 /** @param {ErrorWithCode} error */
                 error => {
+                    console.log(error)
                     response.noContent(req, res, next, error);
                 }
             );
