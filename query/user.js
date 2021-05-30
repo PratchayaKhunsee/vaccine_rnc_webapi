@@ -111,7 +111,7 @@ async function editUser(client, username, info, password) {
             throw ERRORS.USER_NOT_FOUND;
         }
 
-        console.log(user, info, password);
+        console.log(password);
 
         // Updating user password
         if (password) {
@@ -123,6 +123,8 @@ async function editUser(client, username, info, password) {
                     password.old
                 ]
             );
+
+            console.log(modified);
 
             if (modified.rowCount != 1) {
                 throw ERRORS.MODIFYING_USER_ERROR;
