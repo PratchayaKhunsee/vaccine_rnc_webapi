@@ -178,6 +178,8 @@ async function editUserAccount(client, username, password) {
             throw ERRORS.MODIFYING_USER_ERROR;
         }
 
+        await client.query('COMMIT');
+
         return true;
     } catch (error) {
         console.log(error);
