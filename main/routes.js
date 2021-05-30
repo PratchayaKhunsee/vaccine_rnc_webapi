@@ -193,6 +193,7 @@ const METHOD = {
                  * @param {ErrorWithCode} error
                  */
                 error => {
+                    console.log(error)
                     response.badRequest(req, res, next, error);
                 }
             );
