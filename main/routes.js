@@ -184,7 +184,7 @@ const METHOD = {
                     throw result;
                 }
 
-                let token = generate_auth_token(username, new Date());
+                let token = Token.generate(username, new Date());
                 response.ok(req, res, next, { token });
 
                 console.log('good.')
