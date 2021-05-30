@@ -9,7 +9,7 @@
  * @property {Number|BigInt} gender 
  */
 
-const idValidator = require("thai-id-card");
+// const idValidator = require("thai-id-card");
 const {
     ERRORS, ErrorWithCode
 } = require("../error");
@@ -25,7 +25,7 @@ async function signUp(conn, user) {
     /** The query string set as an object. */
     let queryString = {
         create: {
-            person: "INSERT INTO person (firstname,lastname,gender,name_prefix,id_number) VALUES($1,$2,$3,$4,$5) RETURNING id",
+            person: "INSERT INTO person (firstname,lastname,gender,name_prefix) VALUES($1,$2,$3,$4) RETURNING id",
             userAccount: "INSERT INTO user_account (username, password, person_id) VALUES($1, crypt($2, gen_salt('md5')), $3) RETURNING id",
         }
     };
@@ -34,9 +34,9 @@ async function signUp(conn, user) {
         await conn.query('BEGIN');
 
         // Verify id_number
-        if (!idValidator.verify(user.id_number)) {
-            throw ERRORS.INVALID_ID_NUMBER;
-        }
+        // if (!idValidator.verify(user.id_number)) {
+        //     throw ERRORS.INVALID_ID_NUMBER;
+        // }
 
         /**
          * Result of creating a user account.
@@ -47,8 +47,7 @@ async function signUp(conn, user) {
                 user.firstname,
                 user.lastname,
                 Number(user.gender),
-                Number(user.name_prefix),
-                user.id_number
+                Number(user.name_prefix)
             ]
         );
 

@@ -37,8 +37,7 @@ const editableAttr = [
     'firstname',
     'lastname',
     'gender',
-    'name_prefix',
-    'id_number'
+    'name_prefix'
 ];
 
 // =====================================
@@ -64,7 +63,7 @@ async function viewUser(client, username) {
 
     // Get the personal information with person information
     let person = await client.query(
-        'SELECT firstname,lastname,gender,name_prefix,id_number FROM person WHERE id = $1',
+        'SELECT firstname,lastname,gender,name_prefix FROM person WHERE id = $1',
         [
             Number(user.rows[0].person_id)
         ]
@@ -138,7 +137,7 @@ async function editUser(client, username, info, password) {
             let i = 1;
             var updating = await client.query(
                 `UPDATE person SET ${keys.map(x => `${x} = $${i++}`)} WHERE id = $${i}
-                    RETURNING firstname,lastname,id_number,gender,name_prefix
+                    RETURNING firstname,lastname,gender,name_prefix
                 `,
                 values
             );
