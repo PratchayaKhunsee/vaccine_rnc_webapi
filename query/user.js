@@ -160,7 +160,7 @@ async function editUserAccount(client, username, password) {
 
         if (password) {
 
-            var modified = await client.query(
+            let modified = await client.query(
                 `UPDATE user_account SET password = crypt($1, gen_salt('md5')) WHERE username = $2 AND password = crypt($3, password)`,
                 [
                     password.new,
@@ -169,7 +169,7 @@ async function editUserAccount(client, username, password) {
                 ]
             );
 
-            console.log(modified.rows);
+            console.log(modified.rowCount);
 
             if (modified.rowCount != 1) {
                 throw ERRORS.MODIFYING_USER_ERROR;
