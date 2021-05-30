@@ -298,8 +298,7 @@ const METHOD = {
             connect(async client => await editUserInfo(
                 client,
                 decoded.username,
-                req.body.person || null,
-                req.body.password || null
+                req.body
             )).then(result => {
                 if (result instanceof ErrorWithCode) throw result;
 
@@ -318,7 +317,7 @@ const METHOD = {
             connect(async client => await editUserAccount(
                 client,
                 decoded.username,
-                req.body.password || null
+                req.body
             )).then(result => {
                 if (result instanceof ErrorWithCode) throw result;
 

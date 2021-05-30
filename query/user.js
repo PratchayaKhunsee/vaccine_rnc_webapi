@@ -86,9 +86,8 @@ async function viewUser(client, username) {
  * @param {import('pg').Client} client
  * @param {String} username  
  * @param {UserEditableInfo} info
- * @param {PasswordModifier} [password]
  */
-async function editUserInfo(client, username, info, password) {
+async function editUserInfo(client, username, info) {
 
     try {
         let cloned = { ...info };
@@ -157,6 +156,8 @@ async function editUserAccount(client, username, password) {
     try {
         await client.query('BEGIN');
 
+        console.log(password);
+
         if (password) {
 
             var modified = await client.query(
@@ -177,6 +178,8 @@ async function editUserAccount(client, username, password) {
 
         return true;
     } catch (error) {
+        console.log(error);
+        
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
