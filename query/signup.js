@@ -43,8 +43,6 @@ async function signUp(conn, user) {
             ]
         );
 
-        console.log('person created');
-
         /**
          * Result of creating a person information field.
          */
@@ -56,8 +54,6 @@ async function signUp(conn, user) {
                 Number(person.rows[0].id)
             ]
         );
-
-        console.log('account created');
 
         // Cannot created a user account if username is redundant.
         if (account.rowCount != 1) {

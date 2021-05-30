@@ -172,6 +172,8 @@ const METHOD = {
                 return;
             }
 
+            console.log('do logging in')
+
             connect(async client => await logIn(
                 client,
                 username,
@@ -183,6 +185,8 @@ const METHOD = {
 
                 let token = generate_auth_token(username, new Date());
                 response.ok(req, res, next, { token });
+
+                console.log('good.')
             }).catch(
                 /**
                  * @param {ErrorWithCode} error
