@@ -7,7 +7,7 @@
  * @property {String} [lastname]
  * @property {Number} [gender]
  * @property {Number} [name_prefix]
- * @property {String} [id_number]
+//  * @property {String} [id_number]
  * 
  * @typedef {Object} UserInfo
  * 
@@ -17,7 +17,7 @@
  * @property {String} lastname
  * @property {Number} gender
  * @property {Number} name_prefix
- * @property {String} id_number
+//  * @property {String} id_number
  * 
  * @typedef {Object} PasswordModifier
  * 
@@ -85,7 +85,7 @@ async function viewUser(client, username) {
  * Edit some user information
  * @param {import('pg').Client} client
  * @param {String} username  
- * @param {UserEditableInfo} editable
+ * @param {UserEditableInfo} info
  * @param {PasswordModifier} [password]
  */
 async function editUser(client, username, info, password) {
@@ -111,9 +111,9 @@ async function editUser(client, username, info, password) {
             throw ERRORS.USER_NOT_FOUND;
         }
 
-        console.log(user);
+        console.log(user, info);
 
-        // Updating..
+        // Updating user password
         if (password) {
             let modified = await client.query(
                 `UPDATE user_account SET password = crypt($1, gen_salt('md5')) WHERE username = $2 AND password = crypt($3, password)`,
@@ -129,7 +129,7 @@ async function editUser(client, username, info, password) {
             }
         }
 
-        // Updating...
+        // Updating user information.
         if (info) {
             let keys = Object.keys(cloned);
             let values = [
