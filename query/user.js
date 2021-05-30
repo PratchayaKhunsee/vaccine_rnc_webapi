@@ -111,7 +111,7 @@ async function editUser(client, username, info, password) {
             throw ERRORS.USER_NOT_FOUND;
         }
 
-        console.log(user, info);
+        console.log(user, info, password);
 
         // Updating user password
         if (password) {
