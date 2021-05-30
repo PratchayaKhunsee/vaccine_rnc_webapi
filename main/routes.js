@@ -124,7 +124,7 @@ const METHOD = {
             );
         },
         /** @type {RequestHandler} */
-        'records/available/patient': function (req, res, next) {
+        'patient/view': function (req, res, next) {
             let decoded = Token.decode(req, res, next);
 
             connect(async client => await getAvailablePatients(
@@ -545,7 +545,7 @@ function routes() {
         res.render('index.ejs', { title: 'Records and Certification of Vaccination' });
     });
     app.get('/download/android', METHOD.GET['download/android']);
-    app.get('/records/available/patient', createAuthenticateCallback(response.unauthorized), METHOD.GET['records/available/patient']);
+    app.get('/patient/view', createAuthenticateCallback(response.unauthorized), METHOD.GET['patient/view']);
     app.get('/user/view',createAuthenticateCallback(response.unauthorized), METHOD.GET['user/view']);
     app.post('/login', METHOD.POST.login);
     app.post('/signup', METHOD.POST.signup);

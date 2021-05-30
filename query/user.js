@@ -156,8 +156,6 @@ async function editUserAccount(client, username, password) {
     try {
         await client.query('BEGIN');
 
-        console.log(password);
-
         if (password) {
 
             let modified = await client.query(
@@ -168,8 +166,6 @@ async function editUserAccount(client, username, password) {
                     password.old
                 ]
             );
-
-            console.log(modified.rowCount);
 
             if (modified.rowCount != 1) {
                 throw ERRORS.MODIFYING_USER_ERROR;
