@@ -457,7 +457,7 @@ const METHOD = {
             }).catch(
                 /** @param {ErrorWithCode} error */
                 error => {
-                    response.badRequest(req, res, next, error);
+                    response.noContent(req, res, next, error);
                 }
             );
         },
