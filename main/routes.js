@@ -104,7 +104,7 @@ const createAuthenticateCallback = (errorCallback) =>
 const METHOD = {
     GET: {
         /** @type {RequestHandler} */
-        'user'(req, res, next) {
+        'user/view'(req, res, next) {
             let decoded = Token.decode(req, res, next);
             connect(async client => await viewUser(
                 client,
@@ -292,7 +292,7 @@ const METHOD = {
             );
         },
         /** @type {RequestHandler} */
-        user(req, res, next) {
+        'user/edit'(req, res, next) {
             const decoded = Token.decode(req, res, next);
             connect(async client => await editUser(
                 client,
@@ -527,20 +527,12 @@ function routes() {
     });
     app.get('/download/android', METHOD.GET['download/android']);
     app.get('/records/available/patient', createAuthenticateCallback(response.unauthorized), METHOD.GET['records/available/patient']);
+    app.get('/user/view',createAuthenticateCallback(response.unauthorized), METHOD.GET.user);
     app.post('/login', METHOD.POST.login);
     app.post('/signup', METHOD.POST.signup);
-    // app.post('/certificate/edit', upload.fields([
-    //     {
-    //         name: 'clinician_signature',
-    //     },
-    //     {
-    //         name: 'administring_centre_stamp'
-    //     },
-        
-    // ]));
 
     for (let url of [
-        'user',
+        'user/edit',
         'patient/create/self',
         'record/view',
         'record/create',
