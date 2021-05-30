@@ -98,7 +98,7 @@ async function editUser(client, username, info, password) {
 
         await client.query('BEGIN');
 
-        // Get the user information by username
+        // Get the user information with username
         let user = await client.query(
             'SELECT person_id FROM user_account WHERE username = $1',
             [
@@ -110,6 +110,8 @@ async function editUser(client, username, info, password) {
         if (user.rows.length != 1) {
             throw ERRORS.USER_NOT_FOUND;
         }
+
+        console.log(user);
 
         // Updating..
         if (password) {
@@ -160,6 +162,16 @@ async function editUser(client, username, info, password) {
     }
 
 }
+
+// /**
+//  * Edit some user information
+//  * @param {import('pg').Client} client
+//  * @param {String} username  
+//  * @param {PasswordModifier} password
+//  */
+// async function editUserPassword(client, username, password){
+
+// }
 
 // =====================================
 
