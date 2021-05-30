@@ -41,6 +41,7 @@ async function logIn(client, username, password) {
         await client.query('COMMIT');
         return true;
     } catch (error) {
+        console.log(error);
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
