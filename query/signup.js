@@ -22,14 +22,6 @@ const {
  */
 async function signUp(conn, user) {
 
-    /** The query string set as an object. */
-    let queryString = {
-        create: {
-            person: "INSERT INTO person (firstname,lastname,gender,name_prefix) VALUES($1,$2,$3,$4) RETURNING id",
-            userAccount: "INSERT INTO user_account (username, password, person_id) VALUES($1, crypt($2, gen_salt('md5')), $3) RETURNING id",
-        }
-    };
-
     try {
         await conn.query('BEGIN');
 
@@ -38,18 +30,11 @@ async function signUp(conn, user) {
         //     throw ERRORS.INVALID_ID_NUMBER;
         // }
 
-        console.log(user, [
-            user.firstname,
-            user.lastname,
-            Number(user.gender),
-            Number(user.name_prefix)
-        ]);
-
         /**
          * Result of creating a user account.
          */
         let person = await conn.query(
-            queryString.create.userAccount,
+            "INSERT INTO person (firstname,lastname,gender,name_prefix) VALUES($1,$2,$3,$4) RETURNING id",
             [
                 user.firstname,
                 user.lastname,
@@ -58,17 +43,21 @@ async function signUp(conn, user) {
             ]
         );
 
+        console.log('person created');
+
         /**
          * Result of creating a person information field.
          */
         let account = await conn.query(
-            queryString.create.userAccount,
+            "INSERT INTO user_account (username, password, person_id) VALUES($1, crypt($2, gen_salt('md5')), $3) RETURNING id",
             [
                 user.username,
                 user.password,
                 Number(person.rows[0].id)
             ]
         );
+
+        console.log('account created');
 
         // Cannot created a user account if username is redundant.
         if (account.rowCount != 1) {
