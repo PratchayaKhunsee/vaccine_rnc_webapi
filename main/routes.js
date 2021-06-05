@@ -543,9 +543,9 @@ const METHOD = {
 function routes() {
 
     app.get('/', function (req, res) {
-        res.render('index.ejs', { title: 'Records and Certification of Vaccination' });
+        // res.render('index.ejs', { title: 'Records and Certification of Vaccination' });
     });
-    app.get('/download/android', METHOD.GET['download/android']);
+    // app.get('/download/android', METHOD.GET['download/android']);
     app.get('/patient/view', createAuthenticateCallback(response.unauthorized), METHOD.GET['patient/view']);
     app.get('/user/view',createAuthenticateCallback(response.unauthorized), METHOD.GET['user/view']);
     app.post('/login', METHOD.POST.login);

@@ -8,11 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://git.heroku.com/vaccine-database.git"
+    "url": "https://git.heroku.com/vaccine-vnc-database.git"
   },
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
+    "aws-sdk": "^2.922.0",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
     "ejs": "^3.1.6",
