@@ -543,7 +543,7 @@ const METHOD = {
 function routes() {
 
     app.get('/', function (req, res) {
-        res.sendStatus(201);
+        res.sendStatus(204);
     });
     app.get('/patient/view', createAuthenticateCallback(response.unauthorized), METHOD.GET['patient/view']);
     app.get('/user/view',createAuthenticateCallback(response.unauthorized), METHOD.GET['user/view']);
@@ -572,7 +572,7 @@ function routes() {
         app.post('/' + url, createAuthenticateCallback(response.unauthorized), METHOD.POST[url]);
     }
     app.post('/', function (req, res) {
-        res.sendStatus(201);
+        res.sendStatus(204);
     });
 }
 
