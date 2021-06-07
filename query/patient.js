@@ -273,7 +273,7 @@ async function editPatient(client, username, details) {
         let result = { ...edited.rows[0] };
         return result;
     } catch (error) {
-        // console.log(error);
+        // ;
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
@@ -374,7 +374,7 @@ async function removePatient(client, username, vaccinePatientId) {
 
         return true;
     } catch (error) {
-        // console.log(error);
+        // ;
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }

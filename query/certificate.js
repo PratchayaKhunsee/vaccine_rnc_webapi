@@ -215,7 +215,7 @@ async function getCertification(client, username, vaccinePatientId) {
 
         return result;
     } catch (error) {
-        // console.log(error);
+        // ;
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
@@ -412,7 +412,7 @@ async function viewCertificate(client, username, selection) {
 
         return result;
     } catch (error) {
-        // console.log(error);
+        // ;
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
@@ -470,7 +470,7 @@ async function editCertificate(client, username, certificate) {
 
         return result;
     } catch (error) {
-        // console.log(error);
+        // ;
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
@@ -544,7 +544,7 @@ async function getFullCertificates(client, username, selection) {
 
         return result;
     } catch (error) {
-        console.log(error);
+        ;
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
@@ -557,7 +557,7 @@ async function getFullCertificates(client, username, selection) {
  * @param {Number} patient_id 
  */
 async function viewCertificateHeader(client, username, patient_id) {
-    // console.log(patient_id)
+    // 
     try {
         await client.query('BEGIN');
 
@@ -596,7 +596,7 @@ async function viewCertificateHeader(client, username, patient_id) {
 
         return result;
     } catch (error) {
-        console.log(error);
+        ;
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
     }
@@ -622,7 +622,7 @@ async function editCertificateHeader(client, username, context) {
         );
         if (!checkPatient) throw ERRORS.PATIENT_NOT_FOUND;
 
-        // console.log(context);
+        // ;
 
         let keys = [];
         let values = [];
@@ -671,7 +671,7 @@ async function editCertificateHeader(client, username, context) {
 
         return result;
     } catch (error) {
-        console.log(error);
+        ;
         /////////////
         await client.query('ROLLBACK');
         return new ErrorWithCode(error);
