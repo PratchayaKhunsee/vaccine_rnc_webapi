@@ -180,7 +180,7 @@ const METHOD = {
                 username,
                 password
             )).then(result => {
-                console.log(result);
+                ;
                 if (result instanceof ErrorWithCode) {
                     throw result;
                 }
@@ -194,7 +194,7 @@ const METHOD = {
                  * @param {ErrorWithCode} error
                  */
                 error => {
-                    console.log(error)
+                    
                     response.badRequest(req, res, next, error);
                 }
             );
@@ -211,7 +211,7 @@ const METHOD = {
                 }).catch(
                     /** @param {ErrorWithCode} err */
                     err => {
-                        console.log(err);
+                        ;
                         //
                         response.badRequest(req, res, next, err);
                     }
@@ -231,7 +231,7 @@ const METHOD = {
             }).catch(
                 /** @param {ErrorWithCode} error */
                 error => {
-                    console.log(error);
+                    ;
                     response.badRequest(req, res, next, error);
                 }
             );
@@ -413,7 +413,7 @@ const METHOD = {
                 decoded ? decoded.username : '',
                 req.body.patient_id
             )).then((result) => {
-                // console.log(result);
+                // ;
                 if (result instanceof ErrorWithCode) throw result;
 
                 response.ok(req, res, next, result);
@@ -457,7 +457,7 @@ const METHOD = {
             }).catch(
                 /** @param {ErrorWithCode} error */
                 error => {
-                    console.log(error)
+                    
                     response.noContent(req, res, next, error);
                 }
             );
@@ -528,7 +528,7 @@ const METHOD = {
                 req.body.patient_id
             )).then((result) => {
                 if (result instanceof ErrorWithCode) throw result;
-                console.log(result);
+                ;
                 response.ok(req, res, next, result);
             }).catch(
                 /** @param {ErrorWithCode} error */
