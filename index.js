@@ -1,8 +1,549 @@
+const App = require('./lib/express-app');
+const Auth = require('./lib/authorization');
+const ActiveStorage = require('./lib/active-storage');
+const Rules = require('./lib/request-response-rules');
+const Query = require('./lib/query');
+const DBConnection = require('./lib/database-connection');
+const Error = require('./lib/error');
 
-const app = require('./main/app');
-const routes = require('./main/routes');
+/**
+ * @typedef {import('express').RequestHandler} R
+ *  RequestHandler callback from Express.js.
+ */
 
-routes();
-app.listen(process.env.PORT || 8080, () => {
-    console.log('App working.');
+/**
+ * Perform checking authorization header from request to content access allowance.
+ * If it is not authorized, reject the request with [UNAUTHORIZED] http code.
+ * @type {R}
+ */
+function authorization(req, res, next) {
+    ActiveStorage.authentication.get(req.headers.authorization)
+        .then(() => {
+            // Allow to perform the next task
+            next();
+        })
+        .catch(() => {
+            res.sendStatus(Rules.httpCode.UNAUTHORIZED);
+        });
+}
+
+/**
+ * Perform checking authorization header when requested on login or singup route
+ * If it is not authorized, let user to perform the next task.
+ * @type {R}
+ **/
+function loginAuthorization(req, res, next) {
+    ActiveStorage.authentication.get(req.headers.authorization)
+        .then(() => {
+            // Response [OK] http code with no content for allowing client to be more accessible.
+            res.status(200).send('');
+        })
+        .catch(() => {
+            next();
+        });
+}
+
+/**
+ * Check parameters form request. If it is not correct, response the client with [BAD_REQUEST] http code.
+ * @param {import('./lib/request-response-rules').RoutingPathNameList} pathname 
+ */
+function checkParams(pathname) {
+    return handler;
+
+    /** @type {R} */
+    function handler(req, res, next) {
+        if (pathname in Rules.requestParameters && Rules.requestParameters.check(pathname, req.params)) {
+            next();
+            return;
+        }
+
+        res.sendStatus(Rules.httpCode.BAD_REQUEST);
+    }
+}
+
+App.route({
+    GET: {
+        '/user/view': [
+            authorization,
+            checkParams('user/view'),
+            /** @type {R} */
+            function(req, res){
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.user.viewUser(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+        '/patient/view': [
+            authorization,
+            checkParams('patient/view'),
+            /** @type {R} */
+            function(req, res){
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.patient.viewPatient(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params.patient_id
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+
+    },
+    POST: {
+        '/login': [
+            loginAuthorization,
+            checkParams('login'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+                        const result = await DBConnection.query(async client => await Query.user.logIn(client));
+
+                        if (result === true) {
+                            const currentTime = Date.now();
+                            await ActiveStorage.authentication.put(req.params.username, currentTime);
+                            res.send(Auth.encode(req.params.username, currentTime));
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+        '/signup': [
+            loginAuthorization,
+            checkParams('signup'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+                        const result = await DBConnection.query(async client => await Query.user.signUp(client));
+
+                        if (result === true) {
+                            const currentTime = Date.now();
+                            await ActiveStorage.authentication.put(req.params.username, currentTime);
+                            res.send(Auth.encode(req.params.username, currentTime));
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            }
+        ],
+        '/user/edit/info': [
+            authorization,
+            checkParams('user/edit/info'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.user.editUserInfo(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            }
+        ],
+        '/user/edit/account': [
+            authorization,
+            checkParams('user/edit/account'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => Query.user.editUserAccount(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params
+                        ));
+
+                        if (result === true) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            }
+        ],
+        '/record/view': [
+            authorization,
+            checkParams('record/view'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.records.viewRecord(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params.patient_id
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            }
+        ],
+        '/record/create': [
+            authorization,
+            checkParams('record/create'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.records.createRecord(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params.patient_id
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            }
+        ],
+        '/record/edit': [
+            authorization,
+            checkParams('record/edit'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.records.editRecord(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+        '/patient/create': [
+            authorization,
+            checkParams('patient/create'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.patient.createPatientAsChild(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+        '/patient/create/self': [
+            authorization,
+            checkParams('patient/create/self'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.patient.createPatientForSelf(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+        '/patient/edit': [
+            authorization,
+            checkParams('patient/edit'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.patient.editPatient(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+        '/patient/view': [
+            authorization,
+            checkParams('patient/view'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.patient.viewPatient(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+        '/certificate/view': [
+            authorization,
+            checkParams('certificate/view'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.certificate.viewCertificate(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+        '/certificate/view/header': [
+            authorization,
+            checkParams('certificate/view/header'),
+            /** @type {R} */
+            function(req, res){
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.certificate.viewCertificateHeader(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params.patient_id
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+        '/certificate/available': [
+            authorization,
+            checkParams('certificate/available'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.certificate.getAvailableVaccination(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params.patient_id
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+        '/certificate/create': [
+            authorization,
+            checkParams('certificate/create'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.certificate.createCertification(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+        '/certificate/list': [
+            authorization,
+            checkParams('certificate/list'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.certificate.getBrieflyCertificationList(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params.patient_id
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+        '/certificate/list/details': [
+            authorization,
+            checkParams('certificate/list/details'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.certificate.getDetailedCertificationList(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+        '/certificate/edit': [
+            authorization,
+            checkParams('certificate/edit'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+        '/certificate/edit/header': [
+            authorization,
+            checkParams('certificate/edit/header'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
+
+                        const result = await DBConnection.query(async client => await Query.certificate.editCertificateHeader(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.params
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+                })();
+            },
+        ],
+
+    }
 });
+
+App.init();
