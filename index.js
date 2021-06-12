@@ -67,7 +67,7 @@ App.route({
             authorization,
             checkParams('user/view'),
             /** @type {R} */
-            function(req, res){
+            function (req, res) {
                 (async () => {
                     try {
 
@@ -89,7 +89,7 @@ App.route({
             authorization,
             checkParams('patient/view'),
             /** @type {R} */
-            function(req, res){
+            function (req, res) {
                 (async () => {
                     try {
 
@@ -108,7 +108,17 @@ App.route({
                 })();
             },
         ],
-
+        '/logout': [
+            authorization,
+            /** @type {R} */
+            function (req, res) {
+                ActiveStorage.authentication.remove(req.headers.authorization).then(() => {
+                    res.send();
+                }).catch(() => {
+                    res.send(Error.QueryResultError.unexpected().toObject());
+                });
+            },
+        ]
     },
     POST: {
         '/login': [
@@ -385,7 +395,7 @@ App.route({
             authorization,
             checkParams('certificate/view/header'),
             /** @type {R} */
-            function(req, res){
+            function (req, res) {
                 (async () => {
                     try {
 
