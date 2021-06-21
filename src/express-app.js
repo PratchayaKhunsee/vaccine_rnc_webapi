@@ -19,10 +19,11 @@ const error = require('./error');
 const cors = require('cors');
 
 app.use(cors({
-    origin: [
-        // 'https://vaccine-rnc-webapp.herokuapps.com',
-        '*',
-    ],
+    origin: true,
+    // origin: [
+    //     'https://vaccine-rnc-webapp.herokuapps.com',
+    //     '*',
+    // ],
     methods: ['GET', 'POST']
 }));
 
