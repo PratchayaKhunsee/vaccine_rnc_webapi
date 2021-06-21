@@ -18,6 +18,8 @@ const app = express();
 const error = require('./error');
 const cors = require('cors');
 
+app.use(cors());
+
 let isRouteProvided = false;
 
 /**
@@ -33,7 +35,7 @@ function route(map) {
             const requestHandlers = map[method][path];
             if (!(requestHandlers instanceof Array)) continue;
 
-            const param = [pathname, cors()];
+            const param = [pathname];
             Array.prototype.push.apply(param, requestHandlers);
 
             f.apply(app, param);
