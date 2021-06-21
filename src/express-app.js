@@ -24,7 +24,7 @@ app.use(cors({
     //     'https://vaccine-rnc-webapp.herokuapps.com',
     //     '*',
     // ],
-    methods: ['GET', 'POST']
+    // methods: ['GET', 'POST']
 }));
 
 let isRouteProvided = false;
