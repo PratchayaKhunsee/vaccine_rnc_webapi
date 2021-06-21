@@ -18,14 +18,7 @@ const app = express();
 const error = require('./error');
 const cors = require('cors');
 
-app.use(cors({
-    origin: true,
-    // origin: [
-    //     'https://vaccine-rnc-webapp.herokuapps.com',
-    //     '*',
-    // ],
-    // methods: ['GET', 'POST']
-}));
+app.use(cors());
 
 let isRouteProvided = false;
 
