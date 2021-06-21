@@ -1,10 +1,10 @@
-const App = require('./lib/express-app');
-const Auth = require('./lib/authorization');
-const ActiveStorage = require('./lib/active-storage');
-const Rules = require('./lib/request-response-rules');
-const Query = require('./lib/query');
-const DBConnection = require('./lib/database-connection');
-const Error = require('./lib/error');
+const App = require('./src/express-app');
+const Auth = require('./src/authorization');
+const ActiveStorage = require('./src/active-storage');
+const Rules = require('./src/request-response-rules');
+const Query = require('./src/query');
+const DBConnection = require('./src/database-connection');
+const Error = require('./src/error');
 
 /**
  * @typedef {import('express').RequestHandler} R
@@ -45,7 +45,7 @@ function loginAuthorization(req, res, next) {
 
 /**
  * Check parameters form request. If it is not correct, response the client with [BAD_REQUEST] http code.
- * @param {import('./lib/request-response-rules').RoutingPathNameList} pathname 
+ * @param {import('./src/request-response-rules').RoutingPathNameList} pathname 
  */
 function checkParams(pathname) {
     return handler;
@@ -555,5 +555,6 @@ App.route({
 
     }
 });
+
 
 App.init();
