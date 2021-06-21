@@ -16,6 +16,15 @@
 const express = require('express');
 const app = express();
 const error = require('./error');
+const cors = require('cors');
+
+app.use(cors({
+    origin: [
+        // 'https://vaccine-rnc-webapp.herokuapps.com',
+        '*',
+    ],
+    methods: ['GET', 'POST']
+}));
 
 let isRouteProvided = false;
 
@@ -30,11 +39,11 @@ function route(map) {
             const f = app[method.toLowerCase()];
             /** @type {RoutingHandlerCallback} */
             const requestHandlers = map[method][path];
-            if(!(requestHandlers instanceof Array)) continue;
-            
+            if (!(requestHandlers instanceof Array)) continue;
+
             const param = [pathname];
             Array.prototype.push.apply(param, requestHandlers);
-            
+
             f.apply(app, param);
         }
     isRouteProvided = true;
