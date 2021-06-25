@@ -34,13 +34,14 @@ function route(map) {
             /** @type {RoutingHandlerMethod} */
             const f = app[method.toLowerCase()];
             
-            /** @type {RoutingHandlerCallback} */
+            /** @type {RoutingHandlerCallback[]} */
             const requestHandlers = map[method][pathname];
             if (!(requestHandlers instanceof Array)) continue;
+            
 
             const param = [pathname];
             Array.prototype.push.apply(param, requestHandlers);
-
+            console.log(f, param);
             f.apply(app, param);
         }
     isRouteProvided = true;
