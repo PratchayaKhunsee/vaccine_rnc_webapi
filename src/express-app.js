@@ -18,9 +18,7 @@ const app = express();
 const error = require('./error');
 const cors = require('cors');
 
-app.use(cors({
-    origin: '*',
-}));
+app.use(cors());
 
 let isRouteProvided = false;
 
