@@ -39,10 +39,12 @@ function route(map) {
             if (!(requestHandlers instanceof Array)) continue;
             
 
-            const param = [pathname];
-            Array.prototype.push.apply(param, requestHandlers);
-            console.log(f, param);
-            f.apply(app, param);
+            // const param = [pathname];
+            // Array.prototype.push.apply(param, requestHandlers);
+            f(pathname, ...requestHandlers);
+            // console.log(f, param);
+            // app.get('/', )
+            // f.apply(app, param);
         }
     isRouteProvided = true;
 }
