@@ -41,10 +41,8 @@ function route(map) {
 
             // const param = [pathname];
             // Array.prototype.push.apply(param, requestHandlers);
-            f(pathname, ...requestHandlers);
-            // console.log(f, param);
-            // app.get('/', )
-            // f.apply(app, param);
+            if(f === app.get) app.get(pathname, ...requestHandlers);
+            if(f === app.post) app.post(pathname, ...requestHandlers);
         }
     isRouteProvided = true;
 }
