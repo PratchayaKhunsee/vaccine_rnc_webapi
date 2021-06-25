@@ -35,7 +35,7 @@ function route(map) {
             const f = app[method.toLowerCase()];
             
             /** @type {RoutingHandlerCallback} */
-            const requestHandlers = map[method][path];
+            const requestHandlers = map[method][pathname];
             if (!(requestHandlers instanceof Array)) continue;
 
             const param = [pathname];
