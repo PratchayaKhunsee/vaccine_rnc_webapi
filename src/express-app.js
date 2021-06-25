@@ -9,8 +9,8 @@
  *      - The object values are [RoutingHandlerCallback], or even the list of [RoutingHandlerCallback].
  * @typedef {Object} RoutingHandlerFullMap
  *  A bigger [RoutingHandlerMap] with HTTP methods organization
- * @property {RoutingHandlerMap} get A HTTP <GET> method [RoutingHandlerMap]
- * @property {RoutingHandlerMap} post A HTTP <POST> method [RoutingHandlerMap]
+ * @property {RoutingHandlerMap} GET A HTTP <GET> method [RoutingHandlerMap]
+ * @property {RoutingHandlerMap} POST A HTTP <POST> method [RoutingHandlerMap]
  */
 
 const express = require('express');
@@ -29,10 +29,11 @@ let isRouteProvided = false;
  * @param {RoutingHandlerFullMap} map
  */
 function route(map) {
-    for (let method of ['get', 'post'])
+    for (let method of ['GET', 'POST'])
         for (let pathname in map[method]) {
             /** @type {RoutingHandlerMethod} */
             const f = app[method.toLowerCase()];
+            
             /** @type {RoutingHandlerCallback} */
             const requestHandlers = map[method][path];
             if (!(requestHandlers instanceof Array)) continue;
