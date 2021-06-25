@@ -16,7 +16,7 @@
 const express = require('express');
 const app = express();
 const error = require('./error');
-const cors = require('cors');
+// const cors = require('cors');
 
 // app.use(cors());
 
