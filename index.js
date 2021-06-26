@@ -57,7 +57,7 @@ function checkParams(pathname) {
             
             return;
         }
-        console.log(req.body);
+        // console.log(req.body);
         res.sendStatus(Rules.httpCode.BAD_REQUEST);
     }
 }
@@ -124,6 +124,9 @@ App.route({
     POST: {
         '/login': [
             loginAuthorization,
+            function(req, res, next){
+                console.log(req.headers, req.body);
+            },
             checkParams('login'),
             /** @type {R} */
             function (req, res) {
