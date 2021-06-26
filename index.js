@@ -123,12 +123,13 @@ App.route({
     },
     POST: {
         '/login': [
-            loginAuthorization,
             function(req, res, next){
                 
-                console.log(req);
+                console.log(req.body);
                 next();
             },
+            loginAuthorization,
+            
             checkParams('login'),
             /** @type {R} */
             function (req, res) {
