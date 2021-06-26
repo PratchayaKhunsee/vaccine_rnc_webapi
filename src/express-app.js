@@ -18,7 +18,12 @@ const app = express();
 const error = require('./error');
 const cors = require('cors');
 
-app.use(cors());
+app.options('*', cors({
+    origin: '*',
+    allowedHeaders: ['Authorization', 'Content-Type'],
+    methods: ['GET', 'POST'],
+    preflightContinue: true,
+}));
 
 let isRouteProvided = false;
 
@@ -27,9 +32,7 @@ let isRouteProvided = false;
  * @param {RoutingHandlerFullMap} map
  */
 function route(map) {
-    
-    
-    for (let method of ['GET', 'POST'])
+    for (let method of ['GET', 'POST']) {
         for (let pathname in map[method]) {
             /** @type {RoutingHandlerMethod} */
             const f = app[method.toLowerCase()];
@@ -37,13 +40,10 @@ function route(map) {
             /** @type {RoutingHandlerCallback[]} */
             const requestHandlers = map[method][pathname];
             if (!(requestHandlers instanceof Array)) continue;
-
-
-            // const param = [pathname];
-            // Array.prototype.push.apply(param, requestHandlers);
             if (f === app.get) app.get(pathname, ...requestHandlers);
             if (f === app.post) app.post(pathname, ...requestHandlers);
         }
+    }
     isRouteProvided = true;
 }
 

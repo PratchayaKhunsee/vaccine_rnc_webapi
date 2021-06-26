@@ -124,7 +124,6 @@ App.route({
     POST: {
         '/login': [
             function(req, res, next){
-                
                 console.log(req.body);
                 next();
             },
