@@ -19,9 +19,6 @@ const error = require('./error');
 const cors = require('cors');
 
 app.use(cors({
-    origin: ['*'],
-    allowedHeaders: ['Authorization', 'Content-Type'],
-    methods: ['GET', 'POST'],
     preflightContinue: true,
 }));
 
