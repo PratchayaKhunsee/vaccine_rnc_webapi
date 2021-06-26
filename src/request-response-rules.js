@@ -185,17 +185,18 @@ const requestRequiredParameters = {
     },
     /**
      * Return [true] if the requested parameters are all valid.
-     * @param {RouteList} routes 
+     * @param {RoutingPathNameList} routes 
      * @param {Object<string, *>} params 
      */
     check(routes, params) {
-        if(routes in this && routes != 'checkParams') return false;
+        if(routes in requestRequiredParameters && routes != 'check') return false;
         for(let n in params){
+            console.log(n, !(n in requestRequiredParameters[routes]), !requestRequiredParameters.isSameType(val, requestRequiredParameters[routes]));
             // Reject when finding another parameter that is not in the list
-            if(!(n in this[routes])) return false;
+            if(!(n in requestRequiredParameters[routes])) return false;
             let val = params[n];
             // Reject when the type of value is not same as the type in the list.
-            if(!this.isSameType(val, this[routes[n]])) return false;
+            if(!requestRequiredParameters.isSameType(val, requestRequiredParameters[routes])) return false;
         }
 
         return true;
