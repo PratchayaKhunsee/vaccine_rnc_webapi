@@ -54,7 +54,6 @@ function checkParams(pathname) {
     function handler(req, res, next) {
         if (pathname in Rules.requestParameters && Rules.requestParameters.check(pathname, req.body)) {
             next();
-            
             return;
         }
         // console.log(req.body);
@@ -127,6 +126,7 @@ App.route({
             checkParams('login'),
             /** @type {R} */
             function (req, res) {
+                console.log('A');
                 (async () => {
                     try {
                         const result = await DBConnection.query(async client => await Query.user.logIn(client));
@@ -135,11 +135,16 @@ App.route({
                             const currentTime = Date.now();
                             await ActiveStorage.authentication.put(req.params.username, currentTime);
                             res.send(Auth.encode(req.params.username, currentTime));
+                            
                         }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+                    
+                    res.end();
                 })();
+
+                console.log('E');
             },
         ],
         '/signup': [
