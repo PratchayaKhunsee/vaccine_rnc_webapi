@@ -52,7 +52,7 @@ function checkParams(pathname) {
 
     /** @type {R} */
     function handler(req, res, next) {
-        if (pathname in Rules.requestParameters && Rules.requestParameters.check(pathname, req.params)) {
+        if (pathname in Rules.requestParameters && Rules.requestParameters.check(pathname, req.body)) {
             next();
             
             return;
