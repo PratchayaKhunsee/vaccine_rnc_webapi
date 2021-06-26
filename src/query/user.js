@@ -80,7 +80,7 @@ async function logIn(client, username, password) {
         );
 
         if (person.rows.length != 1) {
-            throw null;
+            throw new QueryResultError('USER_NOT_FOUND');
         }
 
         await client.query('COMMIT');

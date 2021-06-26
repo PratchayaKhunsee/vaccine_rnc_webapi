@@ -144,9 +144,12 @@ App.route({
                             const currentTime = Date.now();
                             await ActiveStorage.authentication.put(req.params.username, currentTime);
                             res.send(Auth.encode(req.params.username, currentTime));
-
+                            return;
                         }
+                        
+                        console.log(result);
                     } catch (error) {
+                        console.log(error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
 
