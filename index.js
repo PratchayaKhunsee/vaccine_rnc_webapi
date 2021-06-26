@@ -125,7 +125,9 @@ App.route({
         '/login': [
             loginAuthorization,
             function(req, res, next){
-                console.log(req.headers, req.body);
+                
+                console.log(req);
+                next();
             },
             checkParams('login'),
             /** @type {R} */
