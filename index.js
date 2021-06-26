@@ -35,10 +35,10 @@ function authorization(req, res, next) {
 function loginAuthorization(req, res, next) {
     ActiveStorage.authentication.get(req.headers.authorization)
         .then((c) => {
-            
+
             // Response [OK] http code with no content for allowing client to be more accessible.
             res.status(200).send('');
-            
+
         })
         .catch((e) => {
             console.log(e);
@@ -89,7 +89,7 @@ App.route({
                     res.end();
                 })();
 
-                
+
             },
         ],
         '/patient/view': [
@@ -135,15 +135,16 @@ App.route({
             checkParams('login'),
             /** @type {R} */
             function (req, res) {
-                 (async () => {
+                console.log('Go to login process');
+                (async () => {
                     try {
                         const result = await DBConnection.query(async client => await Query.user.logIn(client));
 
-                        if (result === true) {
+                        if (result) {
                             const currentTime = Date.now();
                             await ActiveStorage.authentication.put(req.params.username, currentTime);
                             res.send(Auth.encode(req.params.username, currentTime));
-                            
+
                         }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
