@@ -1,11 +1,19 @@
-const AWS = require('aws-sdk');
+const { PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const AWS = require('@aws-sdk/client-s3');
 const {
     encode,
 } = require('./authorization');
-const { LoginAuthenticationError, AuthorizationError } = require('./error');
+const {
+    LoginAuthenticationError,
+    AuthorizationError
+} = require('./error');
+
+const Region = 'us-east-2';
+const Bucket = 'vaccine-rnc-app';
 
 /** The authentication for login session storage */
-const authStorage = new AWS.S3({
+const authStorage = new AWS.S3Client({
+    region: Region,
     credentials: {
         accessKeyId: process.env.AWS_S3_LOGINAUTH_ACCESS_KEY,
         secretAccessKey: process.env.AWS_S3_LOGINAUTH_SECRET_ACCESS_KEY,
@@ -17,62 +25,61 @@ const authStorage = new AWS.S3({
  * 
  * @param {String} username 
  * @param {Number} iat
- * @returns {Promise<String>}
  */
-function putJWTAuth(username, iat) {
-    const encoded = encode(username, iat);
-    return new Promise((resolve, reject) => {
-        authStorage.putObject({
-            Bucket: 'vaccine-vnc-app',
-            Key: `authentication/${encoded}`,
-        }).on('success', function(){
-            resolve(encoded);
-        }).on('error', function(){
-            reject(new LoginAuthenticationError);
-        });
-    });
-}
+async function putAuthInfo(username, iat){
+    try {
+        const encoded = encode(username, iat);
 
-/**
- * Remove the authorization JSON web token from the active storage.
- * @param {String} token
- * @returns {Promise<null>} 
- */
-function removeJWTAuth(token) {
-    return new Promise(function(resolve, reject){
-        authStorage.deleteObject({
-            Bucket: 'vaccine-vnc-app',
-            Key: `authentication/${token}`,
-        }).on('success', function(){
-            resolve(null);
-        }).on('error', function(){
-            reject(new AuthorizationError);
-        });
-    });
+        await authStorage.send(new AWS.PutObjectCommand({
+            Bucket: Bucket,
+            Key: `authorization/${encoded}`,
+            Body: '',
+        }));
+
+        return encoded;
+    } catch (error) {
+        throw new LoginAuthenticationError;
+    }
 }
 
 /**
  * Find the authorization JSON web token from the active storage.
- * @param {String} token 
- * @returns {Promise<String>}
+ * @param {String} auth The json web token for authorization
  */
-function getJWTAuth(token) {
-    return new Promise(function(resolve, reject){
-        authStorage.getObject({
-            Bucket: 'vaccine-vnc-app',
-            Key: `authentication/${token}`,
-        }).on('success', function(res){
-            resolve(String(res.data.Body));
-        }).on('error', function(){
-            reject(new AuthorizationError);
-        });
-    });
+async function getAuthInfo(auth) {
+    try {
+        var v = await authStorage.send(new AWS.GetObjectCommand({
+            Bucket: Bucket,
+            Key: `authorization/${auth}`,
+        }));
+
+        return v.Body;
+    } catch (error) {
+        throw new AuthorizationError;
+    }
+}
+
+/**
+ * Remove the authorization JSON web token from the active storage.
+ * @param {String} auth
+ */
+async function removeAuthInfo(auth) {
+    try {
+        await authStorage.send(new AWS.DeleteObjectCommand({
+            Bucket: Bucket,
+            Key: `authorization/${auth}`,
+        }));
+
+        return true;
+    } catch (error) {
+        throw false;
+    }
 }
 
 module.exports = {
     authentication: {
-        put: putJWTAuth,
-        get: getJWTAuth,
-        remove: removeJWTAuth,
+        put: putAuthInfo,
+        get: getAuthInfo,
+        remove: removeAuthInfo,
     },
 };
