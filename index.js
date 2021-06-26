@@ -54,9 +54,10 @@ function checkParams(pathname) {
     function handler(req, res, next) {
         if (pathname in Rules.requestParameters && Rules.requestParameters.check(pathname, req.params)) {
             next();
+            
             return;
         }
-
+        console.log(req.body);
         res.sendStatus(Rules.httpCode.BAD_REQUEST);
     }
 }

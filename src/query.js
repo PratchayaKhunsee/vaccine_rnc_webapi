@@ -3,5 +3,4 @@ module.exports = {
     records: require('./query/records'),
     certificate: require('./query/certificate'),
     patient: require('./query/patient'),
-    // parenting: require('./query/parenting'),
 };
