@@ -189,6 +189,7 @@ const requestRequiredParameters = {
      * @param {Object<string, *>} params 
      */
     check(routes, params) {
+        console.log(routes, params);
         if(routes in requestRequiredParameters && routes != 'check') return false;
         for(let n in params){
             console.log(n, !(n in requestRequiredParameters[routes]), !requestRequiredParameters.isSameType(val, requestRequiredParameters[routes]));
