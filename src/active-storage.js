@@ -46,6 +46,9 @@ async function putAuthInfo(username, iat){
  * @param {String} auth The json web token for authorization
  */
 async function getAuthInfo(auth) {
+
+    console.log(auth);
+    
     try {
         var v = await authStorage.send(new AWS.GetObjectCommand({
             Bucket: Bucket,
