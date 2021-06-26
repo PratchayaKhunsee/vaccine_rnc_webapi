@@ -124,7 +124,7 @@ App.route({
     POST: {
         '/login': [
             function(req, res, next){
-                console.log(req.body);
+                console.log(req.body, req.body instanceof Object, typeof req.body);
                 next();
             },
             loginAuthorization,
