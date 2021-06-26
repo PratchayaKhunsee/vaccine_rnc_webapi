@@ -35,12 +35,13 @@ function authorization(req, res, next) {
 function loginAuthorization(req, res, next) {
     ActiveStorage.authentication.get(req.headers.authorization)
         .then((c) => {
-            console.log(c);
+            
             // Response [OK] http code with no content for allowing client to be more accessible.
             res.status(200).send('');
             
         })
-        .catch(() => {
+        .catch((e) => {
+            console.log(e);
             next();
         });
 }
