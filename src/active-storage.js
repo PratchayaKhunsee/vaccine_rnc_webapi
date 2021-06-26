@@ -11,12 +11,14 @@ const Region = 'us-east-2';
 const Bucket = 'vaccine-rnc-app';
 
 /** The authentication for login session storage */
+
+console.log(process.env);
 const authStorage = new AWS.S3Client({
     region: Region,
     credentials: {
         accessKeyId: process.env.AWS_S3_LOGINAUTH_ACCESS_KEY,
         secretAccessKey: process.env.AWS_S3_LOGINAUTH_SECRET_ACCESS_KEY,
-    },
+    },    
 });
 
 /**
