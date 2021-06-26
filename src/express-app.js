@@ -18,6 +18,8 @@ const app = express();
 const error = require('./error');
 const cors = require('cors');
 
+app.use(cors());
+
 let isRouteProvided = false;
 
 /**
@@ -25,7 +27,7 @@ let isRouteProvided = false;
  * @param {RoutingHandlerFullMap} map
  */
 function route(map) {
-    app.options('*', cors());
+    
     
     for (let method of ['GET', 'POST'])
         for (let pathname in map[method]) {
