@@ -18,8 +18,8 @@ const app = express();
 const error = require('./error');
 const cors = require('cors');
 
-app.options('*', cors({
-    origin: '*',
+app.use(cors({
+    origin: ['*'],
     allowedHeaders: ['Authorization', 'Content-Type'],
     methods: ['GET', 'POST'],
     preflightContinue: true,
@@ -32,6 +32,7 @@ let isRouteProvided = false;
  * @param {RoutingHandlerFullMap} map
  */
 function route(map) {
+
     for (let method of ['GET', 'POST']) {
         for (let pathname in map[method]) {
             /** @type {RoutingHandlerMethod} */
@@ -40,6 +41,7 @@ function route(map) {
             /** @type {RoutingHandlerCallback[]} */
             const requestHandlers = map[method][pathname];
             if (!(requestHandlers instanceof Array)) continue;
+
             if (f === app.get) app.get(pathname, ...requestHandlers);
             if (f === app.post) app.post(pathname, ...requestHandlers);
         }
