@@ -197,7 +197,7 @@ const requestRequiredParameters = {
             if(!(n in requestRequiredParameters[routes])) return false;
             let val = params[n];
             // Reject when the type of value is not same as the type in the list.
-            if(!requestRequiredParameters.isSameType(val, requestRequiredParameters[routes])) return false;
+            if(!requestRequiredParameters.isSameType(val, requestRequiredParameters[routes][n])) return false;
         }
 
         return true;
