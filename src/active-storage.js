@@ -32,10 +32,8 @@ async function putAuthInfo(username, iat){
         await authStorage.send(new AWS.PutObjectCommand({
             Bucket: Bucket,
             Key: `authorization/${encoded}`,
-            Body: '',
-        })).catch(e => {
-            console.log(e);
-        });
+            Body: '\0',
+        }));
 
         return encoded;
     } catch (error) {
@@ -53,6 +51,8 @@ async function getAuthInfo(auth) {
             Bucket: Bucket,
             Key: `authorization/${auth}`,
         }));
+
+        console.log(v);
 
         return v.Body;
     } catch (error) {

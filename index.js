@@ -82,7 +82,11 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
+
+                
             },
         ],
         '/patient/view': [
@@ -105,6 +109,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
@@ -126,8 +132,7 @@ App.route({
             checkParams('login'),
             /** @type {R} */
             function (req, res) {
-                console.log('A');
-                (async () => {
+                 (async () => {
                     try {
                         const result = await DBConnection.query(async client => await Query.user.logIn(client));
 
@@ -140,11 +145,9 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
-                    
+
                     res.end();
                 })();
-
-                console.log('E');
             },
         ],
         '/signup': [
@@ -164,6 +167,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             }
         ],
@@ -187,6 +192,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             }
         ],
@@ -210,6 +217,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             }
         ],
@@ -233,6 +242,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             }
         ],
@@ -256,6 +267,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             }
         ],
@@ -279,6 +292,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
@@ -302,6 +317,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
@@ -325,6 +342,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
@@ -348,6 +367,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
@@ -371,6 +392,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
@@ -394,6 +417,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
@@ -417,6 +442,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
@@ -440,6 +467,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
@@ -463,6 +492,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
@@ -486,6 +517,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
@@ -509,6 +542,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
@@ -532,6 +567,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
@@ -555,6 +592,8 @@ App.route({
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
