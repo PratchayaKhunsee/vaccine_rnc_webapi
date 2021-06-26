@@ -7,12 +7,10 @@ const {
     AuthorizationError
 } = require('./error');
 
-const Region = 'us-east-2';
+const Region = 'ap-southeast-1';
 const Bucket = 'vaccine-rnc-app';
 
 /** The authentication for login session storage */
-
-console.log(process.env);
 const authStorage = new AWS.S3Client({
     region: Region,
     credentials: {
@@ -35,7 +33,9 @@ async function putAuthInfo(username, iat){
             Bucket: Bucket,
             Key: `authorization/${encoded}`,
             Body: '',
-        }));
+        })).catch(e => {
+            console.log(e);
+        });
 
         return encoded;
     } catch (error) {
