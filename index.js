@@ -133,7 +133,7 @@ App.route({
             checkParams('login'),
             /** @type {R} */
             function (req, res) {
-                // console.log('Go to login process');
+                console.log('Go to login process.');
                 (async () => {
                     try {
                         const result = await DBConnection.query(async client => await Query.user.logIn(client)); 
