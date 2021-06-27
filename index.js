@@ -40,6 +40,7 @@ function loginAuthorization(req, res, next) {
             res.end();
         })
         .catch((e) => {
+            console.log(loginAuthorization.name, '=>', e);
             next();
         });
 }
@@ -136,7 +137,7 @@ App.route({
                 // console.log('Go to login process');
                 (async () => {
                     try {
-                        const result = await DBConnection.query(async client => await Query.user.logIn(client));
+                        const result = await DBConnection.query(async client => await Query.user.logIn(client)); 
 
                         if (result) {
                             const currentTime = Date.now();
@@ -145,7 +146,7 @@ App.route({
                             return;
                         }                        
                     } catch (error) {
-                        console.log('Finding Error: ', error);
+                        // console.log('Finding Error: ', error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
 
