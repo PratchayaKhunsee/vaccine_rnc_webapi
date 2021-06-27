@@ -103,7 +103,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.patient.viewPatient(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params.patient_id
+                            req.body.patient_id
                         ));
 
                         if (result !== null) {
@@ -142,8 +142,8 @@ App.route({
 
                         if (result) {
                             const currentTime = Date.now();
-                            await ActiveStorage.authentication.put(req.params.username, currentTime);
-                            res.send(Auth.encode(req.params.username, currentTime));
+                            await ActiveStorage.authentication.put(req.body.username, currentTime);
+                            res.send(Auth.encode(req.body.username, currentTime));
                             return;
                         }
                         
@@ -168,8 +168,8 @@ App.route({
 
                         if (result === true) {
                             const currentTime = Date.now();
-                            await ActiveStorage.authentication.put(req.params.username, currentTime);
-                            res.send(Auth.encode(req.params.username, currentTime));
+                            await ActiveStorage.authentication.put(req.body.username, currentTime);
+                            res.send(Auth.encode(req.body.username, currentTime));
                         }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
@@ -190,7 +190,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.user.editUserInfo(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params
+                            req.body
                         ));
 
                         if (result !== null) {
@@ -215,7 +215,7 @@ App.route({
                         const result = await DBConnection.query(async client => Query.user.editUserAccount(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params
+                            req.body
                         ));
 
                         if (result === true) {
@@ -240,7 +240,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.records.viewRecord(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params.patient_id
+                            req.body.patient_id
                         ));
 
                         if (result !== null) {
@@ -265,7 +265,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.records.createRecord(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params.patient_id
+                            req.body.patient_id
                         ));
 
                         if (result !== null) {
@@ -290,7 +290,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.records.editRecord(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params
+                            req.body
                         ));
 
                         if (result !== null) {
@@ -315,7 +315,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.patient.createPatientAsChild(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params
+                            req.body
                         ));
 
                         if (result !== null) {
@@ -340,7 +340,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.patient.createPatientForSelf(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params
+                            req.body
                         ));
 
                         if (result !== null) {
@@ -365,7 +365,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.patient.editPatient(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params
+                            req.body
                         ));
 
                         if (result !== null) {
@@ -390,7 +390,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.patient.viewPatient(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params
+                            req.body
                         ));
 
                         if (result !== null) {
@@ -415,7 +415,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.certificate.viewCertificate(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params
+                            req.body
                         ));
 
                         if (result !== null) {
@@ -440,7 +440,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.certificate.viewCertificateHeader(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params.patient_id
+                            req.body.patient_id
                         ));
 
                         if (result !== null) {
@@ -465,7 +465,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.certificate.getAvailableVaccination(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params.patient_id
+                            req.body.patient_id
                         ));
 
                         if (result !== null) {
@@ -490,7 +490,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.certificate.createCertification(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params
+                            req.body
                         ));
 
                         if (result !== null) {
@@ -515,7 +515,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.certificate.getBrieflyCertificationList(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params.patient_id
+                            req.body.patient_id
                         ));
 
                         if (result !== null) {
@@ -540,7 +540,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.certificate.getDetailedCertificationList(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params
+                            req.body
                         ));
 
                         if (result !== null) {
@@ -565,7 +565,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params
+                            req.body
                         ));
 
                         if (result !== null) {
@@ -590,7 +590,7 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.certificate.editCertificateHeader(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.params
+                            req.body
                         ));
 
                         if (result !== null) {

@@ -66,11 +66,20 @@ async function query(callback) {
                 rejectUnauthorized: true
             }
         });
+        var result;
+        var error;
 
-        await conn.connect();
-        const result = await callback(conn);
-        await conn.end();
+        try {
+            await conn.connect();
+            result = await callback(conn);
+            await conn.end();
+        } catch (e) {
+            error = e;
+        }
+        
         releaseOnce();
+
+        if(error) throw error;
         return result;
     }
 
@@ -80,7 +89,7 @@ async function query(callback) {
         });
     }
 
-    return await _callback().catch(releaseOnce);
+    return await _callback();
 }
 
 module.exports = {

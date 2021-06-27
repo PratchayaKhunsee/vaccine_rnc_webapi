@@ -29,11 +29,13 @@ async function putAuthInfo(username, iat){
     try {
         const encoded = encode(username, iat);
 
-        await authStorage.send(new AWS.PutObjectCommand({
+        const output = await authStorage.send(new AWS.PutObjectCommand({
             Bucket: Bucket,
             Key: `authorization/${encoded}`,
             Body: '\0',
         }));
+
+        // result
 
         return encoded;
     } catch (error) {
@@ -49,12 +51,14 @@ async function getAuthInfo(auth) {
     if(!auth) throw AuthorizationError;
 
     try {
-        var v = await authStorage.send(new AWS.GetObjectCommand({
+        const output = await authStorage.send(new AWS.GetObjectCommand({
             Bucket: Bucket,
             Key: `authorization/${auth}`,
         }));
 
-        return v.Body;
+        console.log(output.Body);
+
+        return true;
     } catch (error) {
         throw new AuthorizationError;
     }
@@ -66,10 +70,12 @@ async function getAuthInfo(auth) {
  */
 async function removeAuthInfo(auth) {
     try {
-        await authStorage.send(new AWS.DeleteObjectCommand({
+        const output = await authStorage.send(new AWS.DeleteObjectCommand({
             Bucket: Bucket,
             Key: `authorization/${auth}`,
         }));
+
+        // output.DeleteMarker
 
         return true;
     } catch (error) {
