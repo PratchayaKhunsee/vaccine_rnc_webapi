@@ -34,6 +34,7 @@ async function putAuthInfo(username, iat){
             Bucket: Bucket,
             Key: `authorization/${encoded}`,
             Body: '\0',
+
         }));
 
         // result
@@ -56,8 +57,6 @@ async function getAuthInfo(auth) {
             Bucket: Bucket,
             Key: `authorization/${auth}`,
         }));
-
-        console.log(output.Body);
 
         return true;
     } catch (error) {
