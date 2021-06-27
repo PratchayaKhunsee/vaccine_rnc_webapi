@@ -61,6 +61,7 @@ async function getAuthInfo(auth) {
 
         return true;
     } catch (error) {
+        console.log(error);
         throw new AuthorizationError;
     }
 }
