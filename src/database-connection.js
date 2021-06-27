@@ -66,6 +66,8 @@ async function query(callback) {
                 rejectUnauthorized: true
             }
         });
+
+
         var result;
         var error;
 
@@ -76,10 +78,15 @@ async function query(callback) {
         } catch (e) {
             error = e;
         }
-        
+
         releaseOnce();
 
-        if(error) throw error;
+        
+
+        if (error) {
+            console.log('Database Caught: ', error);
+            throw error;
+        }
         return result;
     }
 
