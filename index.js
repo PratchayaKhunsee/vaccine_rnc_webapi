@@ -145,7 +145,7 @@ App.route({
                             return;
                         }                        
                     } catch (error) {
-                        console.log('Finding Error: ' + error);
+                        console.log('Finding Error: ', error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
 
