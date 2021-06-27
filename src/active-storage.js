@@ -13,7 +13,6 @@ const Bucket = 'vaccine-rnc-app';
 /** The authentication for login session storage */
 const authStorage = new AWS.S3Client({
     region: Region,
-    forcePathStyle: true,
     credentials: {
         accessKeyId: process.env.AWS_S3_LOGINAUTH_ACCESS_KEY,
         secretAccessKey: process.env.AWS_S3_LOGINAUTH_SECRET_ACCESS_KEY,
@@ -31,6 +30,7 @@ async function putAuthInfo(username, iat){
         const encoded = encode(username, iat);
 
         const output = await authStorage.send(new AWS.PutObjectCommand({
+            // BucketKeyEnabled: true,
             Bucket: Bucket,
             Key: `authorization/${encoded}`,
             Body: '\0',
