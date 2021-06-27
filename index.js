@@ -133,11 +133,9 @@ App.route({
             checkParams('login'),
             /** @type {R} */
             function (req, res) {
-                console.log('Go to login process.');
                 (async () => {
                     try {
                         const result = await DBConnection.query(async client => await Query.user.logIn(client)); 
-                        console.log('Query Result: ', result);
                         if (result) {
                             const currentTime = Date.now();
                             await ActiveStorage.authentication.put(req.body.username, currentTime);
@@ -145,8 +143,6 @@ App.route({
                             return;
                         }                        
                     } catch (error) {
-                        console.log('Caught: ', error);
-                        // console.log('Finding Error: ', error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
 
