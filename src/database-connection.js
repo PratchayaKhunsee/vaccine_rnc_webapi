@@ -82,7 +82,6 @@ async function query(callback) {
         releaseOnce();
 
         if (error) {
-            console.log('Database Caught: ', error);
             throw error;
         }
         return result;
