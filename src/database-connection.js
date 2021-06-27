@@ -63,7 +63,7 @@ async function query(callback) {
         const conn = new Client({
             connectionString: process.env.DATABASE_URL,
             ssl: {
-                rejectUnauthorized: true
+                rejectUnauthorized: false,
             }
         });
 
@@ -80,8 +80,6 @@ async function query(callback) {
         }
 
         releaseOnce();
-
-        
 
         if (error) {
             console.log('Database Caught: ', error);
