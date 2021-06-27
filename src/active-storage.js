@@ -1,4 +1,5 @@
 const AWS = require('@aws-sdk/client-s3');
+const https = require('https');
 const {
     encode,
 } = require('./authorization');
@@ -16,7 +17,10 @@ const authStorage = new AWS.S3Client({
     credentials: {
         accessKeyId: process.env.AWS_S3_LOGINAUTH_ACCESS_KEY,
         secretAccessKey: process.env.AWS_S3_LOGINAUTH_SECRET_ACCESS_KEY,
-    },    
+    },
+    customUserAgent: new https.Agent({
+        rejectUnauthorized: false,
+    }),
 });
 
 /**
@@ -25,7 +29,7 @@ const authStorage = new AWS.S3Client({
  * @param {String} username 
  * @param {Number} iat
  */
-async function putAuthInfo(username, iat){
+async function putAuthInfo(username, iat) {
     try {
         const encoded = encode(username, iat);
 
@@ -50,7 +54,7 @@ async function putAuthInfo(username, iat){
  * @param {String} auth The json web token for authorization
  */
 async function getAuthInfo(auth) {
-    if(!auth) throw AuthorizationError;
+    if (!auth) throw AuthorizationError;
 
     try {
         const output = await authStorage.send(new AWS.GetObjectCommand({
