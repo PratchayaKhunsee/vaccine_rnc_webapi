@@ -17,10 +17,7 @@ const authStorage = new AWS.S3Client({
     credentials: {
         accessKeyId: process.env.AWS_S3_LOGINAUTH_ACCESS_KEY,
         secretAccessKey: process.env.AWS_S3_LOGINAUTH_SECRET_ACCESS_KEY,
-    },
-    customUserAgent: new https.Agent({
-        rejectUnauthorized: false,
-    }),
+    }
 });
 
 /**
