@@ -17,7 +17,8 @@ const Error = require('./src/error');
  * @type {R}
  */
 function authorization(req, res, next) {
-    ActiveStorage.authentication.get(req.headers.authorization)
+    var token = `${req.headers.authorization}`.split(' ')[1];
+    ActiveStorage.authentication.get(token)
         .then(() => {
             // Allow to perform the next task
             next();
@@ -33,7 +34,8 @@ function authorization(req, res, next) {
  * @type {R}
  **/
 function loginAuthorization(req, res, next) {
-    ActiveStorage.authentication.get(req.headers.authorization)
+    var token = `${req.headers.authorization}`.split(' ')[1];
+    ActiveStorage.authentication.get(token)
         .then((c) => {
             // Response [OK] http code with JSON message for allowing client to be more accessible.
             res.status(200)
@@ -150,7 +152,6 @@ App.route({
                         const result = await DBConnection.query(async client => await Query.user.logIn(
                             client, req.body.username, req.body.password
                         ));
-                        console.log('Result:', result);
 
                         if (result) {
                             const currentTime = Date.now();

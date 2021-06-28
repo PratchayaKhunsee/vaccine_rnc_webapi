@@ -31,18 +31,13 @@ async function putAuthInfo(username, iat) {
         const encoded = encode(username, iat);
 
         const output = await authStorage.send(new AWS.PutObjectCommand({
-            // BucketKeyEnabled: true,
             Bucket: Bucket,
-            Key: `authorization/${encoded}`,
-            Body: '\0',
-
+            Key: `authorization/${username}`,
+            Body: `${encoded}`,
         }));
-
-        // result
 
         return encoded;
     } catch (error) {
-        console.log(error);
         throw new LoginAuthenticationError;
     }
 }
