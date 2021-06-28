@@ -71,9 +71,9 @@ async function getAuthInfo(username, auth) {
             });
         });
 
-        console.log(username, buffer.readInt8(), auth);
+        console.log(username, buffer.toString('utf-8'), auth);
 
-        return output.Body == auth;
+        return buffer.toString('utf-8') == auth;
     } catch (error) {
         throw new AuthorizationError;
     }
