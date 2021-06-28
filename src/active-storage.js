@@ -60,7 +60,8 @@ async function getAuthInfo(username, auth) {
         const readable = output.Body;
         // readable.read();
 
-        var read = await new Promise((resolve, reject) => {
+        /** @type {Buffer} */
+        var buffer = await new Promise((resolve, reject) => {
             readable.on('data', (chunck) => {
                 resolve(chunck);
             });
@@ -70,7 +71,7 @@ async function getAuthInfo(username, auth) {
             });
         });
 
-        console.log(username, read, auth);
+        console.log(username, buffer.readInt8(), auth);
 
         return output.Body == auth;
     } catch (error) {
