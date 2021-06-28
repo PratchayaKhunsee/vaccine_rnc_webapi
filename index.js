@@ -35,9 +35,16 @@ function authorization(req, res, next) {
 function loginAuthorization(req, res, next) {
     ActiveStorage.authentication.get(req.headers.authorization)
         .then((c) => {
-            // Response [OK] http code with no content for allowing client to be more accessible.
-            res.status(200).send('PASS');
-            res.end();
+            // Response [OK] http code with JSON message for allowing client to be more accessible.
+            res.status(200)
+                .setHeader(
+                    'Content-Type',
+                    'application/json'
+                )
+                .send(JSON.stringify({
+                    'authorization': true
+                }))
+                .end();
         })
         .catch((e) => {
             next();
@@ -135,13 +142,16 @@ App.route({
             function (req, res) {
                 (async () => {
                     try {
-                        const result = await DBConnection.query(async client => await Query.user.logIn(client)); 
+                        const result = await DBConnection.query(async client => await Query.user.logIn(client));
                         if (result) {
                             const currentTime = Date.now();
                             await ActiveStorage.authentication.put(req.body.username, currentTime);
-                            res.send(Auth.encode(req.body.username, currentTime));
+                            res.send(JSON.stringify({
+                                'authorization':
+                                    Auth.encode(req.body.username, currentTime)
+                            }));
                             return;
-                        }                        
+                        }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }

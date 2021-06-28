@@ -61,7 +61,6 @@ async function getAuthInfo(auth) {
 
         return true;
     } catch (error) {
-        console.log(error);
         throw new AuthorizationError;
     }
 }
@@ -76,9 +75,6 @@ async function removeAuthInfo(auth) {
             Bucket: Bucket,
             Key: `authorization/${auth}`,
         }));
-
-        // output.DeleteMarker
-
         return true;
     } catch (error) {
         throw false;
