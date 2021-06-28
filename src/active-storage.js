@@ -56,7 +56,7 @@ async function getAuthInfo(username, auth) {
             Key: `authorization/${username}`,
         }));
 
-        console.log(output.Body);
+        console.log(output.Body.getReader());
 
         return output.Body == auth;
     } catch (error) {
