@@ -147,7 +147,9 @@ App.route({
                     res.contentType('application/json');
 
                     try {
-                        const result = await DBConnection.query(async client => await Query.user.logIn(client));
+                        const result = await DBConnection.query(async client => await Query.user.logIn(
+                            client, req.body.username, req.body.password
+                        ));
                         console.log('Result:', result);
 
                         if (result) {
@@ -177,7 +179,7 @@ App.route({
                     res.contentType('application/json');
 
                     try {
-                        const result = await DBConnection.query(async client => await Query.user.signUp(client));
+                        const result = await DBConnection.query(async client => await Query.user.signUp(client, req.body));
 
                         if (result === true) {
                             const currentTime = Date.now();
