@@ -42,6 +42,7 @@ async function putAuthInfo(username, iat) {
 
         return encoded;
     } catch (error) {
+        console.log(error);
         throw new LoginAuthenticationError;
     }
 }
