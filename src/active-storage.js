@@ -51,7 +51,7 @@ async function getAuthInfo(username, auth) {
     if (!auth) throw AuthorizationError;
 
     try {
-        
+
         const output = await authStorage.send(new AWS.GetObjectCommand({
             Bucket: Bucket,
             Key: `authorization/${username}`,
@@ -60,7 +60,17 @@ async function getAuthInfo(username, auth) {
         const readable = output.Body;
         // readable.read();
 
-        console.log(username, readable.read(), auth);
+        var read = await new Promise((resolve, reject) => {
+            readable.on('data', (chunck) => {
+                resolve(chunck);
+            });
+
+            readable.on('error', (err) => {
+                reject(err);
+            });
+        });
+
+        console.log(username, read, auth);
 
         return output.Body == auth;
     } catch (error) {
