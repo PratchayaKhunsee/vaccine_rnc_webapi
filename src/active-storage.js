@@ -44,18 +44,21 @@ async function putAuthInfo(username, iat) {
 
 /**
  * Find the authorization JSON web token from the active storage.
+ * @param {String} username The user name
  * @param {String} auth The json web token for authorization
  */
-async function getAuthInfo(auth) {
+async function getAuthInfo(username, auth) {
     if (!auth) throw AuthorizationError;
 
     try {
         const output = await authStorage.send(new AWS.GetObjectCommand({
             Bucket: Bucket,
-            Key: `authorization/${auth}`,
+            Key: `authorization/${username}`,
         }));
 
-        return true;
+        console.log(output.Body);
+
+        return output.Body == auth;
     } catch (error) {
         throw new AuthorizationError;
     }
@@ -63,13 +66,14 @@ async function getAuthInfo(auth) {
 
 /**
  * Remove the authorization JSON web token from the active storage.
+ * @param {String} username
  * @param {String} auth
  */
-async function removeAuthInfo(auth) {
+async function removeAuthInfo(username, auth) {
     try {
         const output = await authStorage.send(new AWS.DeleteObjectCommand({
             Bucket: Bucket,
-            Key: `authorization/${auth}`,
+            Key: `authorization/${username}`,
         }));
         return true;
     } catch (error) {
