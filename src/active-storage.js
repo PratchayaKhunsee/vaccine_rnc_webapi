@@ -1,5 +1,5 @@
 const AWS = require('@aws-sdk/client-s3');
-const https = require('https');
+const { Readable } = require('stream');
 const {
     encode,
 } = require('./authorization');
@@ -56,7 +56,7 @@ async function getAuthInfo(username, auth) {
             Key: `authorization/${username}`,
         }));
 
-        console.log(output);
+        console.log(output.Body instanceof ReadableStreamDefaultController, output.Body instanceof Readable);
 
         return output.Body == auth;
     } catch (error) {
