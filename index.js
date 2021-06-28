@@ -18,7 +18,7 @@ const Error = require('./src/error');
  */
 function authorization(req, res, next) {
     var token = `${req.headers.authorization}`.split(' ')[1];
-    var username = (Auth.decode(username)|| {}).username;
+    var username = (Auth.decode(req.headers.authorization)|| {}).username;
     ActiveStorage.authentication.get(username, token)
         .then(() => {
             // Allow to perform the next task
@@ -36,7 +36,7 @@ function authorization(req, res, next) {
  **/
 function loginAuthorization(req, res, next) {
     var token = `${req.headers.authorization}`.split(' ')[1];
-    var username = (Auth.decode(username)|| {}).username;
+    var username = (Auth.decode(req.headers.authorization)|| {}).username;
     ActiveStorage.authentication.get(username, token)
         .then((c) => {
             // Response [OK] http code with JSON message for allowing client to be more accessible.
