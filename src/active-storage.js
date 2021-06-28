@@ -60,7 +60,7 @@ async function getAuthInfo(username, auth) {
         const readable = output.Body;
         // readable.read();
 
-        console.log(readable.read(), auth);
+        console.log(username, readable.read(), auth);
 
         return output.Body == auth;
     } catch (error) {
