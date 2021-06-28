@@ -56,7 +56,7 @@ async function getAuthInfo(username, auth) {
             Key: `authorization/${username}`,
         }));
 
-        console.log(output.Body instanceof ReadableStreamDefaultController, output.Body instanceof Readable);
+        console.log(output.Body instanceof Readable);
 
         return output.Body == auth;
     } catch (error) {
