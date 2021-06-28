@@ -37,13 +37,10 @@ function loginAuthorization(req, res, next) {
         .then((c) => {
             // Response [OK] http code with JSON message for allowing client to be more accessible.
             res.status(200)
-                .setHeader(
-                    'Content-Type',
-                    'application/json'
-                )
-                .send(JSON.stringify({
+                .contentType('application/json')
+                .send({
                     'authorization': true
-                }))
+                })
                 .end();
         })
         .catch((e) => {
@@ -65,7 +62,7 @@ function checkParams(pathname) {
             return;
         }
         // console.log(req.body);
-        res.sendStatus(Rules.httpCode.BAD_REQUEST);
+        res.sendStatus(Rules.httpCode.BAD_REQUEST).end();
     }
 }
 
@@ -77,6 +74,8 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
+
                     try {
 
                         const result = await DBConnection.query(async client => await Query.user.viewUser(
@@ -103,6 +102,8 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
+
                     try {
 
                         const result = await DBConnection.query(async client => await Query.patient.viewPatient(
@@ -126,8 +127,10 @@ App.route({
             authorization,
             /** @type {R} */
             function (req, res) {
+                res.contentType('application/json');
+
                 ActiveStorage.authentication.remove(req.headers.authorization).then(() => {
-                    res.send();
+                    res.send({});
                 }).catch(() => {
                     res.send(Error.QueryResultError.unexpected().toObject());
                 });
@@ -141,18 +144,23 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
+
                     try {
                         const result = await DBConnection.query(async client => await Query.user.logIn(client));
+                        console.log('Result:', result);
+
                         if (result) {
                             const currentTime = Date.now();
                             await ActiveStorage.authentication.put(req.body.username, currentTime);
-                            res.send(JSON.stringify({
+                            res.send({
                                 'authorization':
                                     Auth.encode(req.body.username, currentTime)
-                            }));
+                            });
                             return;
                         }
                     } catch (error) {
+                        console.log('Error:', error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
 
@@ -166,13 +174,17 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
+
                     try {
                         const result = await DBConnection.query(async client => await Query.user.signUp(client));
 
                         if (result === true) {
                             const currentTime = Date.now();
                             await ActiveStorage.authentication.put(req.body.username, currentTime);
-                            res.send(Auth.encode(req.body.username, currentTime));
+                            res.send({
+                                'authorization': Auth.encode(req.body.username, currentTime)
+                            });
                         }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
@@ -188,6 +200,8 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
+
                     try {
 
                         const result = await DBConnection.query(async client => await Query.user.editUserInfo(
@@ -213,6 +227,7 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
                     try {
 
                         const result = await DBConnection.query(async client => Query.user.editUserAccount(
@@ -238,6 +253,7 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
                     try {
 
                         const result = await DBConnection.query(async client => await Query.records.viewRecord(
@@ -263,6 +279,8 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
+
                     try {
 
                         const result = await DBConnection.query(async client => await Query.records.createRecord(
@@ -287,6 +305,7 @@ App.route({
             checkParams('record/edit'),
             /** @type {R} */
             function (req, res) {
+                res.contentType('application/json');
                 (async () => {
                     try {
 
@@ -312,7 +331,10 @@ App.route({
             checkParams('patient/create'),
             /** @type {R} */
             function (req, res) {
+
+
                 (async () => {
+                    res.contentType('application/json');
                     try {
 
                         const result = await DBConnection.query(async client => await Query.patient.createPatientAsChild(
@@ -338,6 +360,7 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
                     try {
 
                         const result = await DBConnection.query(async client => await Query.patient.createPatientForSelf(
@@ -363,6 +386,7 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
                     try {
 
                         const result = await DBConnection.query(async client => await Query.patient.editPatient(
@@ -388,6 +412,7 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
                     try {
 
                         const result = await DBConnection.query(async client => await Query.patient.viewPatient(
@@ -413,6 +438,7 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
                     try {
 
                         const result = await DBConnection.query(async client => await Query.certificate.viewCertificate(
@@ -438,6 +464,7 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
                     try {
 
                         const result = await DBConnection.query(async client => await Query.certificate.viewCertificateHeader(
@@ -463,6 +490,7 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
                     try {
 
                         const result = await DBConnection.query(async client => await Query.certificate.getAvailableVaccination(
@@ -488,6 +516,7 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
                     try {
 
                         const result = await DBConnection.query(async client => await Query.certificate.createCertification(
@@ -513,6 +542,7 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
                     try {
 
                         const result = await DBConnection.query(async client => await Query.certificate.getBrieflyCertificationList(
@@ -538,6 +568,8 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
+
                     try {
 
                         const result = await DBConnection.query(async client => await Query.certificate.getDetailedCertificationList(
@@ -563,6 +595,8 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
+
                     try {
 
                         const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
@@ -588,6 +622,7 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
                     try {
 
                         const result = await DBConnection.query(async client => await Query.certificate.editCertificateHeader(
