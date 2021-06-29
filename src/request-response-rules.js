@@ -1,3 +1,4 @@
+const DateString = String;
 /**
  * @typedef {'login'|'signup'|'user/view'|'user/edit/info'|'user/edit/account'|'record/view'|'record/create'|'record/edit'|'patient/view'|'patient/create'|'patient/create/self'|'patient/edit'|'certificate/view'|'certificate/view/header'|'certificate/available'|'certificate/create'|'certificate/list'|'certificate/list/details'|'certificate/edit'|'certificate/edit/header'} RoutingPathNameList
  */
@@ -90,7 +91,8 @@ const requestRequiredParameters = {
     'signup': {
         firstname: String,
         lastname: String,
-        name_prefix: String,
+        name_prefix: Number,
+        gender: Number,
         username: String,
         password: String,
     },
@@ -101,7 +103,7 @@ const requestRequiredParameters = {
         // Use authentication header to identify user
         firstname: String,
         lastname: String,
-        name_prefix: String,
+        name_prefix: Number,
     },
     'user/edit/account': {
         // Use authentication header to identify user
@@ -118,7 +120,7 @@ const requestRequiredParameters = {
         patient_id: Number,
         vaccine_name: String,
         dose: Number,
-        vaccination_date: Date,
+        vaccination_date: DateString,
     },
     'patient/view': {
         // Use authentication header to identify user
@@ -161,8 +163,8 @@ const requestRequiredParameters = {
     'certificate/edit': {
         certifacate_id: Number,
         vaccine_name: String,
-        certify_from: Date,
-        certify_to: Date,
+        certify_from: DateString,
+        certify_to: DateString,
         clinician_signature: Uint8Array,
         administering_centre: Uint8Array,
         vaccine_manufacturer: String,
@@ -172,7 +174,7 @@ const requestRequiredParameters = {
         patient_id: String,
         firstname: String,
         lastname: String,
-        date_of_birth: Date,
+        date_of_birth: DateString,
         sex: String,
         nationality: String,
         vaccinate_against: String,

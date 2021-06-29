@@ -74,9 +74,16 @@ async function query(callback) {
         try {
             await conn.connect();
             result = await callback(conn);
-            await conn.end();
+
         } catch (e) {
             error = e;
+        } finally {
+            try {
+                await conn.end();
+            } catch (error) {
+
+            }
+
         }
 
         releaseOnce();
