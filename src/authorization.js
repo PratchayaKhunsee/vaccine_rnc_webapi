@@ -7,10 +7,10 @@ const JWT = require('jsonwebtoken');
 /**
  * Decode authentication header to a readable object.
  * 
- * @param {String} authorizationHeader The authorization header encoded by JSON web token
+ * @param {String} authHeader The authorization header encoded by JSON web token
  */
-function decode(authorizationHeader) {
-    const bearer = authorizationHeader.split(' ');
+function decode(authHeader) {
+    const bearer = `${authHeader}`.split(' ');
 
     if (!(1 in bearer && bearer[0] == 'JWT')) {
         return null;

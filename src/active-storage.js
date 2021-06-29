@@ -73,9 +73,7 @@ async function getAuthInfo(username, auth) {
 
         const result = buffer.toString('utf-8');
 
-        console.log(result == auth);
-
-        return buffer.toString('utf-8') == auth;
+        return result == auth;
     } catch (error) {
         throw new AuthorizationError;
     }
