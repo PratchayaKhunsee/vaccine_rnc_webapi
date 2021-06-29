@@ -58,7 +58,7 @@ class QueryResultError extends Error {
      **/
     toObject(){
         return {
-            name: this.name,
+            errorName: this.name,
             errorCode: this.code,
         };
     }
