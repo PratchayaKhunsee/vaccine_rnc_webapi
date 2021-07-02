@@ -18,7 +18,7 @@ const Error = require('./src/error');
  */
 function authorization(req, res, next) {
     var token = `${req.headers.authorization}`.split(' ')[1];
-    var username = (Auth.decode(req.headers.authorization)|| {}).username;
+    var username = (Auth.decode(req.headers.authorization) || {}).username;
     ActiveStorage.authentication.get(username, token)
         .then(() => {
             // Allow to perform the next task
@@ -36,7 +36,7 @@ function authorization(req, res, next) {
  **/
 function loginAuthorization(req, res, next) {
     var token = `${req.headers.authorization}`.split(' ')[1];
-    var username = (Auth.decode(req.headers.authorization)|| {}).username;
+    var username = (Auth.decode(req.headers.authorization) || {}).username;
     ActiveStorage.authentication.get(username, token)
         .then((c) => {
             // Response [OK] http code with JSON message for allowing client to be more accessible.
@@ -238,11 +238,14 @@ App.route({
                         const result = await DBConnection.query(async client => Query.user.editUserAccount(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.body
+                            {
+                                "old": req.body.old_password,
+                                "new": req.body.new_password,
+                            }
                         ));
 
                         if (result === true) {
-                            res.send(result);
+                            res.send({ success: true });
                         }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());

@@ -7,7 +7,6 @@
  * @property {String} [lastname]
  * @property {Number} [gender]
  * @property {Number} [name_prefix]
-//  * @property {String} [id_number]
  * 
  * @typedef {Object} UserInfo
  * 
@@ -17,7 +16,6 @@
  * @property {String} lastname
  * @property {Number} gender
  * @property {Number} name_prefix
-//  * @property {String} id_number
  * 
  * @typedef {Object} PasswordModifier
  * 

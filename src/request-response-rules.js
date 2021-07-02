@@ -107,8 +107,8 @@ const requestRequiredParameters = {
     },
     'user/edit/account': {
         // Use authentication header to identify user
-        username: String,
-        password: String,
+        old_password: String,
+        new_password: String,
     },
     'record/view': {
         patient_id: Number,

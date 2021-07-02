@@ -29,9 +29,9 @@ for (let type in typeParser) {
  * @param {*} value
  * @returns {void}
  * 
- * @callback AsyncDatabaseConnectionCallback
+ * @callback AsyncDatabaseConnectionCallback<T>
  * @param {import('pg').Client} client
- * @returns {Promise<*>}
+ * @returns {Promise<T>}
  */
 
 /** The maximum number of database connection */
