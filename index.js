@@ -219,6 +219,7 @@ App.route({
                             res.send(result);
                         }
                     } catch (error) {
+                        console.log(error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
 
