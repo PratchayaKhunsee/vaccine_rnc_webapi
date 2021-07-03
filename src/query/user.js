@@ -243,6 +243,7 @@ async function editUserInfo(client, username, info) {
 
         return result;
     } catch (error) {
+        console.log(error);
         await client.query('ROLLBACK');
         throw QueryResultError.unexpected(error);
     }
