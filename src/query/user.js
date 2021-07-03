@@ -217,16 +217,15 @@ async function editUserInfo(client, username, info) {
         if (info) {
             let keys = Object.keys(cloned);
             let values = [
+                ...(Object.values(cloned)),
                 Number(user.rows[0].person_id)
             ];
-            Array.prototype.unshift.apply(values, Object.values(cloned));
-            console.log(`UPDATE person SET ${keys.map(x => `${x} = $${i++}`)} WHERE id = $${i}
-            RETURNING firstname,lastname,gender,name_prefix`, keys, values, cloned);
+
             let i = 1;
+            let queryString = `UPDATE person SET ${keys.map(x => `${x} = $${i++}`)} WHERE id = $${i} RETURNING firstname,lastname,gender,name_prefix`;
+            console.log(queryString, cloned, keys, values);
             var updating = await client.query(
-                `UPDATE person SET ${keys.map(x => `${x} = $${i++}`)} WHERE id = $${i}
-                    RETURNING firstname,lastname,gender,name_prefix
-                `,
+                queryString,
                 values
             );
 
