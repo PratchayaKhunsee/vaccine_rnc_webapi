@@ -223,7 +223,6 @@ async function editUserInfo(client, username, info) {
 
             let i = 1;
             let queryString = `UPDATE person SET ${keys.map(x => `${x} = $${i++}`)} WHERE id = $${i} RETURNING firstname,lastname,gender,name_prefix`;
-            console.log(queryString, info, cloned, keys, values);
             var updating = await client.query(
                 queryString,
                 values
@@ -244,7 +243,6 @@ async function editUserInfo(client, username, info) {
 
         return result;
     } catch (error) {
-        console.log(error);
         await client.query('ROLLBACK');
         throw QueryResultError.unexpected(error);
     }

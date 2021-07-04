@@ -195,13 +195,11 @@ const requestRequiredParameters = {
         // console.log(routes, params);
         if(!(routes in requestRequiredParameters) || routes == 'check') return false;
         for(let n in params){
-           
             // Reject when finding another parameter that is not in the list
             if(!(n in requestRequiredParameters[routes])) return false;
             let val = params[n];
             // Reject when the type of value is not same as the type in the list.
             if(!requestRequiredParameters.isSameType(val, requestRequiredParameters[routes][n])) return false;
-            console.log(n, 'PASSED.');
         }
 
         return true;

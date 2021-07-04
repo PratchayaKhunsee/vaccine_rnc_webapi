@@ -208,15 +208,18 @@ App.route({
                     res.contentType('application/json');
 
                     try {
-
+                        const username = (Auth.decode(req.headers.authorization) || {}).username;
                         const result = await DBConnection.query(async client => await Query.user.editUserInfo(
                             client,
-                            (Auth.decode(req.headers.authorization) || {}).username,
+                            username,
                             req.body
                         ));
 
                         if (result !== null) {
-                            res.send(result);
+                            res.send({
+                                username,
+                                ...result,
+                            });
                         }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
