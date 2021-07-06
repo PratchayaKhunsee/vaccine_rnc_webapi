@@ -244,6 +244,7 @@ async function editUserInfo(client, username, info) {
         return result;
     } catch (error) {
         await client.query('ROLLBACK');
+        
         throw QueryResultError.unexpected(error);
     }
 
@@ -280,6 +281,7 @@ async function editUserAccount(client, username, password) {
         return true;
     } catch (error) {
         await client.query('ROLLBACK');
+        console.log(`Edit user account error:`, error);
         throw QueryResultError.unexpected(error);
     }
 

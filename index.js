@@ -165,7 +165,6 @@ App.route({
                             return;
                         }
                     } catch (error) {
-                        console.log('Error:', error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
 
