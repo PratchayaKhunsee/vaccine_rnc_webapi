@@ -151,19 +151,16 @@ App.route({
                     res.contentType('application/json');
 
                     try {
-                        const result = await DBConnection.query(async client => await Query.user.logIn(
+                        await DBConnection.query(async client => await Query.user.logIn(
                             client, req.body.username, req.body.password
                         ));
 
-                        if (result) {
-                            const currentTime = Date.now();
-                            await ActiveStorage.authentication.put(req.body.username, currentTime);
-                            res.send({
-                                'authorization':
-                                    Auth.encode(req.body.username, currentTime)
-                            });
-                            return;
-                        }
+                        const currentTime = Date.now();
+                        await ActiveStorage.authentication.put(req.body.username, currentTime);
+                        res.send({
+                            'authorization':
+                                Auth.encode(req.body.username, currentTime)
+                        });
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
@@ -181,15 +178,12 @@ App.route({
                     res.contentType('application/json');
 
                     try {
-                        const result = await DBConnection.query(async client => await Query.user.signUp(client, req.body));
-
-                        if (result === true) {
-                            const currentTime = Date.now();
-                            await ActiveStorage.authentication.put(req.body.username, currentTime);
-                            res.send({
-                                'authorization': Auth.encode(req.body.username, currentTime)
-                            });
-                        }
+                        await DBConnection.query(async client => await Query.user.signUp(client, req.body));
+                        const currentTime = Date.now();
+                        await ActiveStorage.authentication.put(req.body.username, currentTime);
+                        res.send({
+                            'authorization': Auth.encode(req.body.username, currentTime)
+                        });
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
@@ -237,7 +231,7 @@ App.route({
                     res.contentType('application/json');
                     try {
 
-                        const result = await DBConnection.query(async client => Query.user.editUserAccount(
+                        await DBConnection.query(async client => Query.user.editUserAccount(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
                             {
@@ -246,9 +240,7 @@ App.route({
                             }
                         ));
 
-                        if (result === true) {
-                            res.send({ success: true });
-                        }
+                        res.send({ success: true });
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }

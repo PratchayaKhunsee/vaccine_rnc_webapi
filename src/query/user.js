@@ -82,7 +82,7 @@ async function logIn(client, username, password) {
         }
 
         await client.query('COMMIT');
-        return true;
+        return;
     } catch (error) {
         await client.query('ROLLBACK');
         throw QueryResultError.unexpected(error);
@@ -132,7 +132,7 @@ async function signUp(conn, user) {
 
         await conn.query('COMMIT');
 
-        return true;
+        return;
     } catch (error) {
         await conn.query('ROLLBACK');
         throw QueryResultError.unexpected(error);
@@ -143,7 +143,9 @@ async function signUp(conn, user) {
  * Get the personal information
  * 
  * @param {import('pg').Client} client
- * @param {String} username 
+ * @param {String} username
+ * 
+ * @returns {Promise<UserInfo>} 
  */
 async function viewUser(client, username) {
     try {
@@ -171,11 +173,11 @@ async function viewUser(client, username) {
         }
 
         /** @type {UserInfo} */
-        const result = { ...person.rows[0], };
+        const result = { ...(person.rows[0]), };
 
         return result;
     } catch (error) {
-        throw QueryResultError.unexpected();
+        throw QueryResultError.unexpected(error);
     }
 
 
@@ -278,10 +280,9 @@ async function editUserAccount(client, username, password) {
 
         await client.query('COMMIT');
 
-        return true;
+        return;
     } catch (error) {
         await client.query('ROLLBACK');
-        console.log(`Edit user account error:`, error);
         throw QueryResultError.unexpected(error);
     }
 
