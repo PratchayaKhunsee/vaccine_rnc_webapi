@@ -50,7 +50,8 @@ function route(map) {
  * Start the server
  */
 function init() {
-    if (!isRouteProvided) throw new error.RoutingRequiredError();
+    const ROUTING_REQUIRED_ERROR = new error.RoutingRequiredError();
+    if (!isRouteProvided) throw ROUTING_REQUIRED_ERROR;
 
     app.listen(process.env.PORT, () => {
         console.log('App initialized.');

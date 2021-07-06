@@ -27,6 +27,7 @@ const authStorage = new AWS.S3Client({
  * @param {Number} iat
  */
 async function putAuthInfo(username, iat) {
+    const LOGIN_AUTHENTICATION_ERROR = new LoginAuthenticationError;
     try {
         const encoded = encode(username, iat);
 
@@ -38,7 +39,7 @@ async function putAuthInfo(username, iat) {
 
         return encoded;
     } catch (error) {
-        throw new LoginAuthenticationError;
+        throw LOGIN_AUTHENTICATION_ERROR;
     }
 }
 
@@ -48,7 +49,8 @@ async function putAuthInfo(username, iat) {
  * @param {String} auth The json web token for authorization
  */
 async function getAuthInfo(username, auth) {
-    if (!auth) throw AuthorizationError;
+    const AUTHORIZATION_ERROR = new AuthorizationError;
+    if (!auth) throw AUTHORIZATION_ERROR;
 
     try {
 
@@ -75,7 +77,7 @@ async function getAuthInfo(username, auth) {
 
         return result == auth;
     } catch (error) {
-        throw new AuthorizationError;
+        throw AUTHORIZATION_ERROR;
     }
 }
 

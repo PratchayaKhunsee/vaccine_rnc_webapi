@@ -78,7 +78,7 @@ async function logIn(client, username, password) {
         );
 
         if (person.rows.length != 1) {
-            throw new QueryResultError('USER_NOT_FOUND');
+            throw USER_NOT_FOUND;
         }
 
         await client.query('COMMIT');
@@ -259,7 +259,7 @@ async function editUserInfo(client, username, info) {
  */
 async function editUserAccount(client, username, password) {
     try {
-        const USER_INFO_MODIFYING_FAILED = new QueryResultError('USER_PASSWORD_CHANGING_FAILED');
+        const USER_PASSWORD_CHANGING_FAILED = new QueryResultError('USER_PASSWORD_CHANGING_FAILED');
 
         await client.query('BEGIN');
 
@@ -273,7 +273,7 @@ async function editUserAccount(client, username, password) {
         );
 
         if (modified.rowCount != 1) {
-            throw new USER_INFO_MODIFYING_FAILED;
+            throw USER_PASSWORD_CHANGING_FAILED;
         }
 
         await client.query('COMMIT');
