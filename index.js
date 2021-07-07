@@ -112,7 +112,7 @@ App.route({
                         const username = (Auth.decode(req.headers.authorization) || {}).username;
                         const result = await DBConnection.query(async client => await Query.patient.getAvailablePatients(
                             client,
-                            (Auth.decode(req.headers.authorization) || {}).username,
+                            username,
                         ));
 
                         if (result !== null) {
