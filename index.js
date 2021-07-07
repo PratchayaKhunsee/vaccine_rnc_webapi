@@ -109,11 +109,10 @@ App.route({
                     res.contentType('application/json');
 
                     try {
-
-                        const result = await DBConnection.query(async client => await Query.patient.viewPatient(
+                        const username = (Auth.decode(req.headers.authorization) || {}).username;
+                        const result = await DBConnection.query(async client => await Query.patient.getAvailablePatients(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.body.patient_id
                         ));
 
                         if (result !== null) {
@@ -392,32 +391,6 @@ App.route({
                     try {
 
                         const result = await DBConnection.query(async client => await Query.patient.editPatient(
-                            client,
-                            (Auth.decode(req.headers.authorization) || {}).username,
-                            req.body
-                        ));
-
-                        if (result !== null) {
-                            res.send(result);
-                        }
-                    } catch (error) {
-                        res.send(Error.QueryResultError.unexpected(error).toObject());
-                    }
-
-                    res.end();
-                })();
-            },
-        ],
-        '/patient/view': [
-            authorization,
-            checkParams('patient/view'),
-            /** @type {R} */
-            function (req, res) {
-                (async () => {
-                    res.contentType('application/json');
-                    try {
-
-                        const result = await DBConnection.query(async client => await Query.patient.viewPatient(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
                             req.body
