@@ -390,10 +390,16 @@ App.route({
                     res.contentType('application/json');
                     try {
 
+                        const authorization = (Auth.decode(req.headers.authorization) || {}).username;
+
                         const result = await DBConnection.query(async client => await Query.patient.editPatient(
                             client,
-                            (Auth.decode(req.headers.authorization) || {}).username,
-                            req.body
+                            authorization,
+                            req.body['patient_id'],
+                            {
+                                firstname: req.body['firstname'],
+                                lastname: req.body['lastname'],
+                            }
                         ));
 
                         if (result !== null) {

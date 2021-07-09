@@ -140,6 +140,7 @@ const requestRequiredParameters = {
         // Use authentication header to identify user
         firstname: String,
         lastname: String,
+        patient_id: Number,
     },
     'certificate/view': {
         patient_id: Number,

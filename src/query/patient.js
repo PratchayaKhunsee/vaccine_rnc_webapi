@@ -3,9 +3,9 @@
  * @property {Number} id
  * @property {String} firstname
  * @property {String} lastname
- * @property {Boolean} is_primary
+ * @property {Boolean}  primary
  * 
- * @typedef {Object} VaccinePatientCreatingContext
+ * @typedef {Object} VaccinePatientFormField
  * @property {String} [firstname]
  * @property {String} [lastname]
  */
@@ -25,15 +25,15 @@ const { QueryResultError } = require('../error');
  * View the owned patient information.
  * 
  * @param {import("pg").Client} client
- * @param {Number} vaccinePatientID
+ * @param {Number} id
  */
-async function viewPatient(client, vaccinePatientID) {
+async function viewPatient(client, id) {
     try {
         await client.query('BEGIN');
 
         let vaccinePatient = await client.query(
             'SELECT * FROM vaccine_patient WHERE id = $1',
-            [Number(vaccinePatientID)]
+            [Number(id)]
         );
 
         if (vaccinePatient.rows.length != 1) {
@@ -56,19 +56,29 @@ async function viewPatient(client, vaccinePatientID) {
  * Edit the owned patient information
  * 
  * @param {import("pg").Client} client
- * @param {Number} vaccinePatientID
- * @param {Object} data
+ * @param {String} username
+ * @param {Number} id
+ * @param {VaccinePatientFormField} info
  */
-async function editPatient(client, vaccinePatientID, data) {
+async function editPatient(client, username, id, info) {
     try {
         const PATIENT_MODIFYING_FAILED = new QueryResultError('PATIENT_MODIFYING_FAILED');
         await client.query('BEGIN');
 
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw null;
+
+        let available = await isPatientAvailableFor(client, id, checkUser.person.id);
+        if (!available) throw PATIENT_MODIFYING_FAILED;
+
         let i = 1;
-        let values = [Number(vaccinePatientID)];
-        Array.prototype.unshift.apply(values, Object.values(data));
+        let values = [
+            ...(Object.values(info)),
+            Number(id)
+        ];
+        let queryText = `UPDATE vaccine_patient SET(${Object.keys(info).map(x => x + ' = $' + i++)}) WHERE id = $${i} RETURNING id,firstname,lastname`;
         let result = await client.query(
-            `UPDATE vaccine_patient SET(${Object.keys(data).map(x => x + ' = $' + i++)}) WHERE id = $${i}`,
+            queryText,
             values
         );
 
@@ -78,8 +88,12 @@ async function editPatient(client, vaccinePatientID, data) {
 
         await client.query('COMMIT');
 
-        return true;
+        /** @type {VaccinePatient} */
+        const c = {
+            ...(result.rows[0])
+        };
 
+        return c;
     } catch (err) {
         await client.query('ROLLBACK');
         throw QueryResultError.unexpected(err);
@@ -97,15 +111,15 @@ async function getAvailablePatients(client, username) {
     try {
         /** @type {Array<VaccinePatient>} */
         const result = [];
-    
+
         let checkUser = await checkUserName(client, username);
         if (!checkUser) throw null;
 
         let available = await client.query(
-            `SELECT firstname,lastname,id,TRUE as is_primary FROM vaccine_patient
+            `SELECT firstname,lastname,id,TRUE as primary FROM vaccine_patient
                 WHERE id = $1
                 UNION
-             SELECT vaccine_patient.firstname,vaccine_patient.lastname,vaccine_patient.id,FALSE as is_primary FROM vaccine_patient
+             SELECT vaccine_patient.firstname,vaccine_patient.lastname,vaccine_patient.id,FALSE as primary FROM vaccine_patient
                 INNER JOIN parenting ON parenting.vaccine_patient_id = vaccine_patient.id
                 INNER JOIN person ON person.id = parenting.person_id
                 WHERE person.id = $2
@@ -115,8 +129,8 @@ async function getAvailablePatients(client, username) {
                 Number(checkUser.person.id)
             ]
         );
-        
-        Array.prototype.push.apply(result, available.rows);
+
+        result.push(...(available.rows));
 
         return result;
 
@@ -134,7 +148,7 @@ async function getAvailablePatients(client, username) {
  * @param {String} username
  * @param {VaccinePatientCreatingContext} details
  */
- async function createPatientForSelf(client, username, details) {
+async function createPatientForSelf(client, username, details) {
     try {
 
         const PATIENT_SELF_CREATING_FAILED = new QueryResultError('PATIENT_SELF_CREATING_FAILED');
@@ -199,7 +213,7 @@ async function createPatientAsChild(client, username, details) {
 
         let patient = await client.query(
             `INSERT INTO vaccine_patient (firstname,lastname) VALUES($1,$2)
-                RETURNING id,firstname,lastname,FALSE AS is_primary`,
+                RETURNING id,firstname,lastname,FALSE AS primary`,
             [
                 details.firstname,
                 details.lastname
@@ -207,7 +221,7 @@ async function createPatientAsChild(client, username, details) {
         );
 
         if (patient.rowCount != 1) {
-            throw null;
+            throw PATIENT_CREATING_FAILED;
         }
 
         let parenting = await client.query(
@@ -290,7 +304,6 @@ module.exports = {
     editPatient,
     createPatientForSelf,
     createPatientAsChild,
-    editPatient,
     getAvailablePatients,
     // removePatient
 };
