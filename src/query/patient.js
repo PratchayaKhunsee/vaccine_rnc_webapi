@@ -95,6 +95,7 @@ async function editPatient(client, username, id, info) {
 
         return c;
     } catch (err) {
+        console.log(err);
         await client.query('ROLLBACK');
         throw QueryResultError.unexpected(err);
     }
