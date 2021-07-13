@@ -44,7 +44,7 @@
  * @property {String}  mmr_first 
  * @property {String}  mmr_second 
  * @property {String}  je_first 
- * @property {String}  je_seconds 
+ * @property {String}  je_second
  * @property {String}  opv_later_first 
  * @property {String}  opv_later_second 
  * @property {String}  dtp_first
@@ -265,9 +265,9 @@ const {
  * View a record of vaccination book.
  * @param {import('pg').Client} client 
  * @param {String} username 
- * @param {Number} patient_id 
+ * @param {Number} patientId 
  */
-async function viewRecord(client, username, patient_id) {
+async function viewRecord(client, username, patientId) {
     try {
         await client.query('BEGIN');
 
@@ -277,7 +277,7 @@ async function viewRecord(client, username, patient_id) {
         let patient = await client.query(
             'SELECT * FROM vaccine_patient WHERE id = $1',
             [
-                Number(patient_id)
+                Number(patientId)
             ]
         );
 
@@ -290,7 +290,9 @@ async function viewRecord(client, username, patient_id) {
             ]
         );
 
-        if (record.rows.length != 1) return {};
+        if (record.rows.length == 0){
+            return await createRecord(client, username, patientId);
+        }
 
         await client.query('COMMIT');
 
