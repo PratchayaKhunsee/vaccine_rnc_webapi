@@ -118,10 +118,7 @@ const requestRequiredParameters = {
         patient_id: Number,
     },
     'record/edit': {
-        patient_id: Number,
-        vaccine_name: String,
-        dose: Number,
-        vaccination_date: DateString,
+        id: Number,
     },
     'patient/view': {
         // Use authentication header to identify user
@@ -181,10 +178,10 @@ const requestRequiredParameters = {
         nationality: String,
         vaccinate_against: String,
     },
-    isSameType(value, type){
-        if(value instanceof type) return true;
-        if(type === String && typeof value == 'string') return true;
-        if(type === Number && typeof value == 'number') return true;
+    isSameType(value, type) {
+        if (value instanceof type) return true;
+        if (type === String && typeof value == 'string') return true;
+        if (type === Number && typeof value == 'number') return true;
         return false;
     },
     /**
@@ -194,13 +191,13 @@ const requestRequiredParameters = {
      */
     check(routes, params) {
         // console.log(routes, params);
-        if(!(routes in requestRequiredParameters) || routes == 'check') return false;
-        for(let n in params){
+        if (!(routes in requestRequiredParameters) || routes == 'check') return false;
+        for (let n in params) {
             // Reject when finding another parameter that is not in the list
-            if(!(n in requestRequiredParameters[routes])) return false;
+            if (!(n in requestRequiredParameters[routes])) return false;
             let val = params[n];
             // Reject when the type of value is not same as the type in the list.
-            if(!requestRequiredParameters.isSameType(val, requestRequiredParameters[routes][n])) return false;
+            if (!requestRequiredParameters.isSameType(val, requestRequiredParameters[routes][n])) return false;
         }
 
         return true;
