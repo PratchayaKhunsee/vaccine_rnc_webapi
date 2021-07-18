@@ -12,11 +12,11 @@ const Region = 'ap-southeast-1';
 const Bucket = 'vaccine-rnc-app';
 
 /** The authentication for login session storage */
-const authStorage = new AWS.S3Client({
+const storage = new AWS.S3Client({
     region: Region,
     credentials: {
-        accessKeyId: process.env.AWS_S3_LOGINAUTH_ACCESS_KEY,
-        secretAccessKey: process.env.AWS_S3_LOGINAUTH_SECRET_ACCESS_KEY,
+        accessKeyId: process.env.AWS_S3_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
     }
 });
 
@@ -31,7 +31,7 @@ async function putAuthInfo(username, iat) {
     try {
         const encoded = encode(username, iat);
 
-        const output = await authStorage.send(new AWS.PutObjectCommand({
+        await storage.send(new AWS.PutObjectCommand({
             Bucket: Bucket,
             Key: `authorization/${username}`,
             Body: `${encoded}`,
@@ -54,7 +54,7 @@ async function getAuthInfo(username, auth) {
 
     try {
 
-        const output = await authStorage.send(new AWS.GetObjectCommand({
+        const output = await storage.send(new AWS.GetObjectCommand({
             Bucket: Bucket,
             Key: `authorization/${username}`,
         }));
@@ -84,11 +84,10 @@ async function getAuthInfo(username, auth) {
 /**
  * Remove the authorization JSON web token from the active storage.
  * @param {String} username
- * @param {String} auth
  */
-async function removeAuthInfo(username, auth) {
+async function removeAuthInfo(username) {
     try {
-        const output = await authStorage.send(new AWS.DeleteObjectCommand({
+        await storage.send(new AWS.DeleteObjectCommand({
             Bucket: Bucket,
             Key: `authorization/${username}`,
         }));
@@ -104,4 +103,5 @@ module.exports = {
         get: getAuthInfo,
         remove: removeAuthInfo,
     },
+    __ACTIVE_STORAGE__: storage,
 };
