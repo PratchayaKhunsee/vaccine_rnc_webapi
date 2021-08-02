@@ -330,14 +330,6 @@ async function viewCertificate(client, username, selection) {
 
         await client.query('COMMIT');
 
-
-        if (cert.rows.length != 1) return {};
-
-        /** @type {CertificationBody} */
-        let result = cert.rows[0];
-
-        await client.query('COMMIT');
-
         return result;
     } catch (error) {
         // ;
