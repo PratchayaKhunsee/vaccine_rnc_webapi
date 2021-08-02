@@ -34,9 +34,6 @@ const upload = multer({
 
 app.use(cors());
 
-
-// app.use(express.json());
-
 let isRouteProvided = false;
 
 /**

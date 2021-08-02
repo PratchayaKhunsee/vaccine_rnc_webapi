@@ -6,6 +6,9 @@
 
 const AWS = require('@aws-sdk/client-s3');
 const { Readable } = require('stream');
+const multer = require('multer');
+const multerS3 = require('multer-s3');
+
 const {
     encode,
 } = require('./authorization');
@@ -13,6 +16,13 @@ const {
     LoginAuthenticationError,
     AuthorizationError
 } = require('./error');
+
+/** Bytes number of a kilobyte */
+const KB = 1024;
+/** Bytes number of a megabyte */
+const MB = 1048576;
+
+const minutes = 60000;
 
 const Region = 'ap-southeast-1';
 const Bucket = 'vaccine-rnc-app';
@@ -25,6 +35,28 @@ const storage = new AWS.S3Client({
         secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
     }
 });
+
+const upload = multer({
+    storage: multerS3({
+        bucket: Bucket,
+        s3: storage,
+        key(req, file, callback) {
+            const tempFileName = new Date().getTime();
+            callback(null, tempFileName);
+            setTimeout(() => {
+                storage.send(new AWS.DeleteObjectCommand({
+                    Bucket,
+                    Key: `.temp/${tempFileName}`,
+                }));
+
+            }, 3 * minutes);
+        },
+    }),
+    limits: {
+        fieldSize: 1 * KB,
+        fileSize: 4 * MB,
+    },
+})
 
 /**
  * Add the authorization JSON web token to the active storage.
@@ -103,10 +135,15 @@ async function removeAuthInfo(username) {
     }
 }
 
+const useMulter = () => upload.any();
+
 module.exports = {
     authentication: {
         put: putAuthInfo,
         get: getAuthInfo,
         remove: removeAuthInfo,
+    },
+    multer: {
+        use: useMulter,
     },
 };

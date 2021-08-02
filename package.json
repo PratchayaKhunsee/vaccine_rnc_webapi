@@ -1,7 +1,7 @@
 {
-  "name": "vaccine-database",
+  "name": "vaccine-rnc-database-webservice",
   "version": "1.0.0",
-  "description": "",
+  "description": "The web service application of record and certificate of vaccination",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -10,13 +10,15 @@
     "type": "git",
     "url": "https://git.heroku.com/vaccine-vnc-database.git"
   },
-  "author": "",
+  "author": "Pratchaya Khunsee",
   "license": "UNLICENSED",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
+    "multer": "^1.4.2",
+    "multer-s3": "^2.9.0",
     "pg": "^8.3.2",
     "pg-cursor": "^2.3.2",
     "pg-types": "^3.0.1",
