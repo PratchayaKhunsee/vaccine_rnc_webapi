@@ -53,6 +53,16 @@
  * @typedef {Object} FullCertificate
  * @property {CertificationHeader} header
  * @property {CertificationBody} list
+ * 
+ * 
+ * @typedef {Object} ViewOfBreifyCertificate
+ * Certificate's owner information and id list of certification. 
+ * @property {String} fullname_in_cert
+ * @property {Number} sex
+ * @property {String} nationality
+ * @property {String} signature
+ * @property {String} against_description 
+ * @property {Array<Number>} certificate_id_list
  */
 
 const {
@@ -297,6 +307,30 @@ async function viewCertificate(client, username, selection) {
             ]
         );
 
+        let certHeader = await client.query(
+            `SELECT
+                fullname_in_cert,
+                sex,
+                nationality,
+                encode(signature, 'base64') as signature,
+                against_description,
+                date_of_birth
+             FROM vaccine_patient
+                WHERE id = $1
+            `,
+            [
+                Number(patient_id)
+            ]
+        );
+
+        if (certHeader.rows.length != 1) return {};
+
+        /** @type {CertificationHeader} */
+        let result = { ...certHeader.rows[0] };
+
+        await client.query('COMMIT');
+
+
         if (cert.rows.length != 1) return {};
 
         /** @type {CertificationBody} */
@@ -338,11 +372,6 @@ async function editCertificate(client, username, certificate) {
 
         let tableNames = Object.keys(cert).filter(x => x != 'id' && x != 'vaccine_patient_id');
         let values = [...Object.values(cert), Number(cert)];
-        // for (let k of tableNames) {
-        //     let v = cert[k];
-        //     values.push(v);
-        // }
-        // values.push(Number(cert.id));
         let i = 1;
         let certUpdated = await client.query(
             `UPDATE certification SET ${tableNames.map(x => `${x} = ${x == 'adminstring_centre_stamp' || x == 'clinician_signature' ?
@@ -560,10 +589,66 @@ async function editCertificateHeader(client, username, context) {
     }
 }
 
+/**
+ * Get the briefy certificate. Including the certificate's owner information and the id list of certification.
+ * 
+ * @function
+ * @param {import('pg').Client} client PostgreSQL client instance.
+ * @param {String} username Client's username as a string.
+ * @param {Number} patient_id The id of patient as a number.
+ * 
+ * @returns {Promise<ViewOfBreifyCertificate>}
+ */
+async function viewBriefyCertificate(client, username, patient_id) {
+    try {
+
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw null;
+
+        let checkPatient = await isPatientAvailableFor(
+            client,
+            selection.patient_id,
+            Number(checkUser.person.id)
+        );
+        if (!checkPatient) throw null;
+
+        let cert = await client.query(
+            `SELECT id FROM certification WHERE vaccine_patient_id = $1`,
+            [
+                Number(selection.patient_id),
+            ]
+        );
+
+        let certHeader = await client.query(
+            `SELECT
+                fullname_in_cert,
+                sex,
+                nationality,
+                signature,
+                against_description,
+                date_of_birth
+             FROM vaccine_patient WHERE id = $1
+            `,
+            [
+                Number(patient_id),
+            ]
+        );
+
+        if (certHeader.rows.length != 1) return {};
+
+        const header = certHeader.rows[0];
+        const result = {
+            ...header,
+            certificate_id_list: [...cert.rows],
+        };
+
+        return result;
+    } catch (error) {
+        throw QueryResultError.unexpected(error);
+    }
+}
+
 module.exports = {
-    // doCreateCertification,
-    // doEditCertification,
-    // doViewCertifications,
     getCertification,
     getAvailableVaccination,
     createCertification,
@@ -573,4 +658,5 @@ module.exports = {
     getDetailedCertificationList,
     viewCertificateHeader,
     editCertificateHeader,
+    viewBriefyCertificate,
 };

@@ -6,7 +6,7 @@
  * @typedef {Object<string,Array<RoutingHandlerCallback>>} RoutingHandlerMap
  *  An object for determining how to handle HTTP request.
  *      - The object keys represent the HTTP request path name
- *      - The object values are [RoutingHandlerCallback], or even the list of [RoutingHandlerCallback].
+ *      - The object values are [RoutingHandlerCallback] or the list of [RoutingHandlerCallback].
  * @typedef {Object} RoutingHandlerFullMap
  *  A bigger [RoutingHandlerMap] with HTTP methods organization
  * @property {RoutingHandlerMap} GET A HTTP <GET> method [RoutingHandlerMap]
@@ -17,10 +17,25 @@ const express = require('express');
 const app = express();
 const error = require('./error');
 const cors = require('cors');
+const multer = require('multer');
+
+/** Bytes number of a kilobyte */
+const KB = 1024;
+/** Bytes number of a megabyte */
+const MB = 1048576;
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fieldSize: 1 * KB,
+        fileSize: 4 * MB,
+    },
+});
 
 app.use(cors());
-app.use(express.urlencoded({ extended: true, }));
-app.use(express.json());
+
+
+// app.use(express.json());
 
 let isRouteProvided = false;
 
@@ -58,7 +73,12 @@ function init() {
     });
 }
 
+const acceptJson = () => express.json();
+const acceptFormData = () => upload.any();
+
 module.exports = {
     route,
     init,
+    acceptJson,
+    acceptFormData,
 }

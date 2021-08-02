@@ -70,6 +70,24 @@ function checkParams(pathname) {
     }
 }
 
+function multerForCertificateEditing() {
+    const paramList = [
+        'id',
+        'vaccine_briefing',
+        'certify_from',
+        'certify_to',
+        'clinician_prof_status',
+        'clinician_signature',
+        'administering_center_stamp',
+        'vaccine_manufacturer',
+        'vaccine_batch_number'
+    ];
+    const o = {};
+    for (let g of paramList) o[g] = 1;
+
+    return ActiveStorage.multipartFormData.use(o);
+}
+
 App.route({
     GET: {
         '/user/view': [
@@ -142,6 +160,7 @@ App.route({
     },
     POST: {
         '/login': [
+            App.acceptJson(),
             loginAuthorization,
             checkParams('login'),
             /** @type {R} */
@@ -169,6 +188,7 @@ App.route({
             },
         ],
         '/signup': [
+            App.acceptJson(),
             loginAuthorization,
             checkParams('signup'),
             /** @type {R} */
@@ -192,6 +212,7 @@ App.route({
             }
         ],
         '/user/edit/info': [
+            App.acceptJson(),
             authorization,
             checkParams('user/edit/info'),
             /** @type {R} */
@@ -222,6 +243,7 @@ App.route({
             }
         ],
         '/user/edit/account': [
+            App.acceptJson(),
             authorization,
             checkParams('user/edit/account'),
             /** @type {R} */
@@ -249,6 +271,7 @@ App.route({
             }
         ],
         '/record/view': [
+            App.acceptJson(),
             authorization,
             checkParams('record/view'),
             /** @type {R} */
@@ -275,6 +298,7 @@ App.route({
             }
         ],
         '/record/create': [
+            App.acceptJson(),
             authorization,
             checkParams('record/create'),
             /** @type {R} */
@@ -302,6 +326,7 @@ App.route({
             }
         ],
         '/record/edit': [
+            App.acceptJson(),
             authorization,
             checkParams('record/edit'),
             /** @type {R} */
@@ -328,12 +353,11 @@ App.route({
             },
         ],
         '/patient/create': [
+            App.acceptJson(),
             authorization,
             checkParams('patient/create'),
             /** @type {R} */
             function (req, res) {
-
-
                 (async () => {
                     res.contentType('application/json');
                     try {
@@ -356,6 +380,7 @@ App.route({
             },
         ],
         '/patient/create/self': [
+            App.acceptJson(),
             authorization,
             checkParams('patient/create/self'),
             /** @type {R} */
@@ -382,6 +407,7 @@ App.route({
             },
         ],
         '/patient/edit': [
+            App.acceptJson(),
             authorization,
             checkParams('patient/edit'),
             /** @type {R} */
@@ -406,7 +432,6 @@ App.route({
                             res.send(result);
                         }
                     } catch (error) {
-                        console.log(error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
 
@@ -415,6 +440,7 @@ App.route({
             },
         ],
         '/certificate/view': [
+            App.acceptJson(),
             authorization,
             checkParams('certificate/view'),
             /** @type {R} */
@@ -423,10 +449,10 @@ App.route({
                     res.contentType('application/json');
                     try {
 
-                        const result = await DBConnection.query(async client => await Query.certificate.viewCertificate(
+                        const result = await DBConnection.query(async client => await Query.certificate.viewBriefyCertificate(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
-                            req.body
+                            req.body.patient_id,
                         ));
 
                         if (result !== null) {
@@ -440,190 +466,190 @@ App.route({
                 })();
             },
         ],
-        '/certificate/view/header': [
-            authorization,
-            checkParams('certificate/view/header'),
-            /** @type {R} */
-            function (req, res) {
-                (async () => {
-                    res.contentType('application/json');
-                    try {
+        // '/certificate/view/header': [
+        //     authorization,
+        //     checkParams('certificate/view/header'),
+        //     /** @type {R} */
+        //     function (req, res) {
+        //         (async () => {
+        //             res.contentType('application/json');
+        //             try {
 
-                        const result = await DBConnection.query(async client => await Query.certificate.viewCertificateHeader(
-                            client,
-                            (Auth.decode(req.headers.authorization) || {}).username,
-                            req.body.patient_id
-                        ));
+        //                 const result = await DBConnection.query(async client => await Query.certificate.viewCertificateHeader(
+        //                     client,
+        //                     (Auth.decode(req.headers.authorization) || {}).username,
+        //                     req.body.patient_id
+        //                 ));
 
-                        if (result !== null) {
-                            res.send(result);
-                        }
-                    } catch (error) {
-                        res.send(Error.QueryResultError.unexpected(error).toObject());
-                    }
+        //                 if (result !== null) {
+        //                     res.send(result);
+        //                 }
+        //             } catch (error) {
+        //                 res.send(Error.QueryResultError.unexpected(error).toObject());
+        //             }
 
-                    res.end();
-                })();
-            },
-        ],
-        '/certificate/available': [
-            authorization,
-            checkParams('certificate/available'),
-            /** @type {R} */
-            function (req, res) {
-                (async () => {
-                    res.contentType('application/json');
-                    try {
+        //             res.end();
+        //         })();
+        //     },
+        // ],
+        // '/certificate/available': [
+        //     authorization,
+        //     checkParams('certificate/available'),
+        //     /** @type {R} */
+        //     function (req, res) {
+        //         (async () => {
+        //             res.contentType('application/json');
+        //             try {
 
-                        const result = await DBConnection.query(async client => await Query.certificate.getAvailableVaccination(
-                            client,
-                            (Auth.decode(req.headers.authorization) || {}).username,
-                            req.body.patient_id
-                        ));
+        //                 const result = await DBConnection.query(async client => await Query.certificate.getAvailableVaccination(
+        //                     client,
+        //                     (Auth.decode(req.headers.authorization) || {}).username,
+        //                     req.body.patient_id
+        //                 ));
 
-                        if (result !== null) {
-                            res.send(result);
-                        }
-                    } catch (error) {
-                        res.send(Error.QueryResultError.unexpected(error).toObject());
-                    }
+        //                 if (result !== null) {
+        //                     res.send(result);
+        //                 }
+        //             } catch (error) {
+        //                 res.send(Error.QueryResultError.unexpected(error).toObject());
+        //             }
 
-                    res.end();
-                })();
-            },
-        ],
-        '/certificate/create': [
-            authorization,
-            checkParams('certificate/create'),
-            /** @type {R} */
-            function (req, res) {
-                (async () => {
-                    res.contentType('application/json');
-                    try {
+        //             res.end();
+        //         })();
+        //     },
+        // ],
+        // '/certificate/create': [
+        //     authorization,
+        //     checkParams('certificate/create'),
+        //     /** @type {R} */
+        //     function (req, res) {
+        //         (async () => {
+        //             res.contentType('application/json');
+        //             try {
 
-                        const result = await DBConnection.query(async client => await Query.certificate.createCertification(
-                            client,
-                            (Auth.decode(req.headers.authorization) || {}).username,
-                            req.body
-                        ));
+        //                 const result = await DBConnection.query(async client => await Query.certificate.createCertification(
+        //                     client,
+        //                     (Auth.decode(req.headers.authorization) || {}).username,
+        //                     req.body
+        //                 ));
 
-                        if (result !== null) {
-                            res.send(result);
-                        }
-                    } catch (error) {
-                        res.send(Error.QueryResultError.unexpected(error).toObject());
-                    }
+        //                 if (result !== null) {
+        //                     res.send(result);
+        //                 }
+        //             } catch (error) {
+        //                 res.send(Error.QueryResultError.unexpected(error).toObject());
+        //             }
 
-                    res.end();
-                })();
-            },
-        ],
-        '/certificate/list': [
-            authorization,
-            checkParams('certificate/list'),
-            /** @type {R} */
-            function (req, res) {
-                (async () => {
-                    res.contentType('application/json');
-                    try {
+        //             res.end();
+        //         })();
+        //     },
+        // ],
+        // '/certificate/list': [
+        //     authorization,
+        //     checkParams('certificate/list'),
+        //     /** @type {R} */
+        //     function (req, res) {
+        //         (async () => {
+        //             res.contentType('application/json');
+        //             try {
 
-                        const result = await DBConnection.query(async client => await Query.certificate.getBrieflyCertificationList(
-                            client,
-                            (Auth.decode(req.headers.authorization) || {}).username,
-                            req.body.patient_id
-                        ));
+        //                 const result = await DBConnection.query(async client => await Query.certificate.getBrieflyCertificationList(
+        //                     client,
+        //                     (Auth.decode(req.headers.authorization) || {}).username,
+        //                     req.body.patient_id
+        //                 ));
 
-                        if (result !== null) {
-                            res.send(result);
-                        }
-                    } catch (error) {
-                        res.send(Error.QueryResultError.unexpected(error).toObject());
-                    }
+        //                 if (result !== null) {
+        //                     res.send(result);
+        //                 }
+        //             } catch (error) {
+        //                 res.send(Error.QueryResultError.unexpected(error).toObject());
+        //             }
 
-                    res.end();
-                })();
-            },
-        ],
-        '/certificate/list/details': [
-            authorization,
-            checkParams('certificate/list/details'),
-            /** @type {R} */
-            function (req, res) {
-                (async () => {
-                    res.contentType('application/json');
+        //             res.end();
+        //         })();
+        //     },
+        // ],
+        // '/certificate/list/details': [
+        //     authorization,
+        //     checkParams('certificate/list/details'),
+        //     /** @type {R} */
+        //     function (req, res) {
+        //         (async () => {
+        //             res.contentType('application/json');
 
-                    try {
+        //             try {
 
-                        const result = await DBConnection.query(async client => await Query.certificate.getDetailedCertificationList(
-                            client,
-                            (Auth.decode(req.headers.authorization) || {}).username,
-                            req.body
-                        ));
+        //                 const result = await DBConnection.query(async client => await Query.certificate.getDetailedCertificationList(
+        //                     client,
+        //                     (Auth.decode(req.headers.authorization) || {}).username,
+        //                     req.body
+        //                 ));
 
-                        if (result !== null) {
-                            res.send(result);
-                        }
-                    } catch (error) {
-                        res.send(Error.QueryResultError.unexpected(error).toObject());
-                    }
+        //                 if (result !== null) {
+        //                     res.send(result);
+        //                 }
+        //             } catch (error) {
+        //                 res.send(Error.QueryResultError.unexpected(error).toObject());
+        //             }
 
-                    res.end();
-                })();
-            },
-        ],
-        '/certificate/edit': [
-            authorization,
-            checkParams('certificate/edit'),
-            /** @type {R} */
-            function (req, res) {
-                (async () => {
-                    res.contentType('application/json');
+        //             res.end();
+        //         })();
+        //     },
+        // ],
+        // '/certificate/edit': [
+        //     authorization,
+        //     multerForCertificateEditing(),
+        //     /** @type {R} */
+        //     function (req, res) {
+        //         (async () => {
+        //             res.contentType('application/json');
 
-                    try {
+        //             try {
 
-                        const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
-                            client,
-                            (Auth.decode(req.headers.authorization) || {}).username,
-                            req.body
-                        ));
+        //                 const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
+        //                     client,
+        //                     (Auth.decode(req.headers.authorization) || {}).username,
+        //                     req.body
+        //                 ));
 
-                        if (result !== null) {
-                            res.send(result);
-                        }
-                    } catch (error) {
-                        res.send(Error.QueryResultError.unexpected(error).toObject());
-                    }
+        //                 if (result !== null) {
+        //                     res.send(result);
+        //                 }
+        //             } catch (error) {
+        //                 res.send(Error.QueryResultError.unexpected(error).toObject());
+        //             }
 
-                    res.end();
-                })();
-            },
-        ],
-        '/certificate/edit/header': [
-            authorization,
-            checkParams('certificate/edit/header'),
-            /** @type {R} */
-            function (req, res) {
-                (async () => {
-                    res.contentType('application/json');
-                    try {
+        //             res.end();
+        //         })();
+        //     },
+        // ],
+        // '/certificate/edit/header': [
+        //     authorization,
+        //     checkParams('certificate/edit/header'),
+        //     /** @type {R} */
+        //     function (req, res) {
+        //         (async () => {
+        //             res.contentType('application/json');
+        //             try {
 
-                        const result = await DBConnection.query(async client => await Query.certificate.editCertificateHeader(
-                            client,
-                            (Auth.decode(req.headers.authorization) || {}).username,
-                            req.body
-                        ));
+        //                 const result = await DBConnection.query(async client => await Query.certificate.editCertificateHeader(
+        //                     client,
+        //                     (Auth.decode(req.headers.authorization) || {}).username,
+        //                     req.body
+        //                 ));
 
-                        if (result !== null) {
-                            res.send(result);
-                        }
-                    } catch (error) {
-                        res.send(Error.QueryResultError.unexpected(error).toObject());
-                    }
+        //                 if (result !== null) {
+        //                     res.send(result);
+        //                 }
+        //             } catch (error) {
+        //                 res.send(Error.QueryResultError.unexpected(error).toObject());
+        //             }
 
-                    res.end();
-                })();
-            },
-        ],
+        //             res.end();
+        //         })();
+        //     },
+        // ],
 
     }
 });

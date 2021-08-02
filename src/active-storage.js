@@ -1,3 +1,9 @@
+/**
+ * @typedef {Object<string, number>} MulterNamedField
+ *  The keys of object represent the requested field names, and the values of object represent
+ *  the maximum allowed instances for a field name.  
+ */
+
 const AWS = require('@aws-sdk/client-s3');
 const { Readable } = require('stream');
 const {
@@ -103,5 +109,4 @@ module.exports = {
         get: getAuthInfo,
         remove: removeAuthInfo,
     },
-    __ACTIVE_STORAGE__: storage,
 };
