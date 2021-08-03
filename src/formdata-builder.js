@@ -10,7 +10,7 @@ class FormDataBuilder {
     #boundary;
     #content = "";
 
-    static #isIterable(obj) {
+    static #isIterable = function(obj) {
         // checks for null and undefined
         if (obj === null) {
             return false;
