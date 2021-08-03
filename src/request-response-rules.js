@@ -210,7 +210,6 @@ const requestRequiredParameters = {
      * @param {Object<string, *>} params 
      */
     check(routes, params) {
-        // console.log(routes, params);
         if (!(routes in requestRequiredParameters) || routes == 'check') return false;
         for (let n in params) {
             // Reject when finding another parameter that is not in the list

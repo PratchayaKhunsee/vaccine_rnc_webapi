@@ -49,7 +49,6 @@ class FormDataBuilder {
             }
 
             else {
-                console.log(v, Array.isArray(v), Array.from(v).join(',') || null);
                 v = Array.from(v).join(',') || null;
             }
         }

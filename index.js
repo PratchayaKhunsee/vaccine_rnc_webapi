@@ -69,7 +69,6 @@ function checkParams(pathname) {
             next();
             return;
         }
-        // console.log(req.body);
         res.sendStatus(Rules.httpCode.BAD_REQUEST).end();
     }
 }
@@ -471,10 +470,6 @@ App.route({
                                     value = String(value).split('');
                                 }
 
-                                if(n == 'certificate_id_list'){
-                                    console.log(value);
-                                }
-
                                 formdata.append(n, value, {
                                     filename: n == 'signature' ? crypto.randomUUID() : null,
                                 });
@@ -483,7 +478,6 @@ App.route({
                             formdata.finalize().end();
                         }
                     } catch (error) {
-                        console.log(error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
 
