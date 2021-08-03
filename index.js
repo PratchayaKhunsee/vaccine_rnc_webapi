@@ -1,14 +1,18 @@
-const App = require('./src/express-app');
+const crypto = require('crypto');
 const Auth = require('./src/authorization');
 const ActiveStorage = require('./src/active-storage');
 const Rules = require('./src/request-response-rules');
 const Query = require('./src/query');
 const DBConnection = require('./src/database-connection');
 const Error = require('./src/error');
+const App = require('./src/express-app');
+const FormDataBuilder = require('./src/formdata-builder');
 
 /**
  * @typedef {import('express').RequestHandler} R
  *  RequestHandler callback from Express.js.
+ * 
+ * @typedef {import('./src/query/certificate').ViewOfBreifyCertificate} ViewOfBreifyCertificate
  */
 
 /**
@@ -430,6 +434,7 @@ App.route({
 
                         if (result !== null) {
                             res.send(result);
+
                         }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
@@ -446,9 +451,10 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
-                    res.contentType('application/json');
+                    res.contentType('multipart/form-data');
                     try {
 
+                        /** @type {ViewOfBreifyCertificate} */
                         const result = await DBConnection.query(async client => await Query.certificate.viewBriefyCertificate(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
@@ -456,6 +462,19 @@ App.route({
                         ));
 
                         if (result !== null) {
+                            const formdata = new FormDataBuilder(res);
+
+                            for(let n in result){
+                                var value = result[n];
+                                if(n == 'signature'){
+                                    value = Array.from(value);
+                                }
+                                formdata.append(n, value, {
+                                    filename: n == 'signature' ? crypto.randomUUID() : null,
+                                });
+                            }
+
+                            formdata.finalize().end();
                             res.send(result);
                         }
                     } catch (error) {

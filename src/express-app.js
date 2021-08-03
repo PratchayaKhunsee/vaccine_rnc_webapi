@@ -17,20 +17,7 @@ const express = require('express');
 const app = express();
 const error = require('./error');
 const cors = require('cors');
-const multer = require('multer');
-
-/** Bytes number of a kilobyte */
-const KB = 1024;
-/** Bytes number of a megabyte */
-const MB = 1048576;
-
-const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: {
-        fieldSize: 1 * KB,
-        fileSize: 4 * MB,
-    },
-});
+const ActiveStorage = require('./active-storage');
 
 app.use(cors());
 
@@ -71,7 +58,7 @@ function init() {
 }
 
 const acceptJson = () => express.json();
-const acceptFormData = () => upload.any();
+const acceptFormData = () => ActiveStorage.multer.use();
 
 module.exports = {
     route,

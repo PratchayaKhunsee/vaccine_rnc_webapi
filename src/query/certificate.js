@@ -332,7 +332,7 @@ async function viewCertificate(client, username, selection) {
 
         return result;
     } catch (error) {
-        // ;
+   
         await client.query('ROLLBACK');
         throw QueryResultError.unexpected();
     }
