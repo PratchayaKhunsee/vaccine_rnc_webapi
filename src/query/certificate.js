@@ -599,7 +599,7 @@ async function viewBriefyCertificate(client, username, patient_id) {
 
         let checkPatient = await isPatientAvailableFor(
             client,
-            selection.patient_id,
+            patient_id,
             Number(checkUser.person.id)
         );
         if (!checkPatient) throw null;
@@ -607,7 +607,7 @@ async function viewBriefyCertificate(client, username, patient_id) {
         let cert = await client.query(
             `SELECT id FROM certification WHERE vaccine_patient_id = $1`,
             [
-                Number(selection.patient_id),
+                Number(patient_id),
             ]
         );
 
