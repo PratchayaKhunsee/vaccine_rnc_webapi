@@ -21,9 +21,8 @@ class FormDataBuilder {
      * @param {import("express").Response} res 
      */
     constructor(res) {
-        console.log(crypto);
         this.#response = res;
-        this.#boundary = '==================================================';
+        this.#boundary = crypto.randomUUID();
     }
 
     /**
