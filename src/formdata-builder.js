@@ -36,7 +36,7 @@ class FormDataBuilder {
         fields = {},
     }) {
         const CRLF = '\r\n';
-        this.#content += `--${boundary}${CRLF}`;
+        this.#content += `--${this.#boundary}${CRLF}`;
         this.#content += `Content-Disposition: form-data; name="${name}"`, filename ? `; filename="${filename}"` : '';
         for (let a in fields) {
             let v = fields[a];
