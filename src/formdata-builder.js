@@ -10,7 +10,7 @@ class FormDataBuilder {
     #boundary;
     #content = "";
 
-    static #isIterable = function(obj) {
+    static #isIterable = function (obj) {
         // checks for null and undefined
         if (obj === null) {
             return false;
@@ -22,8 +22,9 @@ class FormDataBuilder {
      * @param {import("express").Response} res 
      */
     constructor(res) {
+        console.log(crypto);
         this.#response = res;
-        this.#boundary = crypto.randomUUID();
+        this.#boundary = '==================================================';
     }
 
     /**
