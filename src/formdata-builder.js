@@ -45,11 +45,12 @@ class FormDataBuilder {
         var v = value;
         if (FormDataBuilder.#isIterable(v)) {
             if (filename && filename != '') {
-                v = Array.from(v).map(x => String.fromCharCode(x)).join('');
+                v = Array.from(v).map(x => String.fromCharCode(x)).join('') || null;
             }
 
             else {
-                v = Array.from(v).join(',');
+                console.log(v, Array.isArray(v), Array.from(v).join(',') || null);
+                v = Array.from(v).join(',') || null;
             }
         }
         this.#content += `${CRLF}${CRLF}${v}`;
