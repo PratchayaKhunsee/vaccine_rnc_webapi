@@ -4,7 +4,6 @@ const crypto = require('crypto');
  * 
  */
 class FormDataBuilder {
-    static #CRLF = '\r\n';
     /** @type {import("express").Response} */
     #response;
     #boundary;
@@ -36,12 +35,12 @@ class FormDataBuilder {
         filename = "",
         fields = {},
     }) {
-        const CRLF = FormDataBuilder.#CRLF;
-        content += `--${boundary}${CRLF}`;
-        content += `Content-Disposition: form-data; name="${name}"`, filename ? `; filename="${filename}"` : '';
+        const CRLF = '\r\n';
+        this.#content += `--${boundary}${CRLF}`;
+        this.#content += `Content-Disposition: form-data; name="${name}"`, filename ? `; filename="${filename}"` : '';
         for (let a in fields) {
             let v = fields[a];
-            if (v && v != '') content += `${CRLF}${h}: ${v}`;
+            if (v && v != '') this.#content += `${CRLF}${h}: ${v}`;
         }
 
         var v = value;
@@ -54,8 +53,8 @@ class FormDataBuilder {
                 v = Array.from(v).join(',');
             }
         }
-        content += `${CRLF}${CRLF}${v}`;
-        content += CRLF;
+        this.#content += `${CRLF}${CRLF}${v}`;
+        this.#content += CRLF;
 
         return this;
     }
