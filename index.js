@@ -467,7 +467,7 @@ App.route({
                             for(let n in result){
                                 var value = result[n];
                                 if(n == 'signature'){
-                                    value = Array.from(value);
+                                    value = String(value).split('');
                                 }
                                 formdata.append(n, value, {
                                     filename: n == 'signature' ? crypto.randomUUID() : null,
