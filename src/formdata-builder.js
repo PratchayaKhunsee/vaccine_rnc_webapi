@@ -1,4 +1,4 @@
-const cryto = require('crypto');
+const crypto = require('crypto');
 
 /**
  * 
@@ -23,7 +23,7 @@ class FormDataBuilder {
      */
     constructor(res) {
         this.#response = res;
-        this.#boundary = cryto.randomUUID();
+        this.#boundary = crypto.randomUUID();
     }
 
     /**
