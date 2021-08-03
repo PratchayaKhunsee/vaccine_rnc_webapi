@@ -464,9 +464,10 @@ App.route({
                         if (result !== null) {
                             const formdata = new FormDataBuilder(res);
 
-                            for(let n in result){
+                            for (let n in result) {
                                 var value = result[n];
-                                if(n == 'signature'){
+                                if (n == 'signature') {
+                                    console.log(value);
                                     value = String(value).split('');
                                 }
                                 formdata.append(n, value, {
