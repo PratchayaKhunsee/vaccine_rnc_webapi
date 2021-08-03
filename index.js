@@ -466,17 +466,21 @@ App.route({
 
                             for (let n in result) {
                                 var value = result[n];
-                                if (n == 'signature') {
-                                    console.log(value);
+
+                                if (n == 'signature' && value != null) {
                                     value = String(value).split('');
                                 }
+
+                                if(n == 'certificate_id_list'){
+                                    console.log(value);
+                                }
+
                                 formdata.append(n, value, {
                                     filename: n == 'signature' ? crypto.randomUUID() : null,
                                 });
                             }
 
                             formdata.finalize().end();
-                            res.send(result);
                         }
                     } catch (error) {
                         console.log(error);
