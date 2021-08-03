@@ -60,7 +60,7 @@ class FormDataBuilder {
     }
 
     finalize() {
-        const CRLF = FormDataBuilder.#CRLF;
+        const CRLF = '\r\n';
         this.#content += `--${this.#boundary}--${CRLF}`;
         this.#response.header({
             'Content-Type': `multipart/form-data; boundary=${this.#boundary}`,
