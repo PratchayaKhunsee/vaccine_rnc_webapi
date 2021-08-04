@@ -32,16 +32,19 @@ class FormDataBuilder {
      */
     append(name, value, {
         filename = "",
-        fields = {},
+        fieldHeaders = {},
     }) {
         const CRLF = '\r\n';
         this.#content += `--${this.#boundary}${CRLF}`;
         this.#content += `Content-Disposition: form-data; name="${name}"`, filename ? `; filename="${filename}"` : '';
-        for (let a in fields) {
-            let v = fields[a];
-            if (v && v != '') this.#content += `${CRLF}${h}: ${v}`;
-        }
 
+        if (typeof fieldHeaders == 'object') {
+            for (let a in fieldHeaders) {
+                let v = fieldHeaders[a];
+                if (v && v != '') this.#content += `${CRLF}${h}: ${v}`;
+            }
+        }
+        
         var v = value;
         if (FormDataBuilder.#isIterable(v)) {
             if (filename && filename != '') {

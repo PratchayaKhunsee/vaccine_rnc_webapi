@@ -7,6 +7,7 @@ const DBConnection = require('./src/database-connection');
 const Error = require('./src/error');
 const App = require('./src/express-app');
 const FormDataBuilder = require('./src/formdata-builder');
+const Mime = require('./src/mime');
 
 /**
  * @typedef {import('express').RequestHandler} R
@@ -472,6 +473,10 @@ App.route({
 
                                 formdata.append(n, value, {
                                     filename: n == 'signature' ? crypto.randomUUID() : null,
+                                    fieldHeaders: n == 'signature' ? {
+                                        'Content-Type': await Mime.get(value),
+                                        'Content-Transfer-Encoding': value ? 'binary' : null,
+                                    } : null,
                                 });
                             }
 
