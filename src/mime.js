@@ -6,6 +6,10 @@ const filetype = require('file-type');
  * @returns {Promise<String>} The resolved value can be null if there is no mime type detected.
  */
 async function getMime(value) {
+    if (value === null || value === undefined) {
+        return null;
+    }
+    
     if (typeof value == 'string') {
         return (await filetype.fromBuffer(Uint8Array.from(value.split('').map(x => String(x).charCodeAt(0)))) || {}).mime || null;
     }
