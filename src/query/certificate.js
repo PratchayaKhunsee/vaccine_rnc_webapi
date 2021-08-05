@@ -54,6 +54,10 @@
  * @property {CertificationHeader} header
  * @property {CertificationBody} list
  * 
+ * @typedef {Object} BreifyCertification
+ * @property {Number} id
+ * @property {String} vaccine_against
+ * 
  * 
  * @typedef {Object} ViewOfBreifyCertificate
  * Certificate's owner information and id list of certification. 
@@ -62,7 +66,7 @@
  * @property {String} nationality
  * @property {String} signature
  * @property {String} against_description 
- * @property {Array<Number>} certificate_id_list
+ * @property {Array<BreifyCertification>} certificate_list
  */
 
 const {
@@ -582,7 +586,7 @@ async function editCertificateHeader(client, username, context) {
 }
 
 /**
- * Get the briefy certificate. Including the certificate's owner information and the id list of certification.
+ * Get the briefy certificate. Including the certificate's owner information and the list of certification.
  * 
  * @function
  * @param {import('pg').Client} client PostgreSQL client instance.
@@ -605,7 +609,7 @@ async function viewBriefyCertificate(client, username, patient_id) {
         if (!checkPatient) throw null;
 
         let cert = await client.query(
-            `SELECT id FROM certification WHERE vaccine_patient_id = $1`,
+            `SELECT id,vaccine_against FROM certification WHERE vaccine_patient_id = $1`,
             [
                 Number(patient_id),
             ]
@@ -631,7 +635,7 @@ async function viewBriefyCertificate(client, username, patient_id) {
         const header = certHeader.rows[0];
         const result = {
             ...header,
-            certificate_id_list: [...cert.rows],
+            certificate_list: [...cert.rows],
         };
 
         return result;

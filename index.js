@@ -471,6 +471,18 @@ App.route({
                                     value = String(value).split('');
                                 }
 
+                                if (n == 'certificate_list') {
+                                    for (let li of result.certificate_list) {
+                                        formdata.append('certificate_list', JSON.stringify(li), {
+                                            fieldHeaders: {
+                                                'Content-Type': 'application/json',
+                                            },
+                                            filename: `certificate_list_${crypto.randomUUID()}.json` 
+                                        });
+                                    }
+                                    continue;
+                                }
+
                                 formdata.append(n, value, {
                                     filename: n == 'signature' ? crypto.randomUUID() : null,
                                     fieldHeaders: n == 'signature' ? {

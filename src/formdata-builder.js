@@ -9,6 +9,10 @@ class FormDataBuilder {
     #boundary;
     #content = "";
 
+    get length() {
+        return this.#content.length;
+    }
+
     static #isIterable = function (obj) {
         // checks for null and undefined
         if (obj === null) {
@@ -44,7 +48,7 @@ class FormDataBuilder {
                 if (v && v != '') this.#content += `${CRLF}${h}: ${v}`;
             }
         }
-        
+
         var v = value;
         if (FormDataBuilder.#isIterable(v)) {
             if (filename && filename != '') {
@@ -66,7 +70,6 @@ class FormDataBuilder {
         this.#content += `--${this.#boundary}--${CRLF}`;
         this.#response.header({
             'Content-Type': `multipart/form-data; boundary=${this.#boundary}`,
-            'Content-Length': this.#content.length,
         });
         this.#response.write(this.#content);
 
