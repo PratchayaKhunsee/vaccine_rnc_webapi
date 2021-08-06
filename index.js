@@ -474,10 +474,7 @@ App.route({
                                 if (n == 'certificate_list') {
                                     for (let li of result.certificate_list) {
                                         formdata.append('certificate_list', JSON.stringify(li), {
-                                            fieldHeaders: {
-                                                'Content-Type': 'application/json',
-                                            },
-                                            filename: `certificate_list_${crypto.randomUUID()}.json` 
+                                            fieldHeaders: { 'Content-Type': 'application/json' },
                                         });
                                     }
                                     continue;
