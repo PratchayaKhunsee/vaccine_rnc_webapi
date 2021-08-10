@@ -40,7 +40,7 @@ const s3Storage = multerS3({
     bucket: Bucket,
     s3: storage,
     key(req, file, callback) {
-        const tempFileName = Date.now();
+        const Key = `.temp/${Date.now()}`;
 
         // setTimeout(() => {
         //     storage.send(new AWS.DeleteObjectCommand({
@@ -48,7 +48,7 @@ const s3Storage = multerS3({
         //         Key: `.temp/${tempFileName}`,
         //     }));
         // }, 3 * minutes);
-        callback(null, tempFileName);
+        callback(null, Key);
     },
 });
 
