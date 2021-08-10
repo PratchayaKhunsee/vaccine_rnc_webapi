@@ -92,6 +92,39 @@ function multerForCertificateEditing() {
     return ActiveStorage.multipartFormData.use(o);
 }
 
+/**
+ * 
+ * @param {import('express').Request} req 
+ */
+function getFields(req) {
+    const fields = [];
+    for (let e of Object.entries(req.body)) {
+        const value = e[1];
+        const name = e[0];
+        if (Array.isArray(value)) {
+            for (let v of value) {
+                fields.push({ name, v });
+            }
+        } else {
+            fields.push({ name, value, })
+        }
+    }
+
+    for (let e of Object.entries(req.files)) {
+        const value = e[1];
+        const name = e[0];
+        if (Array.isArray(value)) {
+            for (let v of value) {
+                fields.push({ name, v });
+            }
+        } else {
+            fields.push({ name, value, });
+        }
+    }
+
+    return fields;
+}
+
 App.route({
     GET: {
         '/user/view': [
@@ -500,6 +533,44 @@ App.route({
                 })();
             },
         ],
+        '/certificate/edit': [
+            App.acceptFormData(),
+            authorization,
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+
+                    try {
+
+                        const body = getFields(req);
+
+                        const formData = new FormDataBuilder(res);
+
+                        formData.append('success', true);
+
+                        formData.finalize().end();
+
+
+                        // const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
+                        //     client,
+                        //     (Auth.decode(req.headers.authorization) || {}).username,
+                        //     body,
+                        // ));
+
+                        // if (result !== null) {
+                        //     const formData = new FormDataBuilder(res);
+                        // }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+
+                    res.end();
+                })();
+            },
+        ],
+
+
+
         // '/certificate/view/header': [
         //     authorization,
         //     checkParams('certificate/view/header'),
