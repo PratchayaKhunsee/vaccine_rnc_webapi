@@ -38,6 +38,7 @@ const storage = new AWS.S3Client({
 
 const S3MulterStorage = multer.memoryStorage();
 
+
 const upload = multer({
     storage: S3MulterStorage,
     fileFilter(req, file, callback) {
@@ -49,7 +50,14 @@ const upload = multer({
             Key: `.temp/${filename}`,
             Body: file.buffer,
             Expires,
-        }))
+        }));
+
+        setTimeout(function () {
+            storage.send(new AWS.DeleteObjectCommand({
+                Bucket,
+                Key: `.temp/${filename}`,
+            }));
+        }, 3 * minutes);
         callback(null, true);
     },
     limits: {

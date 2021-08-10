@@ -110,8 +110,6 @@ function getFields(req) {
         }
     }
 
-    console.log(req.files, req.file);
-
     for (let e of Object.entries(req.files)) {
         const value = e[1];
         const name = e[0];
@@ -544,12 +542,9 @@ App.route({
 
                     try {
 
-                        const body = getFields(req);
+                        const fields = getFields(req);
 
                         const formData = new FormDataBuilder(res);
-
-                        console.log(body);
-
                         formData.append('success', true);
 
                         formData.finalize().end();
