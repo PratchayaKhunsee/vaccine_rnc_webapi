@@ -34,13 +34,13 @@ class FormDataBuilder {
      * @param {String} name 
      * @param {*} value 
      */
-    append(name, value, fieldAttr = {
+    append(name, value, {
         filename = "",
         fieldHeaders = {},
     }) {
         const CRLF = '\r\n';
         this.#content += `--${this.#boundary}${CRLF}`;
-        this.#content += `Content-Disposition: form-data; name="${name}"`, fieldAttribute && filename ? `; filename="${filename}"` : '';
+        this.#content += `Content-Disposition: form-data; name="${name}"`, arguments[2] && filename ? `; filename="${filename}"` : '';
 
         if (typeof fieldHeaders == 'object') {
             for (let a in fieldHeaders) {
