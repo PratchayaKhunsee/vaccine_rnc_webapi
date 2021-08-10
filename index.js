@@ -561,10 +561,10 @@ App.route({
                         //     const formData = new FormDataBuilder(res);
                         // }
                     } catch (error) {
+                        console.log(error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
+                        res.end();
                     }
-
-                    res.end();
                 })();
             },
         ],
