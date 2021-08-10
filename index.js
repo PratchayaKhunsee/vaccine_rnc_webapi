@@ -118,7 +118,7 @@ function getFields(req) {
                 fields.push({ name, v });
             }
         } else {
-            fields.push({ name, value, });
+            fields.push({ name, value });
         }
     }
 
