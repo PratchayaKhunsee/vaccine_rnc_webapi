@@ -36,22 +36,26 @@ const storage = new AWS.S3Client({
     }
 });
 
-const upload = multer({
-    storage: multerS3({
-        bucket: Bucket,
-        s3: storage,
-        key(req, file, callback) {
-            const tempFileName = new Date().getTime();
-            callback(null, tempFileName);
-            setTimeout(() => {
-                storage.send(new AWS.DeleteObjectCommand({
-                    Bucket,
-                    Key: `.temp/${tempFileName}`,
-                }));
+const s3Storage = multerS3({
+    bucket: Bucket,
+    s3: storage,
+    key(req, file, callback) {
+        const tempFileName = Date.now();
 
-            }, 3 * minutes);
-        },
-    }),
+        // setTimeout(() => {
+        //     storage.send(new AWS.DeleteObjectCommand({
+        //         Bucket,
+        //         Key: `.temp/${tempFileName}`,
+        //     }));
+        // }, 3 * minutes);
+        callback(null, tempFileName);
+    },
+});
+
+console.log(s3Storage);
+
+const upload = multer({
+    storage: s3Storage,
     limits: {
         fieldSize: 1 * KB,
         fileSize: 4 * MB,
