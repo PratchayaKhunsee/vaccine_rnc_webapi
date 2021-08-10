@@ -546,6 +546,8 @@ App.route({
 
                         const formData = new FormDataBuilder(res);
 
+                        console.log(body);
+
                         formData.append('success', true);
 
                         formData.finalize().end();
