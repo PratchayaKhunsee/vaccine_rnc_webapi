@@ -38,76 +38,76 @@ const storage = new AWS.S3Client({
     }
 });
 
-/** @class */
-function S3StorageEngine() { }
+// /** @class */
+// function S3StorageEngine() { }
 
-S3StorageEngine.prototype._handleFile = function (req, file, callback) {
-    const currentTime = new Date();
-    const filename = currentTime.getTime();
+// S3StorageEngine.prototype._handleFile = function (req, file, callback) {
+//     const currentTime = new Date();
+//     const filename = currentTime.getTime();
 
-    // /** @type {import('fs').ReadStream} */
-    // const stream = file.stream;
+//     // /** @type {import('fs').ReadStream} */
+//     // const stream = file.stream;
 
 
-    // console.log("Request:", req);
-    console.log("(file.stream):", file.stream);
-    console.log("(file.stream.pipe);",file.stream.pipe)
+//     // console.log("Request:", req);
+//     console.log("(file.stream):", file.stream);
+//     console.log("(file.stream.pipe);",file.stream.pipe)
 
-    // var outStream = fs.createWriteStream(path)
+//     // var outStream = fs.createWriteStream(path)
 
-    // file.stream.pipe(outStream)
-    // outStream.on('error', cb)
-    // outStream.on('finish', function () {
-    //   cb(null, {
-    //     path: path,
-    //     size: outStream.bytesWritten
-    //   })
-    // })
-    storage.send(new AWS.PutObjectCommand({
-        Bucket,
-        Key: `.temp/${filename}`,
-        Body: file.buffer,
-    })).then(function (output) {
-        console.log("PutObjectResult:", output);
-        callback(null, file);
-    }).catch(function (err) {
-        console.log('Error:', err);
-        callback(`.temp/${filename}`, null);
-    });
-}
+//     // file.stream.pipe(outStream)
+//     // outStream.on('error', cb)
+//     // outStream.on('finish', function () {
+//     //   cb(null, {
+//     //     path: path,
+//     //     size: outStream.bytesWritten
+//     //   })
+//     // })
+//     storage.send(new AWS.PutObjectCommand({
+//         Bucket,
+//         Key: `.temp/${filename}`,
+//         Body: file.buffer,
+//     })).then(function (output) {
+//         console.log("PutObjectResult:", output);
+//         callback(null, file);
+//     }).catch(function (err) {
+//         console.log('Error:', err);
+//         callback(`.temp/${filename}`, null);
+//     });
+// }
 
-S3StorageEngine.prototype._removeFile = function (req, Key, callback) {
-    storage.send(new AWS.DeleteObjectCommand({
-        Bucket,
-        Key,
-    })).then(function (output) {
-    }).catch(function (err) {
-    }).finally(function () {
-        callback(null, null);
-    });
-}
+// S3StorageEngine.prototype._removeFile = function (req, Key, callback) {
+//     storage.send(new AWS.DeleteObjectCommand({
+//         Bucket,
+//         Key,
+//     })).then(function (output) {
+//     }).catch(function (err) {
+//     }).finally(function () {
+//         callback(null, null);
+//     });
+// }
 
 const upload = multer({
-    storage: new S3StorageEngine(),
-    // fileFilter(req, file, callback) {
-    //     const currentTime = new Date();
-    //     const Expires = new Date(currentTime.getTime() + 3 * minutes);
-    //     const filename = currentTime.getTime();
-    //     storage.send(new AWS.PutObjectCommand({
-    //         Bucket,
-    //         Key: `.temp/${filename}`,
-    //         Body: file.buffer,
-    //         Expires,
-    //     }));
+    storage: multer.memoryStorage(),
+    fileFilter(req, file, callback) {
+        const currentTime = new Date();
+        const Expires = new Date(currentTime.getTime() + 3 * minutes);
+        const filename = currentTime.getTime();
+        storage.send(new AWS.PutObjectCommand({
+            Bucket,
+            Key: `.temp/${filename}`,
+            Body: file.buffer,
+            Expires,
+        }));
 
-    //     setTimeout(function () {
-    //         storage.send(new AWS.DeleteObjectCommand({
-    //             Bucket,
-    //             Key: `.temp/${filename}`,
-    //         }));
-    //     }, 3 * minutes);
-    //     callback(null, true);
-    // },
+        setTimeout(function () {
+            storage.send(new AWS.DeleteObjectCommand({
+                Bucket,
+                Key: `.temp/${filename}`,
+            }));
+        }, 3 * minutes);
+        callback(null, true);
+    },
     limits: {
         fieldSize: 1 * KB,
         fileSize: 3 * MB,
