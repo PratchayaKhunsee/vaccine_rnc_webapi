@@ -42,15 +42,31 @@ function S3StorageEngine() { }
 S3StorageEngine.prototype._handleFile = function (req, file, callback) {
     const currentTime = new Date();
     const filename = currentTime.getTime();
+
+    /** @type {import('fs').ReadStream} */
+    const stream = file.stream;
+
+    console.log("File:", file);
+
+    // var outStream = fs.createWriteStream(path)
+
+    // file.stream.pipe(outStream)
+    // outStream.on('error', cb)
+    // outStream.on('finish', function () {
+    //   cb(null, {
+    //     path: path,
+    //     size: outStream.bytesWritten
+    //   })
+    // })
     storage.send(new AWS.PutObjectCommand({
         Bucket,
         Key: `.temp/${filename}`,
         Body: file.buffer,
     })).then(function (output) {
-        console.log(output);
+        console.log("PutObjectResult:", output);
         callback(null, file);
     }).catch(function (err) {
-        console.log('Error: ', err);
+        console.log('Error:', err);
         callback(`.temp/${filename}`, null);
     });
 }
