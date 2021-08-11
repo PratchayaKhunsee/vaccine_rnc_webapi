@@ -21,7 +21,7 @@ const Mime = require('./src/mime');
  * 
  * @property {String} name
  * @property {String} [filename]
- * @property {*} value
+ * @property {String|Buffer} value
  */
 
 /** @namespace */
@@ -550,30 +550,38 @@ App.route({
 
                         const fields = getMulterFieldArray(req);
 
-                        console.log(fields);
-
-
                         /** @type {ViewOfCertificate} */
                         const input = {};
 
-                        console.log(input);
+                        fields.forEach(v => {
+                            switch (v.name) {
+                                case value:
+                                    input[v.name] = v.value.toString('utf8');
+                                    break;
 
-                        // const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
-                        //     client,
-                        //     (Auth.decode(req.headers.authorization) || {}).username,
-                        //     body,
-                        // ));
-                        const formData = new MultipartResponse(res);
-                        formData.append('success', true);
+                                default:
+                                    try {
+                                        input[v.name] = JSON.parse(v.value);
+                                    } catch (error) {
+                                        input[v.name] = v.value;
+                                    }
+                                    break;
+                            }
+                        });
 
-                        formData.finalize().end();
+
+                        const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            input,
+                        ));
 
 
-                        // const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
-                        //     client,
-                        //     (Auth.decode(req.headers.authorization) || {}).username,
-                        //     body,
-                        // ));
+                        if (result !== null) {
+                            const formData = new MultipartResponse(res);
+                            formData.append('success', true);
+                            formData.finalize().end();
+                        }
 
                         // if (result !== null) {
                         //     const formData = new FormDataBuilder(res);

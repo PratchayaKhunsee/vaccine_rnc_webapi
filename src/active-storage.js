@@ -24,7 +24,7 @@ const KB = 1024;
 /** Bytes number of a megabyte */
 const MB = 1048576;
 
-// const minutes = 60000;
+const minutes = 60000;
 
 const Region = 'ap-southeast-1';
 const Bucket = 'vaccine-rnc-app';

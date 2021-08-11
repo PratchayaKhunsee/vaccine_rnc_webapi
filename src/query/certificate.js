@@ -673,6 +673,55 @@ async function viewBriefyCertificate(client, username, patient_id) {
     }
 }
 
+/**
+ * Edit the item of vaccine certification.
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {ViewOfCertificate} certificate 
+ */
+async function editCertificate(client, username, certificate) {
+    try {
+        const CERTIFICATE_MODIFYING_FAILED = new QueryResultError('CERTIFICATE_MODIFYING_FAILED');
+        await client.query('BEGIN');
+
+        let cert = { ...certificate };
+
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw null;
+
+        let checkPatient = await isPatientAvailableFor(
+            client,
+            Number(certificate.vaccine_patient_id),
+            Number(checkUser.person.id)
+        );
+
+        if (!checkPatient) throw null;
+
+        const certHeader = {};
+        for (let n of ['fullname_in_cert', 'sex', 'nationality', 'against_description', 'signature']) {
+            if (n in certificate) {
+                certHeader[n] = certificate[n];
+            }
+        }
+
+        let i = 0;
+        const certHeaderEdit = await client.query(`UPDATE vaccine_patient SET ${Object.keys(certHeader).map((x) => `${x} = $${++i}`).join(',')} 
+        WHERE id = ${++i} RETURNING ${Object.keys(certHeader)}`);
+
+        if (certHeaderEdit.rowCount != 1 || certHeaderEdit.rows != 1) throw CERTIFICATE_MODIFYING_FAILED;
+        
+        let result = {};
+
+        await client.query('COMMIT');
+
+        return result;
+    } catch (error) {
+        // ;
+        await client.query('ROLLBACK');
+        throw QueryResultError.unexpected(error);
+    }
+}
+
 module.exports = {
     // getCertification,
     // getAvailableVaccination,
