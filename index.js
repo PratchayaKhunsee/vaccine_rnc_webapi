@@ -101,7 +101,6 @@ function checkParams(pathname) {
  * @returns {Field[]}
  */
 function getMulterFieldArray(req) {
-    console.log(Object.entries(req.body), Object.entries(req.files));
     const fields = [];
     // Non-file fields
     for (let e of Object.entries(req.body)) {
