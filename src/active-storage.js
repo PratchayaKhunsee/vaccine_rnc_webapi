@@ -49,8 +49,9 @@ S3StorageEngine.prototype._handleFile = function (req, file, callback) {
     // const stream = file.stream;
 
 
-    console.log("Request: ", req);
-    console.log("File:", file.stream, file.stream.pipe);
+    // console.log("Request:", req);
+    console.log("(file.stream):", file.stream);
+    console.log("(file.stream.pipe);",file.stream.pipe)
 
     // var outStream = fs.createWriteStream(path)
 
