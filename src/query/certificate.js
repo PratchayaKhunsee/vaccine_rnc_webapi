@@ -709,7 +709,7 @@ async function editCertificate(client, username, certificate) {
         WHERE id = ${++i} RETURNING ${Object.keys(certHeader)}`);
 
         if (certHeaderEdit.rowCount != 1 || certHeaderEdit.rows != 1) throw CERTIFICATE_MODIFYING_FAILED;
-        
+
         let result = {};
 
         await client.query('COMMIT');
@@ -733,4 +733,5 @@ module.exports = {
     // viewCertificateHeader,
     // editCertificateHeader,
     viewBriefyCertificate,
+    editCertificate,
 };
