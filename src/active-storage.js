@@ -47,9 +47,11 @@ S3StorageEngine.prototype._handleFile = function (req, file, callback) {
         Key: `.temp/${filename}`,
         Body: file.buffer,
     })).then(function (output) {
+        console.log(output);
         callback(null, file);
     }).catch(function (err) {
-        callback(`.temp/${filename}`);
+        console.log('Error: ', err);
+        callback(`.temp/${filename}`, null);
     });
 }
 
