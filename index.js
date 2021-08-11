@@ -490,7 +490,7 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
-                    res.contentType('multipart/form-data');
+                    // res.contentType('multipart/form-data');
                     try {
 
                         /** @type {ViewOfBreifyCertificate} */
@@ -501,7 +501,7 @@ App.route({
                         ));
 
                         if (result !== null) {
-                            const formdata = new FormDataBuilder(res);
+                            const formdata = new MultipartResponse(res);
 
                             for (let n in result) {
                                 var value = result[n];
@@ -550,9 +550,13 @@ App.route({
 
                         const fields = getMulterFieldArray(req);
 
+                        console.log(fields);
+
                         
                         /** @type {ViewOfCertificate} */
                         const input = {};
+
+                        console.log(input);
 
                         // const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
                         //     client,
