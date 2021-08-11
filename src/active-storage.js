@@ -1,13 +1,7 @@
-/**
- * @typedef {Object<string, number>} MulterNamedField
- *  The keys of object represent the requested field names, and the values of object represent
- *  the maximum allowed instances for a field name.  
- */
-
 const AWS = require('@aws-sdk/client-s3');
 const { Readable } = require('stream');
 const multer = require('multer');
-// const multerS3 = require('multer-s3');
+const stream = require('stream');
 
 const {
     encode,
@@ -16,6 +10,14 @@ const {
     LoginAuthenticationError,
     AuthorizationError
 } = require('./error');
+
+/**
+ * @typedef {Object<string, number>} MulterNamedField
+ *  The keys of object represent the requested field names, and the values of object represent
+ *  the maximum allowed instances for a field name.  
+ */
+
+/** @namespace */
 
 /** Bytes number of a kilobyte */
 const KB = 1024;
@@ -43,10 +45,12 @@ S3StorageEngine.prototype._handleFile = function (req, file, callback) {
     const currentTime = new Date();
     const filename = currentTime.getTime();
 
-    /** @type {import('fs').ReadStream} */
-    const stream = file.stream;
+    // /** @type {import('fs').ReadStream} */
+    // const stream = file.stream;
 
-    console.log("File:", file, file.stream);
+
+
+    console.log("File:", file.stream, file.buffer);
 
     // var outStream = fs.createWriteStream(path)
 
