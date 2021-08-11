@@ -90,7 +90,7 @@ class MultipartReader {
      * @param {String|Buffer} stream 
      */
     constructor(stream) {
-        this.#steam = stream instanceof Buffer ? stream.map(v => String.fromCharCode(v)).join('') : String(stream);
+        this.#stream = stream instanceof Buffer ? stream.map(v => String.fromCharCode(v)).join('') : String(stream);
     }
 }
 

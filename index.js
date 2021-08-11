@@ -14,6 +14,8 @@ const Mime = require('./src/mime');
  *  RequestHandler callback from Express.js.
  * 
  * @typedef {import('./src/query/certificate').ViewOfBreifyCertificate} ViewOfBreifyCertificate
+ *
+ * @typedef {import("./src/query/certificate").ViewOfCertificate} ViewOfCertificate
  * 
  * @typedef {Object} Field
  * 
@@ -548,6 +550,15 @@ App.route({
 
                         const fields = getMulterFieldArray(req);
 
+                        
+                        /** @type {ViewOfCertificate} */
+                        const input = {};
+
+                        // const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
+                        //     client,
+                        //     (Auth.decode(req.headers.authorization) || {}).username,
+                        //     body,
+                        // ));
                         const formData = new MultipartResponse(res);
                         formData.append('success', true);
 
