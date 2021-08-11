@@ -1,9 +1,9 @@
 const crypto = require('crypto');
 
 /**
- * 
+ * An instance for handling the "multipart/form-data" response.
  */
-class FormDataBuilder {
+class MultipartResponse {
     /** @type {import("express").Response} */
     #response;
     #boundary;
@@ -50,7 +50,7 @@ class FormDataBuilder {
         }
 
         var v = value;
-        if (FormDataBuilder.#isIterable(v)) {
+        if (MultipartResponse.#isIterable(v)) {
             if (filename && filename != '') {
                 v = Array.from(v).map(x => String.fromCharCode(x)).join('') || null;
             }
@@ -81,4 +81,17 @@ class FormDataBuilder {
     }
 }
 
-module.exports = FormDataBuilder;
+
+class MultipartReader {
+    /** @type {String} */
+    #stream;
+    /**
+     * 
+     * @param {String|Buffer} stream 
+     */
+    constructor(stream) {
+        this.#steam = stream instanceof Buffer ? stream.map(v => String.fromCharCode(v)).join('') : String(stream);
+    }
+}
+
+module.exports = { MultipartResponse, MultipartReader, };

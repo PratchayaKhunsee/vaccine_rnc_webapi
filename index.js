@@ -6,7 +6,7 @@ const Query = require('./src/query');
 const DBConnection = require('./src/database-connection');
 const Error = require('./src/error');
 const App = require('./src/express-app');
-const FormDataBuilder = require('./src/formdata-builder');
+const { MultipartResponse, } = require('./src/multipart');
 const Mime = require('./src/mime');
 
 /**
@@ -14,7 +14,25 @@ const Mime = require('./src/mime');
  *  RequestHandler callback from Express.js.
  * 
  * @typedef {import('./src/query/certificate').ViewOfBreifyCertificate} ViewOfBreifyCertificate
+ * 
+ * @typedef {Object} Field
+ * 
+ * @property {String} name
+ * @property {String} [filename]
+ * @property {*} value
  */
+
+/** @namespace */
+const whitelistFields = {
+    /** @type {Array<import('multer').Field>} */
+    'certificate/edit': [
+        { name: 'fullname_in_cert', maxCount: 1, },
+        { name: 'nationality', maxCount: 1, },
+        { name: 'sex', maxCount: 1, },
+        { name: 'against_description', maxCount: 1, },
+        { name: 'signature', maxCount: 1, },
+    ]
+};
 
 /**
  * Perform checking authorization header from request to content access allowance.
@@ -74,51 +92,37 @@ function checkParams(pathname) {
     }
 }
 
-function multerForCertificateEditing() {
-    const paramList = [
-        'id',
-        'vaccine_briefing',
-        'certify_from',
-        'certify_to',
-        'clinician_prof_status',
-        'clinician_signature',
-        'administering_center_stamp',
-        'vaccine_manufacturer',
-        'vaccine_batch_number'
-    ];
-    const o = {};
-    for (let g of paramList) o[g] = 1;
-
-    return ActiveStorage.multipartFormData.use(o);
-}
-
 /**
+ * Get the array instance of summarized fields.
  * 
  * @param {import('express').Request} req 
+ * @returns {Field[]}
  */
-function getFields(req) {
+function getMulterFieldArray(req) {
     const fields = [];
+    // Non-file fields
     for (let e of Object.entries(req.body)) {
         const value = e[1];
         const name = e[0];
         if (Array.isArray(value)) {
             for (let v of value) {
-                fields.push({ name, v });
+                fields.push({ name, value: v, });
             }
         } else {
-            fields.push({ name, value, })
+            fields.push({ name, value, });
         }
     }
 
+    // File fields
     for (let e of Object.entries(req.files)) {
         const value = e[1];
         const name = e[0];
         if (Array.isArray(value)) {
             for (let v of value) {
-                fields.push({ name, v });
+                fields.push({ name, value: v.buffer, filename: v.originalname, });
             }
         } else {
-            fields.push({ name, value });
+            fields.push({ name, value: value.buffer, filename: value.originalname, });
         }
     }
 
@@ -534,7 +538,7 @@ App.route({
             },
         ],
         '/certificate/edit': [
-            App.acceptFormData(),
+            App.acceptFormData(whitelistFields['certificate/edit']),
             authorization,
             /** @type {R} */
             function (req, res) {
@@ -542,9 +546,9 @@ App.route({
 
                     try {
 
-                        const fields = getFields(req);
+                        const fields = getMulterFieldArray(req);
 
-                        const formData = new FormDataBuilder(res);
+                        const formData = new MultipartResponse(res);
                         formData.append('success', true);
 
                         formData.finalize().end();

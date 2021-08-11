@@ -7,7 +7,7 @@
 const AWS = require('@aws-sdk/client-s3');
 const { Readable } = require('stream');
 const multer = require('multer');
-const multerS3 = require('multer-s3');
+// const multerS3 = require('multer-s3');
 
 const {
     encode,
@@ -22,7 +22,7 @@ const KB = 1024;
 /** Bytes number of a megabyte */
 const MB = 1048576;
 
-const minutes = 60000;
+// const minutes = 60000;
 
 const Region = 'ap-southeast-1';
 const Bucket = 'vaccine-rnc-app';
@@ -36,33 +36,58 @@ const storage = new AWS.S3Client({
     }
 });
 
-const S3MulterStorage = multer.memoryStorage();
+/** @class */
+function S3StorageEngine() { }
 
+S3StorageEngine.prototype._handleFile = function (req, file, callback) {
+    const currentTime = new Date();
+    const filename = currentTime.getTime();
+    storage.send(new AWS.PutObjectCommand({
+        Bucket,
+        Key: `.temp/${filename}`,
+        Body: file.buffer,
+    })).then(function (output) {
+        callback(null, file);
+    }).catch(function (err) {
+        callback(`.temp/${filename}`);
+    });
+}
+
+S3StorageEngine.prototype._removeFile = function (req, Key, callback) {
+    storage.send(new AWS.DeleteObjectCommand({
+        Bucket,
+        Key,
+    })).then(function (output) {
+    }).catch(function (err) {
+    }).finally(function () {
+        callback(null, null);
+    });
+}
 
 const upload = multer({
-    storage: S3MulterStorage,
-    fileFilter(req, file, callback) {
-        const currentTime = new Date();
-        const Expires = new Date(currentTime.getTime() + 3 * minutes);
-        const filename = currentTime.getTime();
-        storage.send(new AWS.PutObjectCommand({
-            Bucket,
-            Key: `.temp/${filename}`,
-            Body: file.buffer,
-            Expires,
-        }));
+    storage: new S3StorageEngine(),
+    // fileFilter(req, file, callback) {
+    //     const currentTime = new Date();
+    //     const Expires = new Date(currentTime.getTime() + 3 * minutes);
+    //     const filename = currentTime.getTime();
+    //     storage.send(new AWS.PutObjectCommand({
+    //         Bucket,
+    //         Key: `.temp/${filename}`,
+    //         Body: file.buffer,
+    //         Expires,
+    //     }));
 
-        setTimeout(function () {
-            storage.send(new AWS.DeleteObjectCommand({
-                Bucket,
-                Key: `.temp/${filename}`,
-            }));
-        }, 3 * minutes);
-        callback(null, true);
-    },
+    //     setTimeout(function () {
+    //         storage.send(new AWS.DeleteObjectCommand({
+    //             Bucket,
+    //             Key: `.temp/${filename}`,
+    //         }));
+    //     }, 3 * minutes);
+    //     callback(null, true);
+    // },
     limits: {
         fieldSize: 1 * KB,
-        fileSize: 4 * MB,
+        fileSize: 3 * MB,
     },
 })
 
@@ -143,7 +168,14 @@ async function removeAuthInfo(username) {
     }
 }
 
-const useMulter = () => upload.any();
+/**
+ * 
+ * @param {Array<import('multer').Field>} [fields] 
+ * @returns 
+ */
+function useMulter(fields) {
+    return fields ? upload.fields(fields) : upload.any();
+}
 
 module.exports = {
     authentication: {

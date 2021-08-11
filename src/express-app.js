@@ -58,7 +58,12 @@ function init() {
 }
 
 const acceptJson = () => express.json();
-const acceptFormData = () => ActiveStorage.multer.use();
+/**
+ * 
+ * @param {Array<import('multer').Field>} [fields] 
+ * @returns 
+ */
+const acceptFormData = (fields) => ActiveStorage.multer.use(fields);
 
 module.exports = {
     route,
