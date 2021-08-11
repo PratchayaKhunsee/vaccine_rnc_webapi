@@ -90,6 +90,7 @@
  * 
  * @typedef {Object} ViewOfCertificate
  * Certificate's owner information and list of certification. 
+ * @property {Number} [vaccine_patient_id]
  * @property {String} fullname_in_cert
  * @property {Number} sex
  * @property {String} nationality
@@ -684,8 +685,6 @@ async function editCertificate(client, username, certificate) {
         const CERTIFICATE_MODIFYING_FAILED = new QueryResultError('CERTIFICATE_MODIFYING_FAILED');
         await client.query('BEGIN');
 
-        let cert = { ...certificate };
-
         let checkUser = await checkUserName(client, username);
         if (!checkUser) throw null;
 
@@ -706,7 +705,10 @@ async function editCertificate(client, username, certificate) {
 
         let i = 0;
         const certHeaderEdit = await client.query(`UPDATE vaccine_patient SET ${Object.keys(certHeader).map((x) => `${x} = $${++i}`).join(',')} 
-        WHERE id = ${++i} RETURNING ${Object.keys(certHeader)}`);
+        WHERE id = ${++i} RETURNING ${Object.keys(certHeader)}`, [
+            ...Object.values(certificate),
+            certificate.vaccine_patient_id
+        ]);
 
         if (certHeaderEdit.rowCount != 1 || certHeaderEdit.rows != 1) throw CERTIFICATE_MODIFYING_FAILED;
 

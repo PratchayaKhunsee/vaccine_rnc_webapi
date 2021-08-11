@@ -28,6 +28,7 @@ const Mime = require('./src/mime');
 const whitelistFields = {
     /** @type {Array<import('multer').Field>} */
     'certificate/edit': [
+        { name: 'vaccine_patient_id', maxCount: 1, },
         { name: 'fullname_in_cert', maxCount: 1, },
         { name: 'nationality', maxCount: 1, },
         { name: 'sex', maxCount: 1, },
