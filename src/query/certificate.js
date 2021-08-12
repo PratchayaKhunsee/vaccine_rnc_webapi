@@ -686,6 +686,8 @@ async function viewBriefyCertificate(client, username, patient_id) {
 
         const header = certHeader.rows[0];
 
+        hexSequence2Buffer(header.signature);
+
         const result = {
             ...header,
             certificate_list: [...cert.rows],
@@ -736,8 +738,6 @@ async function editCertificate(client, username, certificate) {
 
             }
         }
-
-        console.log('Signature:', certHeader.signature);
 
         let i = 0;
         const queryCtx = `UPDATE vaccine_patient SET ${Object.keys(certHeader).map((x) => `${x} = $${++i}`).join(',')} 
