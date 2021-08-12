@@ -38,9 +38,10 @@ class MultipartResponse {
         filename: "",
         headers: {},
     }) {
+        const hasFilename = typeof attributes == 'object' && typeof attributes.filename == 'string' && attributes.filename != '';
         const CRLF = '\r\n';
         this.#content += `--${this.#boundary}${CRLF}`;
-        this.#content += `Content-Disposition: form-data; name="${name}"`, attributes && attributes.filename ? `; filename="${attributes.filename}"` : '';
+        this.#content += `Content-Disposition: form-data; name="${name}"`, hasFilename ? `; filename="${attributes.filename}"` : '';
 
         if (typeof attributes.headers == 'object') {
             for (let a in attributes.headers) {
@@ -50,8 +51,9 @@ class MultipartResponse {
         }
 
         var v = value;
+        console.log(name + ":", value);
         if (MultipartResponse.#isIterable(v)) {
-            if (typeof attributes == 'object' && typeof attributes.filename == 'string' && attributes.filename != '') {
+            if (hasFilename) {
                 v = Array.from(v).map(x => String.fromCharCode(x)).join('') || null;
             }
 
