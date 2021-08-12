@@ -119,7 +119,10 @@ const {
  * @param {Buffer} buffer 
  */
 function buffer2HexSequence(buffer) {
-    return Array.from(buffer).map(x => '\\' + String(x)).join('');
+    return Array.from(buffer).map(x => {
+        var b = String(x);
+        return '\\' + (b.length == 1 ? '00' : (b.length == 2 ? '0' : '')) + b;
+    }).join('');
 }
 
 /**
