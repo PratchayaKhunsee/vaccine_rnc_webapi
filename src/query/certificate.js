@@ -699,18 +699,26 @@ async function editCertificate(client, username, certificate) {
         const certHeader = {};
         for (let n of ['fullname_in_cert', 'sex', 'nationality', 'against_description', 'signature']) {
             if (n in certificate) {
-                certHeader[n] = certificate[n];
+                switch (n) {
+                    case 'sex':
+                        certHeader[n] = Number(certificate[n]);
+                        break;
+                    default:
+                        certHeader[n] = certificate[n];
+                        break;
+                }
+                
             }
         }
 
         let i = 0;
         const queryCtx = `UPDATE vaccine_patient SET ${Object.keys(certHeader).map((x) => `${x} = $${++i}`).join(',')} 
-        WHERE id = ${++i} RETURNING ${Object.keys(certHeader)}`;
+        WHERE id = $${++i} RETURNING ${Object.keys(certHeader)}`;
         console.log(queryCtx, certHeader);
         const certHeaderEdit = await client.query(queryCtx,
             [
                 ...Object.values(certHeader),
-                certificate.vaccine_patient_id
+                Number(certificate.vaccine_patient_id)
             ]
         );
 
