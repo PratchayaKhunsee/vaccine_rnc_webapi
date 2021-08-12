@@ -51,7 +51,7 @@ class MultipartResponse {
 
         var v = value;
         if (MultipartResponse.#isIterable(v)) {
-            if (filename && filename != '') {
+            if (typeof attributes == 'object' && typeof attributes.filename == 'string' && attributes.filename != '') {
                 v = Array.from(v).map(x => String.fromCharCode(x)).join('') || null;
             }
 
