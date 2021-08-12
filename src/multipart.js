@@ -15,7 +15,7 @@ class MultipartResponse {
 
     static #isIterable = function (obj) {
         // checks for null and undefined
-        if (obj === null) {
+        if (obj === null || typeof obj !== 'object') {
             return false;
         }
         return typeof obj[Symbol.iterator] === 'function';
