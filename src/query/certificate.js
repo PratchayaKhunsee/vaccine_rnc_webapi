@@ -704,11 +704,15 @@ async function editCertificate(client, username, certificate) {
         }
 
         let i = 0;
-        const certHeaderEdit = await client.query(`UPDATE vaccine_patient SET ${Object.keys(certHeader).map((x) => `${x} = $${++i}`).join(',')} 
-        WHERE id = ${++i} RETURNING ${Object.keys(certHeader)}`, [
-            ...Object.values(certificate),
-            certificate.vaccine_patient_id
-        ]);
+        const queryCtx = `UPDATE vaccine_patient SET ${Object.keys(certHeader).map((x) => `${x} = $${++i}`).join(',')} 
+        WHERE id = ${++i} RETURNING ${Object.keys(certHeader)}`;
+        console.log(queryCtx, certHeader);
+        const certHeaderEdit = await client.query(queryCtx,
+            [
+                ...Object.values(certHeader),
+                certificate.vaccine_patient_id
+            ]
+        );
 
         if (certHeaderEdit.rowCount != 1 || certHeaderEdit.rows != 1) throw CERTIFICATE_MODIFYING_FAILED;
 
