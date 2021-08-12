@@ -122,7 +122,6 @@ function getMulterFieldArray(req) {
         const name = e[0];
         if (Array.isArray(value)) {
             for (let v of value) {
-                console.log(name, v);
                 fields.push({ name, value: v.buffer, filename: v.originalname, });
             }
         } else {
@@ -512,7 +511,7 @@ App.route({
                                 if (n == 'certificate_list') {
                                     for (let li of result.certificate_list) {
                                         formdata.append('certificate_list', JSON.stringify(li), {
-                                            fieldHeaders: { 'Content-Type': 'application/json' },
+                                            fieldHeaders: { 'Content-Type': 'multipart/mixed' },
                                         });
                                     }
                                     continue;
@@ -522,7 +521,6 @@ App.route({
                                     filename: n == 'signature' ? crypto.randomUUID() : null,
                                     fieldHeaders: n == 'signature' ? {
                                         'Content-Type': await Mime.get(value),
-                                        'Content-Transfer-Encoding': value ? 'binary' : null,
                                     } : null,
                                 });
                             }

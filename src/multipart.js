@@ -38,12 +38,14 @@ class MultipartResponse {
         filename: "",
         headers: {},
     }) {
-        const hasFilename = typeof attributes == 'object' && typeof attributes.filename == 'string' && attributes.filename != '';
+        const hasAttributes = typeof attributes == 'object';
+        const hasFilename = hasAttributes && typeof attributes.filename == 'string' && attributes.filename != '';
+        const hasHeaders = hasAttributes && typeof attributes.headers == 'object';
         const CRLF = '\r\n';
         this.#content += `--${this.#boundary}${CRLF}`;
-        this.#content += `Content-Disposition: form-data; name="${name}"`, hasFilename ? `; filename="${attributes.filename}"` : '';
+        this.#content += `Content-Disposition: form-data; name="${name}"` + (hasFilename ? `; filename="${attributes.filename}"` : '');
 
-        if (typeof attributes.headers == 'object') {
+        if (hasAttributes) {
             for (let a in attributes.headers) {
                 let v = attributes.headers[a];
                 if (v && v != '') this.#content += `${CRLF}${h}: ${v}`;
