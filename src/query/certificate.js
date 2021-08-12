@@ -723,7 +723,7 @@ async function editCertificate(client, username, certificate) {
 
         if (certHeaderEdit.rowCount != 1 || certHeaderEdit.rows.length != 1) throw CERTIFICATE_MODIFYING_FAILED;
 
-        // let result = {};
+        let result = {};
 
         await client.query('COMMIT');
 
