@@ -671,7 +671,7 @@ async function viewBriefyCertificate(client, username, patient_id) {
                 fullname_in_cert,
                 sex,
                 nationality,
-                signature,
+                encode(signature,'escape') AS signature,
                 against_description,
                 date_of_birth
              FROM vaccine_patient WHERE id = $1
