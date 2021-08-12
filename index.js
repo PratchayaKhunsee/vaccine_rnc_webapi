@@ -518,8 +518,8 @@ App.route({
                                 }
 
                                 formdata.append(n, value, {
-                                    filename: n == 'signature' ? crypto.randomUUID() : null,
-                                    fieldHeaders: n == 'signature' ? {
+                                    filename: n == 'signature' && value !== null ? crypto.randomUUID() : null,
+                                    headers: n == 'signature' && value !== null ? {
                                         'Content-Type': await Mime.get(value),
                                     } : null,
                                 });
