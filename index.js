@@ -122,9 +122,11 @@ function getMulterFieldArray(req) {
         const name = e[0];
         if (Array.isArray(value)) {
             for (let v of value) {
+                console.log(name, v.buffer);
                 fields.push({ name, value: v.buffer, filename: v.originalname, });
             }
         } else {
+            
             fields.push({ name, value: value.buffer, filename: value.originalname, });
         }
     }

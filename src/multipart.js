@@ -51,7 +51,6 @@ class MultipartResponse {
         }
 
         var v = value;
-        console.log(name + ":", value);
         if (MultipartResponse.#isIterable(v)) {
             if (hasFilename) {
                 v = Array.from(v).map(x => String.fromCharCode(x)).join('') || null;
