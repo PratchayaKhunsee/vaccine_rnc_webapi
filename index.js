@@ -509,10 +509,6 @@ App.route({
                             for (let n in result) {
                                 var value = result[n];
 
-                                if (n == 'signature' && value != null) {
-                                    value = String(value).split('');
-                                }
-
                                 if (n == 'certificate_list') {
                                     for (let li of result.certificate_list) {
                                         formdata.append('certificate_list', JSON.stringify(li), {

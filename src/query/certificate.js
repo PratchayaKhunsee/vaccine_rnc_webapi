@@ -127,12 +127,12 @@ function buffer2HexSequence(buffer) {
 
 /**
  * 
- * @param {String} sequence 
+ * @param {String} sequence
+ * @param {'escape'|'hex'} [encoding='escape']
  * @returns 
  */
-function hexSequence2Buffer(sequence) {
-    console.log(sequence);
-    return sequence;
+function hexSequence2Buffer(sequence, encoding = 'escape') {
+    return Buffer.from(sequence.split('\\\\').map(x => Number(x)));
 }
 
 // /**
@@ -686,7 +686,7 @@ async function viewBriefyCertificate(client, username, patient_id) {
 
         const header = certHeader.rows[0];
 
-        hexSequence2Buffer(header.signature);
+        if(typeof header.signature == 'string') header.signature = hexSequence2Buffer(header.signature);
 
         const result = {
             ...header,
