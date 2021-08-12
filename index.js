@@ -557,7 +557,10 @@ App.route({
                         fields.forEach(v => {
                             switch (v.name) {
                                 case 'signature':
-                                    input[v.name] = '\\x' + Array.from(v.value).join('');
+                                    input[v.name] = '\\x' + Array.from(v.value).map(x => {
+                                        let b = Number(x).toString(16);
+                                        return b.length % 2 == 1 ? '0' + b : b;
+                                    }).join('');
                                     break;
 
                                 default:
