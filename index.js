@@ -557,7 +557,7 @@ App.route({
                         fields.forEach(v => {
                             switch (v.name) {
                                 case 'signature':
-                                    input[v.name] = v.value.toString('utf8');
+                                    input[v.name] = v.value.values().map(x => '\\x' + x).join('');
                                     break;
 
                                 default:
