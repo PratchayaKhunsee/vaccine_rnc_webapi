@@ -126,7 +126,7 @@ function getMulterFieldArray(req) {
                 fields.push({ name, value: v.buffer, filename: v.originalname, });
             }
         } else {
-            
+
             fields.push({ name, value: value.buffer, filename: value.originalname, });
         }
     }
@@ -557,22 +557,10 @@ App.route({
                         const input = {};
 
                         fields.forEach(v => {
-                            switch (v.name) {
-                                case 'signature':
-                                    console.log('signature:',v.value);
-                                    input[v.name] = '\\x' + Array.from(v.value).map(x => {
-                                        let b = Number(x).toString(16).toUpperCase();
-                                        return b.length % 2 == 1 ? '0' + b : b;
-                                    }).join('');
-                                    break;
-
-                                default:
-                                    try {
-                                        input[v.name] = JSON.parse(v.value);
-                                    } catch (error) {
-                                        input[v.name] = v.value;
-                                    }
-                                    break;
+                            try {
+                                input[v.name] = JSON.parse(v.value);
+                            } catch (error) {
+                                input[v.name] = v.value;
                             }
                         });
 

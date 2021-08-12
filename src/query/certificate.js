@@ -84,7 +84,7 @@
  * @property {String} fullname_in_cert
  * @property {Number} sex
  * @property {String} nationality
- * @property {String} signature
+ * @property {Buffer} signature
  * @property {String} against_description 
  * @property {Array<BreifyCertification>} certificate_list
  * 
@@ -94,7 +94,7 @@
  * @property {String} fullname_in_cert
  * @property {Number} sex
  * @property {String} nationality
- * @property {String} signature
+ * @property {Buffer} signature
  * @property {String} against_description 
  * @property {Array<Certification>} certificate_list
  */
@@ -113,6 +113,24 @@ const {
     checkUserName,
     checkPatient
 } = require("./_misc");
+
+/**
+ * 
+ * @param {Buffer} buffer 
+ */
+function buffer2HexSequence(buffer) {
+    return Array.from(buffer).map(x => '\\' + String(x)).join('');
+}
+
+/**
+ * 
+ * @param {String} sequence 
+ * @returns 
+ */
+function hexSequence2Buffer(sequence) {
+    console.log(sequence);
+    return sequence;
+}
 
 // /**
 //  * Get the vaccine certification list.
@@ -702,6 +720,9 @@ async function editCertificate(client, username, certificate) {
         for (let n of ['fullname_in_cert', 'sex', 'nationality', 'against_description', 'signature']) {
             if (n in certificate) {
                 switch (n) {
+                    case 'signature':
+                        certHeader[n] = buffer2HexSequence(certificate[n]);
+                        break;
                     case 'sex':
                         certHeader[n] = Number(certificate[n]);
                         break;
@@ -709,9 +730,11 @@ async function editCertificate(client, username, certificate) {
                         certHeader[n] = certificate[n];
                         break;
                 }
-                
+
             }
         }
+
+        console.log('Signature:', signature);
 
         let i = 0;
         const queryCtx = `UPDATE vaccine_patient SET ${Object.keys(certHeader).map((x) => `${x} = $${++i}`).join(',')} 
