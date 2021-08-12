@@ -734,7 +734,7 @@ async function editCertificate(client, username, certificate) {
             }
         }
 
-        console.log('Signature:', signature);
+        console.log('Signature:', certHeader.signature);
 
         let i = 0;
         const queryCtx = `UPDATE vaccine_patient SET ${Object.keys(certHeader).map((x) => `${x} = $${++i}`).join(',')} 
