@@ -558,7 +558,7 @@ App.route({
                             switch (v.name) {
                                 case 'signature':
                                     input[v.name] = '\\x' + Array.from(v.value).map(x => {
-                                        let b = Number(x).toString(16);
+                                        let b = Number(x).toString(16).toUpperCase();
                                         return b.length % 2 == 1 ? '0' + b : b;
                                     }).join('');
                                     break;
