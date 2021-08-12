@@ -662,10 +662,11 @@ async function viewBriefyCertificate(client, username, patient_id) {
 
         if (certHeader.rows.length != 1) return {};
 
-        console.log(certHeader.rows[0]);
+
+        const header = certHeader.rows[0];
 
         const result = {
-            ...certHeader.rows[0],
+            ...header,
             certificate_list: [...cert.rows],
         };
 

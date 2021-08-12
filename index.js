@@ -557,6 +557,7 @@ App.route({
                         fields.forEach(v => {
                             switch (v.name) {
                                 case 'signature':
+                                    console.log('signature:',v.value);
                                     input[v.name] = '\\x' + Array.from(v.value).map(x => {
                                         let b = Number(x).toString(16).toUpperCase();
                                         return b.length % 2 == 1 ? '0' + b : b;
