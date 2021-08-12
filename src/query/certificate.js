@@ -721,9 +721,7 @@ async function editCertificate(client, username, certificate) {
             ]
         );
 
-        console.log(certHeaderEdit.rowCount, certHeaderEdit.rows);
-
-        if (certHeaderEdit.rowCount != 1 || certHeaderEdit.rows != 1) throw CERTIFICATE_MODIFYING_FAILED;
+        if (certHeaderEdit.rowCount != 1 || certHeaderEdit.rows.length != 1) throw CERTIFICATE_MODIFYING_FAILED;
 
         // let result = {};
 
