@@ -45,6 +45,7 @@ class MultipartResponse {
         this.#content += `--${this.#boundary}${CRLF}`;
         this.#content += `Content-Disposition: form-data; name="${name}"` + (hasFilename ? `; filename="${attributes.filename}"` : '');
 
+        
         if (hasHeaders) {
             for (let h in attributes.headers) {
                 let v = attributes.headers[h];
@@ -55,6 +56,7 @@ class MultipartResponse {
         var v = value;
         if (MultipartResponse.#isIterable(v)) {
             if (hasFilename) {
+                this.#content += `${CRLF}Content-Transfer-Encoding: binary`;
                 v = Array.from(v).map(x => String.fromCharCode(x)).join('') || null;
             }
 
