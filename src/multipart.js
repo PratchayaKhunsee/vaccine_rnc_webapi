@@ -54,7 +54,7 @@ class Field {
             }
 
             else {
-                payload = Array.from(v).join(',') || null;
+                payload = Array.from(payload).join(',') || null;
             }
         }
 
