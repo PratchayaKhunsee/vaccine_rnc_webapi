@@ -44,8 +44,7 @@ class MultipartResponse {
         const CRLF = '\r\n';
         this.#content += `--${this.#boundary}${CRLF}`;
         this.#content += `Content-Disposition: form-data; name="${name}"` + (hasFilename ? `; filename="${attributes.filename}"` : '');
-
-        console.log(attributes.headers);
+        
         if (hasHeaders) {
             for (let h in attributes.headers) {
                 let v = attributes.headers[h];
