@@ -19,6 +19,14 @@ function isIterable(obj) {
     return typeof obj[Symbol.iterator] === 'function';
 }
 
+/**
+ * 
+ * @param {String[]} array 
+ */
+function charArray2IntArray(array) {
+    return Array.from(array).map(x => x.charCodeAt(0));
+}
+
 class Field {
     /** @type {Boolean} */
     #isFile;
@@ -30,6 +38,7 @@ class Field {
     #headers;
     /** @type {String} */
     #filename;
+
     constructor(fieldname, payload, headers, isFile = false, filename) {
         if (arguments.length < 2) throw new Error('Need a payload and a field name.');
         this.#fieldname = String(fieldname);
@@ -59,18 +68,18 @@ class Field {
         }
 
         const intArray = [
-            ...fieldInfo.split('').map(x => x.charCodeAt(0)),
-            ...fieldHeaders.split('').map(x => x.charCodeAt(0)),
+            ...charArray2IntArray(fieldInfo),
+            ...charArray2IntArray(fieldHeaders),
         ];
 
-        intArray.push(...Array.from(`${CRLF}${CRLF}`));
+        intArray.push(...charArray2IntArray(`${CRLF}${CRLF}`));
         if (this.#isFile && payload instanceof Buffer) {
-            intArray.push(...payload.buffer);
+            intArray.push(...Array.from(payload));
         } else {
-            intArray.push(...Array.from(String(payload)));
+            intArray.push(...charArray2IntArray(String(payload)));
         }
 
-        intArray.push(...Array.from(CRLF));
+        intArray.push(...charArray2IntArray(CRLF));
 
         return Buffer.from(intArray);
     }
