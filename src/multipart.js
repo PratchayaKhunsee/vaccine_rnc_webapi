@@ -56,10 +56,8 @@ class MultipartResponse {
         var v = value;
         if (MultipartResponse.#isIterable(v)) {
             if (hasFilename) {
-                
                 this.#content += `${CRLF}Content-Transfer-Encoding: binary`;
                 v = Buffer.from(v).toString('binary');
-                console.log(v);
             }
 
             else {
