@@ -132,7 +132,9 @@ function buffer2HexSequence(buffer) {
  * @returns 
  */
 function hexSequence2Buffer(sequence, encoding = 'escape') {
-    return Buffer.from(sequence.split('\\\\').map(x => Number(x)));
+    const array = Array.from(sequence.split('\\\\'));
+    array.shift();
+    return Buffer.from(array);
 }
 
 // /**
