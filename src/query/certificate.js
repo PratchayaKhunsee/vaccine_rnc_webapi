@@ -686,8 +686,11 @@ async function viewBriefyCertificate(client, username, patient_id) {
 
         const header = certHeader.rows[0];
 
-        if(typeof header.signature == 'string') header.signature = hexSequence2Buffer(header.signature);
+        if (typeof header.signature == 'string') {
+            console.log('Read > signature:', hexSequence2Buffer(header.signature));
+            header.signature = hexSequence2Buffer(header.signature);
 
+        }
         const result = {
             ...header,
             certificate_list: [...cert.rows],
@@ -726,6 +729,7 @@ async function editCertificate(client, username, certificate) {
             if (n in certificate) {
                 switch (n) {
                     case 'signature':
+                        console.log('Save > signature:', certificate[n]);
                         certHeader[n] = buffer2HexSequence(certificate[n]);
                         break;
                     case 'sex':
