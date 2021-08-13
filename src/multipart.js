@@ -112,11 +112,7 @@ class MultipartResponse {
      * @param {*} value
      * @param {FieldAttributes} [attributes]
      */
-    append(name, value, attributes = {
-        type: 'non-file',
-        filename,
-        headers,
-    }) {
+    append(name, value, attributes) {
         const hasAttributes = typeof attributes == 'object';
         this.#fields.push(new Field(
             name,
@@ -125,32 +121,6 @@ class MultipartResponse {
             hasAttributes ? attributes.type == 'file' : false,
             hasAttributes ? attributes.filename : null
         ));
-        // const hasFilename = hasAttributes && typeof attributes.filename == 'string' && attributes.filename != '';
-        // const hasHeaders = hasAttributes && typeof attributes.headers == 'object';
-        // const CRLF = '\r\n';
-        // this.#content += `--${this.#boundary}${CRLF}`;
-        // this.#content += `Content-Disposition: form-data; name="${name}"` + (hasFilename ? `; filename="${attributes.filename}"` : '');
-
-        // if (hasHeaders) {
-        //     for (let h in attributes.headers) {
-        //         let v = attributes.headers[h];
-        //         if (v && v != '') this.#content += `${CRLF}${h}: ${v}`;
-        //     }
-        // }
-
-        // var v = value;
-        // if (MultipartResponse.#isIterable(v)) {
-        //     if (hasFilename) {
-        //         this.#content += `${CRLF}Content-Transfer-Encoding: binary`;
-        //         v = Buffer.from(v).toString('binary');
-        //     }
-
-        //     else {
-        //         v = Array.from(v).join(',') || null;
-        //     }
-        // }
-        // this.#content += `${CRLF}${CRLF}${v}`;
-        // this.#content += CRLF;
 
         return this;
     }
