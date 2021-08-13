@@ -689,8 +689,9 @@ async function viewBriefyCertificate(client, username, patient_id) {
         const header = certHeader.rows[0];
 
         if (typeof header.signature == 'string') {
-            console.log('Read > signature:', hexSequence2Buffer(header.signature));
-            header.signature = hexSequence2Buffer(header.signature);
+            const buffer = hexSequence2Buffer(header.signature);
+            console.log('Read > signature:', buffer, 'length:', buffer.byteLength);
+            header.signature = buffer;
 
         }
         const result = {
