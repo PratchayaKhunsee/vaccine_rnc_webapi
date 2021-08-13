@@ -35,7 +35,7 @@ class Field {
         this.#fieldname = String(fieldname);
         this.#payload = payload;
         this.#isFile = isFile === true;
-        this.#headers = typeof headers == 'object' ? headers : {};
+        this.#headers = typeof headers == 'object' && headers !== null ? headers : {};
         this.#filename = typeof filename == 'string' ? filename : null;
     }
 
@@ -45,7 +45,6 @@ class Field {
         for (let e of Object.entries(this.#headers)) {
             if (e[0] != '' && e[1] != '') fieldHeaders += `${CRLF}${e[0]}: ${e[1]}`;
         }
-
 
         let payload = this.#payload;
 
@@ -83,7 +82,7 @@ class MultipartResponse {
     /** @type {import("express").Response} */
     #response;
     #boundary;
-    #content = "";
+    // #content = "";
     /** @type {Field[]} */
     #fields = [];
 
