@@ -74,7 +74,9 @@ class Field {
 
         intArray.push(...charArray2IntArray(`${CRLF}${CRLF}`));
         if (this.#isFile && payload instanceof Buffer) {
-            intArray.push(...Array.from(payload));
+
+            intArray.push(...payload.buffer);
+
         } else {
             intArray.push(...charArray2IntArray(String(payload)));
         }
