@@ -518,6 +518,7 @@ App.route({
                                 }
 
                                 formdata.append(n, value, {
+                                    type: 'non-file',
                                     filename: n == 'signature' && value !== null ? crypto.randomUUID() : null,
                                     headers: n == 'signature' && value !== null ? {
                                         'Content-Type': await Mime.get(value),
