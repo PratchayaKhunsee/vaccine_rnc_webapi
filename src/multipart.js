@@ -56,11 +56,10 @@ class MultipartResponse {
         var v = value;
         if (MultipartResponse.#isIterable(v)) {
             if (hasFilename) {
+                console.log(Array.from(v));
                 this.#content += `${CRLF}Content-Transfer-Encoding: binary`;
                 v = Array.from(v).map(x => {
-                    console.log(x, Number(x).toString('16'));
                     const b = String.fromCharCode(x);
-                    console.log(b);
                     return b;
                 }).join('');
             }
