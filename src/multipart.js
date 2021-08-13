@@ -58,10 +58,7 @@ class MultipartResponse {
             if (hasFilename) {
                 
                 this.#content += `${CRLF}Content-Transfer-Encoding: binary`;
-                v = Array.from(v).map(x => {
-                    const b = String.fromCharCode(x);
-                    return b;
-                }).join('');
+                v = Buffer.from(v).toString('binary');
                 console.log(v);
             }
 
