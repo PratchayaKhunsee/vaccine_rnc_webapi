@@ -44,7 +44,7 @@ class MultipartResponse {
         const CRLF = '\r\n';
         this.#content += `--${this.#boundary}${CRLF}`;
         this.#content += `Content-Disposition: form-data; name="${name}"` + (hasFilename ? `; filename="${attributes.filename}"` : '');
-        
+
         if (hasHeaders) {
             for (let h in attributes.headers) {
                 let v = attributes.headers[h];
@@ -56,7 +56,7 @@ class MultipartResponse {
         if (MultipartResponse.#isIterable(v)) {
             if (hasFilename) {
                 this.#content += `${CRLF}Content-Transfer-Encoding: binary`;
-                v = Buffer.from(v).toString('binary');
+                v = Buffer.from(v).toString('ascii');
             }
 
             else {

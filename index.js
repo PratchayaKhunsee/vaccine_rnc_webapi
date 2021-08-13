@@ -558,9 +558,6 @@ App.route({
                             }
                         });
 
-                        console.log('Original > signature:', input.signature, 'Length:', (input.signature || {}).length);
-
-
                         const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
@@ -573,10 +570,6 @@ App.route({
                             formData.append('success', true);
                             formData.finalize().end();
                         }
-
-                        // if (result !== null) {
-                        //     const formData = new FormDataBuilder(res);
-                        // }
                     } catch (error) {
                         console.log(error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
