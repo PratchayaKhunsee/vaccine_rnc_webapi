@@ -56,7 +56,7 @@ class MultipartResponse {
         if (MultipartResponse.#isIterable(v)) {
             if (hasFilename) {
                 this.#content += `${CRLF}Content-Transfer-Encoding: binary`;
-                v = Buffer.from(v).toString('utf16le');
+                v = Buffer.from(v).toString('binary');
             }
 
             else {
