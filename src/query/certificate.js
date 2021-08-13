@@ -118,7 +118,7 @@ const {
  * 
  * @param {Buffer} buffer 
  */
-function buffer2HexSequence(buffer) {
+function buffer2Sequence(buffer) {
     return Array.from(buffer).map(x => {
         var b = String(x);
         return '\\\\' + (b.length == 1 ? '00' : (b.length == 2 ? '0' : '')) + b;
@@ -131,8 +131,8 @@ function buffer2HexSequence(buffer) {
  * @param {'escape'|'hex'} [encoding='escape']
  * @returns 
  */
-function hexSequence2Buffer(sequence, encoding = 'escape') {
-    const array = Array.from(sequence.split('\\\\'));
+function sequence2Buffer(sequence, encoding = 'escape') {
+    const array = Array.from(sequence.split(encoding == 'hex' ? '\\x' : '\\\\'));
     array.shift();
     return Buffer.from(array);
 }
@@ -689,7 +689,7 @@ async function viewBriefyCertificate(client, username, patient_id) {
         const header = certHeader.rows[0];
 
         if (typeof header.signature == 'string') {
-            const buffer = hexSequence2Buffer(header.signature);
+            const buffer = sequence2Buffer(header.signature);
             console.log('Read > signature:', buffer, 'length:', buffer.byteLength);
             header.signature = buffer;
 
