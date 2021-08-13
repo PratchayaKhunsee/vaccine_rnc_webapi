@@ -558,7 +558,7 @@ App.route({
                             }
                         });
 
-                        console.log('Original > siganture:', input.signature);
+                        console.log('Original > signature:', input.signature, 'Length:', (input.signature || {}).length);
 
 
                         const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
