@@ -63,6 +63,7 @@ class Field {
             ...fieldHeaders.split('').map(x => x.charCodeAt(0)),
         ];
 
+        intArray.push(...Array.from(`${CRLF}${CRLF}`));
         if (this.#isFile && payload instanceof Buffer) {
             intArray.push(...payload.buffer);
         } else {
