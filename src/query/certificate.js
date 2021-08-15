@@ -791,7 +791,7 @@ async function getAvailableVaccination(client, username, vaccinePatientId) {
         let rec = await client.query(
             `SELECT * FROM vaccine_record WHERE id = $1`,
             [
-                Number(_checkPatient.id)
+                Number(_checkPatient.vaccine_record_id)
             ]
         );
 
