@@ -492,7 +492,6 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
-                    // res.contentType('multipart/form-data');
                     try {
 
                         /** @type {ViewOfBreifyCertificate} */
@@ -511,14 +510,14 @@ App.route({
                                 if (n == 'certificate_list') {
                                     for (let li of result.certificate_list) {
                                         formdata.append('certificate_list', JSON.stringify(li), {
-                                            fieldHeaders: { 'Content-Type': 'multipart/mixed' },
+                                            fieldHeaders: { 'Content-Type': 'application/json' },
                                         });
                                     }
                                     continue;
                                 }
 
                                 formdata.append(n, value, {
-                                    type: 'file',
+                                    type: n == 'signature' ? 'file' : 'non-file',
                                     filename: n == 'signature' && value !== null ? crypto.randomUUID() : null,
                                     headers: n == 'signature' && value !== null ? {
                                         'Content-Type': await Mime.get(value),
@@ -529,14 +528,121 @@ App.route({
                             formdata.finalize().end();
                         }
                     } catch (error) {
-                        console.log(error);
-                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                        res.contentType('application/json')
+                            .send(Error.QueryResultError.unexpected(error).toObject())
+                            .end();
                     }
 
-                    res.end();
+
                 })();
             },
         ],
+        // /** Ongoing */
+        // '/certificate/view/each': [
+        //     App.acceptJson(),
+        //     authorization,
+        //     checkParams('certificate/view/each'),
+        //     /** @type {R} */
+        //     function (req, res) {
+        //         (async () => {
+        //             try {
+
+        //                 /** @type {ViewOfBreifyCertificate} */
+        //                 const result = await DBConnection.query(async client => await Query.certificate.viewBriefyCertificate(
+        //                     client,
+        //                     (Auth.decode(req.headers.authorization) || {}).username,
+        //                     req.body.patient_id,
+        //                 ));
+
+        //                 if (result !== null) {
+        //                     const formdata = new MultipartResponse(res);
+
+        //                     for (let n in result) {
+        //                         var value = result[n];
+
+        //                         if (n == 'certificate_list') {
+        //                             for (let li of result.certificate_list) {
+        //                                 formdata.append('certificate_list', JSON.stringify(li), {
+        //                                     fieldHeaders: { 'Content-Type': 'multipart/mixed' },
+        //                                 });
+        //                             }
+        //                             continue;
+        //                         }
+
+        //                         formdata.append(n, value, {
+        //                             type: 'file',
+        //                             filename: n == 'signature' && value !== null ? crypto.randomUUID() : null,
+        //                             headers: n == 'signature' && value !== null ? {
+        //                                 'Content-Type': await Mime.get(value),
+        //                             } : null,
+        //                         });
+        //                     }
+
+        //                     formdata.finalize().end();
+        //                 }
+        //             } catch (error) {
+        //                 res.contentType('application/json')
+        //                     .send(Error.QueryResultError.unexpected(error).toObject())
+        //                     .end();
+        //             }
+
+
+        //         })();
+        //     }
+        // ],
+        // /** Ongoing */
+        // '/certificate/view/details': [
+        //     App.acceptJson(),
+        //     authorization,
+        //     checkParams('certificate/view/details'),
+        //     /** @type {R} */
+        //     function (req, res) {
+        //         (async () => {
+        //             try {
+
+        //                 /** @type {ViewOfBreifyCertificate} */
+        //                 const result = await DBConnection.query(async client => await Query.certificate.viewBriefyCertificate(
+        //                     client,
+        //                     (Auth.decode(req.headers.authorization) || {}).username,
+        //                     req.body.patient_id,
+        //                 ));
+
+        //                 if (result !== null) {
+        //                     const formdata = new MultipartResponse(res);
+
+        //                     for (let n in result) {
+        //                         var value = result[n];
+
+        //                         if (n == 'certificate_list') {
+        //                             for (let li of result.certificate_list) {
+        //                                 formdata.append('certificate_list', JSON.stringify(li), {
+        //                                     fieldHeaders: { 'Content-Type': 'multipart/mixed' },
+        //                                 });
+        //                             }
+        //                             continue;
+        //                         }
+
+        //                         formdata.append(n, value, {
+        //                             type: 'file',
+        //                             filename: n == 'signature' && value !== null ? crypto.randomUUID() : null,
+        //                             headers: n == 'signature' && value !== null ? {
+        //                                 'Content-Type': await Mime.get(value),
+        //                             } : null,
+        //                         });
+        //                     }
+
+        //                     formdata.finalize().end();
+        //                 }
+        //             } catch (error) {
+        //                 res.contentType('application/json')
+        //                     .send(Error.QueryResultError.unexpected(error).toObject())
+        //                     .end();
+        //             }
+
+
+        //         })();
+        //     }
+        // ],
         '/certificate/edit': [
             App.acceptFormData(whitelistFields['certificate/edit']),
             authorization,
@@ -572,14 +678,40 @@ App.route({
                             formData.finalize().end();
                         }
                     } catch (error) {
-                        console.log(error);
-                        res.send(Error.QueryResultError.unexpected(error).toObject());
-                        res.end();
+                        res.contentType('application/json')
+                            .send(Error.QueryResultError.unexpected(error).toObject())
+                            .end();
                     }
                 })();
             },
         ],
+        '/certificate/available': [
+            App.acceptJson(),
+            authorization,
+            checkParams('certificate/available'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    res.contentType('application/json');
+                    try {
 
+                        const result = await DBConnection.query(async client => await Query.certificate.getAvailableVaccination(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.body.patient_id
+                        ));
+
+                        if (result !== null) {
+                            res.send(result);
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+
+                    res.end();
+                })();
+            },
+        ],
 
 
         // '/certificate/view/header': [

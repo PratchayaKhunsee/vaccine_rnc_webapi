@@ -1,6 +1,6 @@
 const DateString = String;
 /**
- * @typedef {'login'|'signup'|'user/view'|'user/edit/info'|'user/edit/account'|'record/view'|'record/create'|'record/edit'|'patient/view'|'patient/create'|'patient/create/self'|'patient/edit'|'certificate/view'|'certificate/view/header'|'certificate/available'|'certificate/create'|'certificate/list'|'certificate/list/details'|'certificate/edit'|'certificate/edit/header'} RoutingPathNameList
+ * @typedef {'login'|'signup'|'user/view'|'user/edit/info'|'user/edit/account'|'record/view'|'record/create'|'record/edit'|'patient/view'|'patient/create'|'patient/create/self'|'patient/edit'|'certificate/view'|'certificate/view/each'|'certificate/available'|'certificate/create'|'certificate/view/details'|'certificate/edit'} RoutingPathNameList
  */
 /** @namespace Ocean */
 /**
@@ -46,10 +46,10 @@ const responseErrorCodeList = {
         PATIENT_MODIYING_FAILED: 3003,
     },
     'certificate/view': {
-        // Response with an empty object
+        // Response with an empty form data
     },
-    'certificate/view/header': {
-        // Response with an empty object
+    'certificate/view/details': {
+        // Response with an empty form data
     },
     'certificate/available': {
         // Response with an empty list
@@ -57,17 +57,11 @@ const responseErrorCodeList = {
     'certificate/create': {
         CERTIFICATE_CREATING_FAILED: 4001,
     },
-    'certificate/list': {
-        // Response with an empty list
-    },
-    'certificate/list/details': {
-        // Response with an empty list
+    'certificate/view/each': {
+        // Response with an empty form data
     },
     'certificate/edit': {
         CERTIFICATE_MODIFYING_FAILED: 4002,
-    },
-    'certificate/edit/header': {
-        CERTIFICATE_HEADER_MODIFYING_FAILED: 4003,
     },
 };
 
@@ -162,7 +156,11 @@ const requestRequiredParameters = {
     'certificate/view': {
         patient_id: Number,
     },
-    'certificate/view/header': {
+    'certificate/view/each': {
+        patient_id: Number,
+        certifacate_id: Number,
+    },
+    'certificate/view/details': {
         patient_id: Number,
     },
     'certificate/available': {
@@ -173,30 +171,8 @@ const requestRequiredParameters = {
         vaccine_name: String,
         dose: Number,
     },
-    'certificate/list': {
-        patient_id: Number,
-    },
-    'certificate/list/details': {
-        patient_id: Number,
-    },
     'certificate/edit': {
-        certifacate_id: Number,
-        vaccine_name: String,
-        certify_from: DateString,
-        certify_to: DateString,
-        clinician_signature: Uint8Array,
-        administering_centre: Uint8Array,
-        vaccine_manufacturer: String,
-        vaccine_batch_no: String,
-    },
-    'certificate/edit/header': {
-        patient_id: String,
-        firstname: String,
-        lastname: String,
-        date_of_birth: DateString,
-        sex: String,
-        nationality: String,
-        vaccinate_against: String,
+        // Use form data request payload
     },
     isSameType(value, type) {
         if (value instanceof type) return true;

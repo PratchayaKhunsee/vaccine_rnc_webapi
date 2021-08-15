@@ -762,9 +762,65 @@ async function editCertificate(client, username, certificate) {
 
         return result;
     } catch (error) {
-        console.log(error);
         await client.query('ROLLBACK');
         throw QueryResultError.unexpected(error);
+    }
+}
+
+
+/**
+ * Get the available vaccination for submitting the certificate of vaccination.
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {Number} vaccinePatientId 
+ */
+async function getAvailableVaccination(client, username, vaccinePatientId) {
+    try {
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw null;
+
+
+        let _checkPatient = await checkPatient(
+            client,
+            Number(vaccinePatientId),
+            Number(checkUser.person.id)
+        );
+
+        if (!_checkPatient) throw null;
+
+        let rec = await client.query(
+            `SELECT * FROM vaccine_record WHERE id = $1`,
+            [
+                Number(_checkPatient.id)
+            ]
+        );
+
+        let cert = await client.query(
+            `SELECT vaccine_against FROM certification WHERE vaccine_patient_id = $1`,
+            [
+                Number(_checkPatient.id)
+            ]
+        );
+
+        if (rec.rows.length != 1) return [];
+
+        /** @type {import('./records').VaccineRecord} */
+        let record = { ...rec.rows[0] };
+
+        /** @type {String[]} */
+        let result = [];
+
+        for(let c of cert.rows){
+            delete record[c.vaccine_against];
+        }
+
+        for (let n in record) {
+            if (record[n] !== null && n != 'id') result.push(n);
+        }
+
+        return result;
+    } catch (error) {
+        throw QueryResultError.unexpected();
     }
 }
 
@@ -780,4 +836,5 @@ module.exports = {
     // editCertificateHeader,
     viewBriefyCertificate,
     editCertificate,
+    getAvailableVaccination,
 };
