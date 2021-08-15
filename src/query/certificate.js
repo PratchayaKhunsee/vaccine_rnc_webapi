@@ -802,6 +802,10 @@ async function getAvailableVaccination(client, username, vaccinePatientId) {
             ]
         );
 
+
+
+        console.log('Rows:', rec.rows);
+
         if (rec.rows.length != 1) return [];
 
         /** @type {import('./records').VaccineRecord} */
