@@ -851,16 +851,11 @@ async function createCertification(client, username, patient_id, vaccine_against
 
         let i = 0;
         let queryCtx = `INSERT INTO certification (vaccine_patient_id,vaccine_against) VALUES ${
-            vaccine_against_list.map(() => {
-                let left = ++i;
-                let right = ++i;
-                console.log(`($${left},$${right})`);
-                return `($${left},$${right})`;
-            }).join(',')
+            vaccine_against_list.map(() => `($${++i},$${++i})`).join(',')
         } RETURNING *`;
 
         const values = [];
-        for (let s of values) {
+        for (let s of vaccine_against_list) {
             values.push(Number(patient_id), String(s));
         }
         let cert = await client.query(
