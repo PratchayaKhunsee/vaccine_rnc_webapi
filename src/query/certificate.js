@@ -870,6 +870,7 @@ async function createCertification(client, username, patient_id, vaccine_against
 
         return result;
     } catch (error) {
+        console.log('QuerryError:', error);
         await client.query('ROLLBACK');
         throw QueryResultError.unexpected(error);
     }

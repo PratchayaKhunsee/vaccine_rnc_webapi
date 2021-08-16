@@ -732,6 +732,7 @@ App.route({
                             res.send({ success: true });
                         }
                     } catch (error) {
+                        console.log('Error:', error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
 
