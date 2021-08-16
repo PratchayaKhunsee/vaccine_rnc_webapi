@@ -850,8 +850,9 @@ async function createCertification(client, username, patient_id, vaccine_against
         if (!_checkPatient || !(vaccine_against_list instanceof Array)) throw null;
 
         let i = 0;
-        let queryCtx = `INSERT INTO certification (vaccine_patient_id, vaccine_against)
-        VALUES ${vaccine_against_list.map(() => `($${++i},$${++1})`).join(',')} RETURNING *`;
+        let queryCtx = `INSERT INTO certification (vaccine_patient_id,vaccine_against) VALUES ${
+            vaccine_against_list.map(() => `(\$${++i},\$${++i})`).join(',')
+        } RETURNING *`;
 
         const values = [];
         for (let s of values) {
