@@ -713,6 +713,7 @@ App.route({
             },
         ],
         '/certificate/create': [
+            App.acceptJson(),
             authorization,
             checkParams('certificate/create'),
             /** @type {R} */
