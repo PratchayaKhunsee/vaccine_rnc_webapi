@@ -168,8 +168,7 @@ const requestRequiredParameters = {
     },
     'certificate/create': {
         patient_id: Number,
-        vaccine_name: String,
-        dose: Number,
+        vaccine_against_list: Array,
     },
     'certificate/edit': {
         // Use form data request payload

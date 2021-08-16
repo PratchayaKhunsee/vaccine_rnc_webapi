@@ -802,10 +802,6 @@ async function getAvailableVaccination(client, username, vaccinePatientId) {
             ]
         );
 
-
-
-        console.log('Rows:', rec.rows);
-
         if (rec.rows.length != 1) return [];
 
         /** @type {import('./records').VaccineRecord} */
@@ -814,7 +810,7 @@ async function getAvailableVaccination(client, username, vaccinePatientId) {
         /** @type {String[]} */
         let result = [];
 
-        for(let c of cert.rows){
+        for (let c of cert.rows) {
             delete record[c.vaccine_against];
         }
 
@@ -825,6 +821,56 @@ async function getAvailableVaccination(client, username, vaccinePatientId) {
         return result;
     } catch (error) {
         throw QueryResultError.unexpected();
+    }
+}
+
+/**
+ * Create the certification of vaccination programme.
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {Number} patient_id
+ * @param {String[]} vaccine_against_list
+ */
+async function createCertification(client, username, patient_id, vaccine_against_list) {
+    try {
+        const CERTIFICATE_CREATING_FAILED = new QueryResultError('CERTIFICATE_CREATING_FAILED');
+
+        await client.query('BEGIN');
+
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw null;
+
+
+        let _checkPatient = await checkPatient(
+            client,
+            Number(patient_id),
+            Number(checkUser.person.id)
+        );
+
+        if (!_checkPatient || !(vaccine_against_list instanceof Array)) throw null;
+
+        let i = 0;
+        let queryCtx = `INSERT INTO certification (vaccine_patient_id, vaccine_against)
+        VALUES ${vaccine_against_list.map(() => `($${++i},$${++1})`)} RETURNING *`;
+
+        const values = [];
+        for (let s of values) {
+            values.push(Number(patient_id), String(s));
+        }
+        let cert = await client.query(
+            queryCtx,
+            values
+        );
+
+        if (cert.rowCount == 0 && cert.rows.length == 0) throw CERTIFICATE_CREATING_FAILED;
+        await client.query('COMMIT');
+        /** @type {CertificationBody} */
+        let result = { ...cert.rows[0] };
+
+        return result;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw QueryResultError.unexpected(error);
     }
 }
 
@@ -841,4 +887,5 @@ module.exports = {
     viewBriefyCertificate,
     editCertificate,
     getAvailableVaccination,
+    createCertification,
 };

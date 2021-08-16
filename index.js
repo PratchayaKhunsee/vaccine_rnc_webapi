@@ -712,7 +712,33 @@ App.route({
                 })();
             },
         ],
+        '/certificate/create': [
+            authorization,
+            checkParams('certificate/create'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    res.contentType('application/json');
+                    try {
 
+                        const result = await DBConnection.query(async client => await Query.certificate.createCertification(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.body.patient_id,
+                            req.body.vaccine_against_list
+                        ));
+
+                        if (result !== null) {
+                            res.send({ success: true });
+                        }
+                    } catch (error) {
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
+                    }
+
+                    res.end();
+                })();
+            },
+        ],
 
         // '/certificate/view/header': [
         //     authorization,
