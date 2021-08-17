@@ -512,18 +512,16 @@ App.route({
                                 var value = result[n];
 
                                 if (n == 'certificate_list') {
-                                    for (let li of result.certificate_list) {
-                                        formdata.append('certificate_list', JSON.stringify(li), {
-                                            fieldHeaders: { 'Content-Type': 'application/json' },
-                                        });
-                                    }
+                                    formdata.append('certificate_list', JSON.stringify(value), {
+                                        fieldHeaders: { 'Content-Type': 'application/json' },
+                                    });
                                     continue;
                                 }
 
                                 formdata.append(n, value, {
                                     type: isFileField(n) ? 'file' : 'non-file',
                                     filename: isFileField(n) && value !== null ? crypto.randomUUID() : null,
-                                    headers:isFileField(n) && value !== null ? {
+                                    headers: isFileField(n) && value !== null ? {
                                         'Content-Type': await Mime.get(value),
                                     } : null,
                                 });
@@ -568,8 +566,8 @@ App.route({
 
                                 formdata.append(n, value, {
                                     type: isFileField(n) ? 'file' : 'non-file',
-                                    filename:isFileField(n) && value !== null ? crypto.randomUUID() : null,
-                                    headers:isFileField(n) && value !== null ? {
+                                    filename: isFileField(n) && value !== null ? crypto.randomUUID() : null,
+                                    headers: isFileField(n) && value !== null ? {
                                         'Content-Type': await Mime.get(value),
                                     } : null,
                                 });
