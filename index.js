@@ -649,6 +649,7 @@ App.route({
             /** @type {R} */
             function (req, res) {
                 (async () => {
+                    res.contentType('application/json');
 
                     try {
 
@@ -673,15 +674,13 @@ App.route({
 
 
                         if (result !== null) {
-                            const formData = new MultipartResponse(res);
-                            formData.append('success', true);
-                            formData.finalize().end();
+                            res.send({ success: true });
                         }
                     } catch (error) {
-                        res.contentType('application/json')
-                            .send(Error.QueryResultError.unexpected(error).toObject())
-                            .end();
+                        res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
+
+                    res.end();
                 })();
             },
         ],
