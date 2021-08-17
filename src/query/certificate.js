@@ -876,6 +876,61 @@ async function createCertification(client, username, patient_id, vaccine_against
     }
 }
 
+/**
+ * View an item of vaccine certification.
+ * 
+ * @param {import('pg').Client} client 
+ * @param {String} username 
+ * @param {Number} vaccine_patient_id 
+ * @param {Number} certification_id
+ */
+async function viewEachCertification(client, username, vaccine_patient_id, certificate_id) {
+    try {
+
+        let checkUser = await checkUserName(client, username);
+        if (!checkUser) throw null;
+
+        let checkPatient = await isPatientAvailableFor(
+            client,
+            vaccine_patient_id,
+            Number(checkUser.person.id)
+        );
+
+        if (!checkPatient) throw null;
+
+        let cert = await client.query(
+            `SELECT 
+                id,
+                vaccine_patient_id,
+                vaccine_briefing,
+                vaccine_against,
+                vaccine_manufacturer
+                vaccine_batch_number,
+                encode(clinician_signature,'escape') AS clinician_signature,
+                clinician_prof_status,
+                certify_from,
+                certify_to,
+                encode(administring_centre_stamp, 'escape') AS administring_centre_stamp
+            FROM certification WHERE vaccine_patient_id = $1 AND id = $2`,
+            [
+                Number(vaccine_patient_id),
+                Number(certificate_id)
+            ]
+        );
+
+        if(cert.rows != 1){
+            return null;
+        }
+
+        /** @type {ViewOfCertificate} */
+        let result = { ...certHeader.rows[0] };
+
+        return result;
+    } catch (error) {
+        throw QueryResultError.unexpected();
+    }
+}
+
 module.exports = {
     // getCertification,
     // getAvailableVaccination,
@@ -890,4 +945,5 @@ module.exports = {
     editCertificate,
     getAvailableVaccination,
     createCertification,
+    viewEachCertification,
 };

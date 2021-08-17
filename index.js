@@ -17,6 +17,8 @@ const Mime = require('./src/mime');
  *
  * @typedef {import("./src/query/certificate").ViewOfCertificate} ViewOfCertificate
  * 
+ * @typedef {import("./src/query/certificate").Certification} Certification
+ * 
  * @typedef {Object} Field
  * 
  * @property {String} name
@@ -504,6 +506,8 @@ App.route({
                         if (result !== null) {
                             const formdata = new MultipartResponse(res);
 
+                            const isFileField = (n) => n == 'signature';
+
                             for (let n in result) {
                                 var value = result[n];
 
@@ -517,9 +521,9 @@ App.route({
                                 }
 
                                 formdata.append(n, value, {
-                                    type: n == 'signature' ? 'file' : 'non-file',
-                                    filename: n == 'signature' && value !== null ? crypto.randomUUID() : null,
-                                    headers: n == 'signature' && value !== null ? {
+                                    type: isFileField(n) ? 'file' : 'non-file',
+                                    filename: isFileField(n) && value !== null ? crypto.randomUUID() : null,
+                                    headers:isFileField(n) && value !== null ? {
                                         'Content-Type': await Mime.get(value),
                                     } : null,
                                 });
@@ -538,58 +542,51 @@ App.route({
             },
         ],
         // /** Ongoing */
-        // '/certificate/view/each': [
-        //     App.acceptJson(),
-        //     authorization,
-        //     checkParams('certificate/view/each'),
-        //     /** @type {R} */
-        //     function (req, res) {
-        //         (async () => {
-        //             try {
+        '/certificate/view/each': [
+            App.acceptJson(),
+            authorization,
+            checkParams('certificate/view/each'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
 
-        //                 /** @type {ViewOfBreifyCertificate} */
-        //                 const result = await DBConnection.query(async client => await Query.certificate.viewBriefyCertificate(
-        //                     client,
-        //                     (Auth.decode(req.headers.authorization) || {}).username,
-        //                     req.body.patient_id,
-        //                 ));
+                        /** @type {Certification} */
+                        const result = await DBConnection.query(async client => await Query.certificate.viewEachCertification(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.body.patient_id,
+                        ));
 
-        //                 if (result !== null) {
-        //                     const formdata = new MultipartResponse(res);
+                        if (result !== null) {
+                            const formdata = new MultipartResponse(res);
 
-        //                     for (let n in result) {
-        //                         var value = result[n];
+                            const isFileField = (n) => n == 'clinician_signature' || n == 'administring_centre_stamp';
 
-        //                         if (n == 'certificate_list') {
-        //                             for (let li of result.certificate_list) {
-        //                                 formdata.append('certificate_list', JSON.stringify(li), {
-        //                                     fieldHeaders: { 'Content-Type': 'multipart/mixed' },
-        //                                 });
-        //                             }
-        //                             continue;
-        //                         }
+                            for (let n in result) {
+                                var value = result[n];
 
-        //                         formdata.append(n, value, {
-        //                             type: 'file',
-        //                             filename: n == 'signature' && value !== null ? crypto.randomUUID() : null,
-        //                             headers: n == 'signature' && value !== null ? {
-        //                                 'Content-Type': await Mime.get(value),
-        //                             } : null,
-        //                         });
-        //                     }
+                                formdata.append(n, value, {
+                                    type: isFileField(n) ? 'file' : 'non-file',
+                                    filename:isFileField(n) && value !== null ? crypto.randomUUID() : null,
+                                    headers:isFileField(n) && value !== null ? {
+                                        'Content-Type': await Mime.get(value),
+                                    } : null,
+                                });
+                            }
 
-        //                     formdata.finalize().end();
-        //                 }
-        //             } catch (error) {
-        //                 res.contentType('application/json')
-        //                     .send(Error.QueryResultError.unexpected(error).toObject())
-        //                     .end();
-        //             }
+                            formdata.finalize().end();
+                        }
+                    } catch (error) {
+                        res.contentType('application/json')
+                            .send(Error.QueryResultError.unexpected(error).toObject())
+                            .end();
+                    }
 
 
-        //         })();
-        //     }
-        // ],
+                })();
+            }
+        ],
         // /** Ongoing */
         // '/certificate/view/details': [
         //     App.acceptJson(),
