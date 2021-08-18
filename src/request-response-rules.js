@@ -158,7 +158,7 @@ const requestRequiredParameters = {
     },
     'certificate/view/each': {
         patient_id: Number,
-        certifacate_id: Number,
+        certificate_id: Number,
     },
     'certificate/view/details': {
         patient_id: Number,
