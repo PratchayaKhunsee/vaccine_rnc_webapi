@@ -554,6 +554,7 @@ App.route({
                             client,
                             (Auth.decode(req.headers.authorization) || {}).username,
                             req.body.patient_id,
+                            req.body.certificate_id,
                         ));
 
                         if (result !== null) {

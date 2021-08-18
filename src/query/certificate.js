@@ -689,9 +689,7 @@ async function viewBriefyCertificate(client, username, patient_id) {
         const header = certHeader.rows[0];
 
         if (typeof header.signature == 'string') {
-            const buffer = sequence2Buffer(header.signature);
-            header.signature = buffer;
-
+            header.signature = sequence2Buffer(header.signature);
         }
         const result = {
             ...header,
@@ -922,9 +920,16 @@ async function viewEachCertification(client, username, vaccine_patient_id, certi
             return null;
         }
 
-        /** @type {ViewOfCertificate} */
+        /** @type {Certification} */
         let result = { ...certHeader.rows[0] };
 
+        for(let n of ['clinician_signature','administring_centre_stamp']){
+            if (typeof result[n] == 'string') {
+                result[n] = sequence2Buffer(result[n]);
+            }
+        }
+
+        
         return result;
     } catch (error) {
         throw QueryResultError.unexpected();
