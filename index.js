@@ -557,6 +557,8 @@ App.route({
                             req.body.certificate_id,
                         ));
 
+                        console.log(result);
+
                         if (result !== null) {
                             const formdata = new MultipartResponse(res);
 
