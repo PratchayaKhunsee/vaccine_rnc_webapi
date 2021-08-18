@@ -930,6 +930,8 @@ async function viewEachCertification(client, username, vaccine_patient_id, certi
                 result[n] = sequence2Buffer(result[n]);
             }
         }
+
+        console.log(result);
         
         return result;
     } catch (error) {
