@@ -880,7 +880,7 @@ async function createCertification(client, username, patient_id, vaccine_against
  * @param {import('pg').Client} client 
  * @param {String} username 
  * @param {Number} vaccine_patient_id 
- * @param {Number} certification_id
+ * @param {Number} certificate_id
  */
 async function viewEachCertification(client, username, vaccine_patient_id, certificate_id) {
     try {
@@ -916,6 +916,8 @@ async function viewEachCertification(client, username, vaccine_patient_id, certi
             ]
         );
 
+        console.log(cert.rows);
+
         if(cert.rows != 1){
             return null;
         }
@@ -928,7 +930,6 @@ async function viewEachCertification(client, username, vaccine_patient_id, certi
                 result[n] = sequence2Buffer(result[n]);
             }
         }
-
         
         return result;
     } catch (error) {
