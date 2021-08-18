@@ -133,6 +133,8 @@ class MultipartResponse {
             this.#response.write(`--${this.#boundary}${CRLF}`);
             this.#response.write(field.toBuffer());
         }
+
+        if (this.#fields.length == 0) this.#response.write(`--${this.#boundary}${CRLF}`);
         this.#response.write(`--${this.#boundary}--${CRLF}`);
 
         return this;
