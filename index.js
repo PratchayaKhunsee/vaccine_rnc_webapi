@@ -559,7 +559,7 @@ App.route({
                             req.body.certificate_id,
                         ));
 
-                        if (result !== null && false) {
+                        if (result !== null) {
                             const formdata = new MultipartResponse(res);
 
                             const isFileField = (n) => n == 'clinician_signature' || n == 'administring_centre_stamp';
