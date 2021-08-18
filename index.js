@@ -528,6 +528,8 @@ App.route({
                             }
 
                             formdata.finalize().end();
+                        } else {
+                            new MultipartResponse(res).finalize().end();
                         }
                     } catch (error) {
                         res.contentType('application/json')
@@ -577,6 +579,8 @@ App.route({
                             }
 
                             formdata.finalize().end();
+                        } else {
+                            new MultipartResponse(res).finalize().end();
                         }
                     } catch (error) {
                         res.contentType('application/json')
