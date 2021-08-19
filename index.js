@@ -155,6 +155,10 @@ App.route({
                         if (result !== null) {
                             res.send({ username, ...result, });
                         }
+
+                        else {
+                            res.send(null);
+                        }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
@@ -182,6 +186,10 @@ App.route({
 
                         if (result !== null) {
                             res.send(result);
+                        }
+
+                        else {
+                            res.send(null);
                         }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
@@ -281,6 +289,10 @@ App.route({
                                 ...result,
                             });
                         }
+
+                        else {
+                            res.send(null);
+                        }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
@@ -336,6 +348,10 @@ App.route({
                         if (result !== null) {
                             res.send(result);
                         }
+
+                        else {
+                            res.send(null);
+                        }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
@@ -364,6 +380,9 @@ App.route({
                         if (result !== null) {
                             res.send(result);
                         }
+                        else {
+                            res.send(null);
+                        }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
@@ -390,6 +409,10 @@ App.route({
 
                         if (result !== null) {
                             res.send(result);
+                        }
+
+                        else {
+                            res.send(null);
                         }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
@@ -418,6 +441,10 @@ App.route({
                         if (result !== null) {
                             res.send(result);
                         }
+
+                        else {
+                            res.send(null);
+                        }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
@@ -444,6 +471,9 @@ App.route({
 
                         if (result !== null) {
                             res.send(result);
+                        }
+                        else {
+                            res.send(null);
                         }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
@@ -478,6 +508,10 @@ App.route({
                         if (result !== null) {
                             res.send(result);
 
+                        }
+
+                        else {
+                            res.send(null);
                         }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
@@ -675,6 +709,8 @@ App.route({
 
                         if (result !== null) {
                             res.send({ success: true });
+                        } else {
+                            res.send(null);
                         }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
@@ -703,6 +739,10 @@ App.route({
                         if (result !== null) {
                             res.send(result);
                         }
+
+                        else {
+                            res.send(null);
+                        }
                     } catch (error) {
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
@@ -730,6 +770,10 @@ App.route({
 
                         if (result !== null) {
                             res.send({ success: true });
+                        }
+
+                        else {
+                            res.send(null);
                         }
                     } catch (error) {
                         console.log('Error:', error);
