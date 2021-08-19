@@ -902,7 +902,7 @@ async function viewEachCertification(client, username, vaccine_patient_id, certi
                 vaccine_patient_id,
                 vaccine_name,
                 vaccine_against,
-                vaccine_manufacturer
+                vaccine_manufacturer,
                 vaccine_batch_number,
                 encode(clinician_signature,'escape') AS clinician_signature,
                 clinician_prof_status,
