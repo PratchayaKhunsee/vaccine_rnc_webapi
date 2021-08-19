@@ -900,7 +900,7 @@ async function viewEachCertification(client, username, vaccine_patient_id, certi
             `SELECT 
                 id,
                 vaccine_patient_id,
-                vaccine_description,
+                vaccine_name,
                 vaccine_against,
                 vaccine_manufacturer
                 vaccine_batch_number,
