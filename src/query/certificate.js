@@ -754,11 +754,18 @@ async function editCertificate(client, username, certificate) {
 
         if (certHeaderEdit.rowCount != 1 || certHeaderEdit.rows.length != 1) throw CERTIFICATE_MODIFYING_FAILED;
 
-        let result = {};
+        let result = { ...certHeaderEdit.rows[0], };
+
+
+        if (certificate.certificate_list instanceof Array) {
+            for(let v of certificate.certificate_list){
+                // await client.query(`UPDATE certification SET`)
+            }
+        }
 
         await client.query('COMMIT');
 
-        return result;
+        return;
     } catch (error) {
         await client.query('ROLLBACK');
         throw QueryResultError.unexpected(error);
@@ -848,9 +855,8 @@ async function createCertification(client, username, patient_id, vaccine_against
         if (!_checkPatient || !(vaccine_against_list instanceof Array)) throw null;
 
         let i = 0;
-        let queryCtx = `INSERT INTO certification (vaccine_patient_id,vaccine_against) VALUES ${
-            vaccine_against_list.map(() => `($${++i},$${++i})`).join(',')
-        } RETURNING *`;
+        let queryCtx = `INSERT INTO certification (vaccine_patient_id,vaccine_against) VALUES ${vaccine_against_list.map(() => `($${++i},$${++i})`).join(',')
+            } RETURNING *`;
 
         const values = [];
         for (let s of vaccine_against_list) {
@@ -916,19 +922,19 @@ async function viewEachCertification(client, username, vaccine_patient_id, certi
             ]
         );
 
-        if(cert.rows.length != 1){
+        if (cert.rows.length != 1) {
             return null;
         }
 
         /** @type {Certification} */
         let result = { ...cert.rows[0] };
 
-        for(let n of ['clinician_signature','administring_centre_stamp']){
+        for (let n of ['clinician_signature', 'administring_centre_stamp']) {
             if (typeof result[n] == 'string') {
                 result[n] = sequence2Buffer(result[n]);
             }
         }
-        
+
         return result;
     } catch (error) {
         throw QueryResultError.unexpected();

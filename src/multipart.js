@@ -24,7 +24,12 @@ function isIterable(obj) {
  * @param {String[]} array 
  */
 function charArray2IntArray(array) {
-    return Array.from(array).map(x => x.charCodeAt(0));
+    return Array.from(array).map(x => x.charCodeAt());
+}
+
+function getType(filename, mime) {
+    var match = typeof mime == 'string' ? mime.match(/([A-Za-z]|-)+/) : null;
+    return typeof filename == 'string' && filename != '' && typeof mime == 'string' && match !== null && match.length == 2 ? 'file' : 'non-file';
 }
 
 class Field {
@@ -90,7 +95,7 @@ class Field {
 /**
  * An instance for handling the "multipart/form-data" response.
  */
-class MultipartResponse {
+class ExpressMultipartResponse {
     /** @type {import("express").Response} */
     #response;
     #boundary;
@@ -146,16 +151,140 @@ class MultipartResponse {
 }
 
 
-class MultipartReader {
-    /** @type {String} */
-    #stream;
-    /**
-     * 
-     * @param {String|Buffer} stream 
-     */
-    constructor(stream) {
-        this.#stream = stream instanceof Buffer ? stream.map(v => String.fromCharCode(v)).join('') : String(stream);
+class MultipartField {
+    name;
+    #value;
+    filename;
+    mime;
+    get type() {
+        return getType(this.filename, mime);
+    }
+    get value() {
+        return this.#value;
+    }
+    set value(v) {
+        this.#value = v instanceof Buffer ? v : String(v);
+    }
+    constructor(name, value, filename = null, mime = null) {
+        this.name = String(name);
+
+        this.filename = String(filename);
+        this.mime = String(mime);
+        value = value instanceof Buffer ? value : String(value);
+        this.#value = getType(String(filename), String(mime)) == 'file' ? Buffer.from(value) : value;
     }
 }
 
-module.exports = { MultipartResponse, MultipartReader, };
+class MultipartReader {
+    /** @type {MultipartField[]} */
+    #fields;
+    /**
+     * 
+     * @param {Buffer|String} buffer
+     */
+    constructor(buffer) {
+        let bytes = typeof buffer == 'string' || buffer instanceof String ? Buffer.from(buffer) : buffer;
+        let fields = [];
+        let boundary = null;
+        let phase = 0;
+        let currentLine = [];
+        let isFirstLine = true;
+        let filename = null;
+        let fieldname = null;
+        let mime = null;
+        let content = [];
+
+        const isHeaderReadingPhase = () => phase == 0;
+        const isBodyReadingPhase = () => phase == 1;
+
+        const createField = () => {
+            fields.push(new MultipartField(fieldname, content, filename, mime));
+        };
+
+
+        for (let i = 0; i < bytes.length; i++) {
+            if (bytes[i] == 0x0d && bytes[i + 1] == 0x0a) {
+                let lineString = Buffer.from(currentLine).toString('utf8');
+
+                if (isFirstLine) {
+                    if (lineString.length > 2 && lineString[0] == lineString[1] == '-') {
+                        boundary = lineString.substring(2);
+                    } else {
+                        break;
+                    }
+                }
+                else if (lineString == `--${boundary}`) {
+                    createField();
+                    phase = 0;
+                    filename = fieldname = mime = null;
+                    content = [];
+                }
+                else if (lineString == `--${boundary}--`) {
+                    createField();
+                    break;
+                }
+                else if (isBodyReadingPhase()) {
+                    if (content.length != 0) {
+                        content.push(0x0d, 0x0a);
+                    }
+                    content.push(...currentLine);
+                }
+                else if (phase == 0 &&
+                    lineString.match(/Content-Disposition\s*:\s*form-data.+?name\s*=\s*\".*\"/)
+                ) {
+                    let n = lineString.split(/Content-Disposition\s*:.+?name\s*=\s*\"/);
+
+                    let fn = lineString.split(/Content-Disposition\s*:.+?filename\s*=\s*\"/);
+
+                    if (n.length < 2) throw 0;
+
+                    fieldname = n[1].replace(/\"*$/, "");
+
+                    filename = fn.length < 2 ? null : fn[1].replace(/\"*$/, "");
+                }
+                else if (isHeaderReadingPhase() &&
+                    lineString.match(/Content-Type\s*:.+/)) {
+                    let m = lineString.split(/Content-Type\s*:\s*"/);
+                    if (m.length > 1) {
+                        let h = m[1].split(/\//);
+
+                        if (m.length < 2) continue;
+                        let front = h[0];
+                        let back = h[1];
+                        for (var i = 0; i < back.length; i++) {
+                            if (back[i].match(/([A-Za-z]|-)/)) {
+                                back = back.substring(0, i + 1);
+                                continue;
+                            }
+                        }
+
+                        mime = `${front}/${back}`;
+                    }
+                } else if (isHeaderReadingPhase() && lineString != '') {
+                    phase = 1;
+
+                    if (fieldname == null) {
+                        break;
+                    }
+
+                }
+                i++;
+                currentLine = [];
+            } else {
+                currentLine.push(bytes[i]);
+            }
+
+            this.#fields = fields;
+        }
+    }
+
+    get(name) {
+        if (name === undefined) {
+            return this.#fields.filter(() => true);
+        }
+        let n = String(name);
+        return this.#fields.filter(x => x.name == n);
+    }
+}
+
+module.exports = { ExpressMultipartResponse, MultipartReader, };

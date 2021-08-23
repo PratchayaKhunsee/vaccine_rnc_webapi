@@ -6,7 +6,7 @@ const Query = require('./src/query');
 const DBConnection = require('./src/database-connection');
 const Error = require('./src/error');
 const App = require('./src/express-app');
-const { MultipartResponse, } = require('./src/multipart');
+const { ExpressMultipartResponse } = require('./src/multipart');
 const Mime = require('./src/mime');
 
 /**
@@ -538,7 +538,7 @@ App.route({
                         ));
 
                         if (result !== null) {
-                            const formdata = new MultipartResponse(res);
+                            const formdata = new ExpressMultipartResponse(res);
 
                             const isFileField = (n) => n == 'signature';
 
@@ -563,7 +563,7 @@ App.route({
 
                             formdata.finalize().end();
                         } else {
-                            new MultipartResponse(res).finalize().end();
+                            new ExpressMultipartResponse(res).finalize().end();
                         }
                     } catch (error) {
                         res.contentType('application/json')
@@ -594,7 +594,7 @@ App.route({
                         ));
 
                         if (result !== null) {
-                            const formdata = new MultipartResponse(res);
+                            const formdata = new ExpressMultipartResponse(res);
 
                             const isFileField = (n) => n == 'clinician_signature' || n == 'administring_centre_stamp';
 
@@ -612,7 +612,7 @@ App.route({
 
                             formdata.finalize().end();
                         } else {
-                            new MultipartResponse(res).finalize().end();
+                            new ExpressMultipartResponse(res).finalize().end();
                         }
                     } catch (error) {
                         res.contentType('application/json')
@@ -642,7 +642,7 @@ App.route({
         //                 ));
 
         //                 if (result !== null) {
-        //                     const formdata = new MultipartResponse(res);
+        //                     const formdata = new ExpressMultipartResponse(res);
 
         //                     for (let n in result) {
         //                         var value = result[n];
@@ -699,6 +699,8 @@ App.route({
                                 input[v.name] = v.value;
                             }
                         });
+
+
 
                         const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
                             client,
