@@ -6,7 +6,7 @@ const Query = require('./src/query');
 const DBConnection = require('./src/database-connection');
 const Error = require('./src/error');
 const App = require('./src/express-app');
-const { ExpressMultipartResponse } = require('./src/multipart');
+const { ExpressMultipartResponse, MultipartReader } = require('./src/multipart');
 const Mime = require('./src/mime');
 
 /**
@@ -691,16 +691,47 @@ App.route({
 
                         /** @type {ViewOfCertificate} */
                         const input = {};
+                        
+                        for(let v of fields){
+                            if (v.name == 'certificate_list') {
+                                if (!('certificate_list' in input)) input.certificate_list = [];
+                                const reader = new MultipartReader(v.value);
+                                /** @type {Certification} */
+                                const certificate = {};
+                                /** @type {(import('./src/multipart').MultipartField)[]}*/
+                                const list = reader.get();
+                                for (let o of list) {
+                                    switch (o.name) {
+                                        case 'clinician_signature':
+                                        case 'administring_centre_stamp':
+                                            if (o.type == 'file') {
+                                                certificate[o.name] = o.value;
+                                            }
+                                            break;
+                                        case 'clinician_prof_status':
+                                        case 'vaccine_name':
+                                        case 'vaccine_batch_number':
+                                        case 'vaccine_manufacturer':
+                                        case 'certify_from':
+                                        case 'certify_to': 
+                                            certificate[o.name] = o.value;
+                                            break;
+                                        case 'id':
+                                            certificate[o.name] = Number(o.value);
+                                            break;
+                                        default:
+                                    }
+                                }
 
-                        fields.forEach(v => {
+                                input.certificate_list.push(certificate);
+                                continue;
+                            }
                             try {
                                 input[v.name] = JSON.parse(v.value);
                             } catch (error) {
                                 input[v.name] = v.value;
                             }
-                        });
-
-
+                        }
 
                         const result = await DBConnection.query(async client => await Query.certificate.editCertificate(
                             client,
@@ -778,7 +809,6 @@ App.route({
                             res.send(null);
                         }
                     } catch (error) {
-                        console.log('Error:', error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
 

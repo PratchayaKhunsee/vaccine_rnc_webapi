@@ -6,7 +6,9 @@ const crypto = require('crypto');
  * @property {'non-file'|'file'} [type='non-file']
  * @property {Object<string,string>} [headers]
  */
-
+/**
+ * @typedef {MultipartField} MultipartField
+ */
 /** @namespace */
 
 
@@ -153,18 +155,28 @@ class ExpressMultipartResponse {
 
 class MultipartField {
     name;
+    /** @type {String|Buffer} */
     #value;
     filename;
     mime;
     get type() {
         return getType(this.filename, mime);
     }
+
     get value() {
         return this.#value;
     }
     set value(v) {
         this.#value = v instanceof Buffer ? v : String(v);
     }
+
+    /**
+     * 
+     * @param {String} name 
+     * @param {String|Buffer} value 
+     * @param {String} [filename] 
+     * @param {String} [mime] 
+     */
     constructor(name, value, filename = null, mime = null) {
         this.name = String(name);
 
@@ -278,12 +290,14 @@ class MultipartReader {
         }
     }
 
+    /**
+     * 
+     * @param {String} name 
+     * @returns {MultipartField|MultipartField[]}
+     */
     get(name) {
-        if (name === undefined) {
-            return this.#fields.filter(() => true);
-        }
-        let n = String(name);
-        return this.#fields.filter(x => x.name == n);
+        let list = name === undefined ? Array.from(this.#fields) : this.#fields.filter(x => x.name == String(name));
+        return list.length == 0 ? null : (list.length == 1 ? list[0] : list);
     }
 }
 

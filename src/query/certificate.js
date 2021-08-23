@@ -68,13 +68,13 @@
  * @typedef {Object} Certification
  * @property {Number} id
  * @property {Number} vaccine_patient_id
- * @property {String} clinician_signature
+ * @property {Buffer|String} clinician_signature
  * @property {String} clinician_prof_status
  * @property {String} certify_from
  * @property {String} certify_to
- * @property {String} adminstering_centre_stamp
+ * @property {Buffer|String} adminstering_centre_stamp
  * @property {String} vaccine_against
- * @property {String} vaccine_description
+ * @property {String} vaccine_name
  * @property {String} vaccine_manufacturer
  * @property {String} vaccine_batch_number
  * 
@@ -100,12 +100,12 @@
  */
 
 const {
-    CertificateNotFoundError,
-    CertificateError,
-    CreateCertificationError,
-    UpdateCertificationError,
-    ErrorWithCode,
-    ERRORS,
+    // CertificateNotFoundError,
+    // CertificateError,
+    // CreateCertificationError,
+    // UpdateCertificationError,
+    // ErrorWithCode,
+    // ERRORS,
     QueryResultError
 } = require("../error");
 const {
@@ -691,6 +691,8 @@ async function viewBriefyCertificate(client, username, patient_id) {
         if (typeof header.signature == 'string') {
             header.signature = sequence2Buffer(header.signature);
         }
+
+        /** @type {ViewOfBreifyCertificate} */
         const result = {
             ...header,
             certificate_list: [...cert.rows],
@@ -754,18 +756,42 @@ async function editCertificate(client, username, certificate) {
 
         if (certHeaderEdit.rowCount != 1 || certHeaderEdit.rows.length != 1) throw CERTIFICATE_MODIFYING_FAILED;
 
+        /** @type {ViewOfCertificate} */
         let result = { ...certHeaderEdit.rows[0], };
 
 
+
         if (certificate.certificate_list instanceof Array) {
-            for(let v of certificate.certificate_list){
-                // await client.query(`UPDATE certification SET`)
+
+            for (let v of certificate.certificate_list) {
+                let i = 0;
+                const queryCtx = `UPDATE certification SET ${Object.keys(v).filter(x => x != 'id').map(x => `${x} = $${++i}`).join(',')
+                    } WHERE id = $${i} RETURNING *`;
+                const certUpdate = await client.query(queryCtx, [
+                    ...Object.entries(v).map(x =>
+                        x[0] == 'clinician_signature' || x[0] == 'administring_centre_stamp' && x[1] instanceof Buffer
+                            ? buffer2Sequence(x[1]) : x[1]
+                    ),
+                    Number(v.id)
+                ]);
+                if (certUpdate.rowCount != 1 || certUpdate.rows.length != 1) {
+                    throw CERTIFICATE_MODIFYING_FAILED;
+                }
+
+                if ('certificate_list' in result) result.certificate_list = [];
+
+                result.certificate_list.push({
+                    ...Object.entries(certUpdate.rows[0]).map(x =>
+                        x[0] == 'clinician_signature' || x[0] == 'administring_centre_stamp'
+                            ? sequence2Buffer(x[1]) : x[1]
+                    ),
+                });
             }
         }
 
         await client.query('COMMIT');
 
-        return;
+        return result;
     } catch (error) {
         await client.query('ROLLBACK');
         throw QueryResultError.unexpected(error);
@@ -869,12 +895,11 @@ async function createCertification(client, username, patient_id, vaccine_against
 
         if (cert.rowCount == 0 && cert.rows.length == 0) throw CERTIFICATE_CREATING_FAILED;
         await client.query('COMMIT');
-        /** @type {CertificationBody} */
+        /** @type {Certification} */
         let result = { ...cert.rows[0] };
 
         return result;
     } catch (error) {
-        console.log('QuerryError:', error);
         await client.query('ROLLBACK');
         throw QueryResultError.unexpected(error);
     }
