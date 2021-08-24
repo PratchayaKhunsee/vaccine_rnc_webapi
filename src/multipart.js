@@ -263,7 +263,7 @@ class MultipartReader {
                         if (m.length < 2) continue;
                         let front = h[0];
                         let back = h[1];
-                        for (var i = 0; i < back.length; i++) {
+                        for (let i = 0; i < back.length; i++) {
                             if (back[i].match(/([A-Za-z]|-)/)) {
                                 back = back.substring(0, i + 1);
                                 continue;
