@@ -218,7 +218,7 @@ class MultipartReader {
         for (let i = 0; i < bytes.length; i++) {
             if (bytes[i] == 0x0d && bytes[i + 1] == 0x0a) {
                 let lineString = Buffer.from(currentLine).toString();
-                console.log(lineString);
+                console.log(phase, lineString);
 
                 if (isFirstLine) {
                     if (lineString.length > 2 && lineString[0] == '-' && lineString[1] == '-') {
@@ -243,7 +243,7 @@ class MultipartReader {
                     }
                     content.push(...currentLine);
                 }
-                else if (phase == 0 &&
+                else if (isHeaderReadingPhase() &&
                     lineString.match(/Content-Disposition\s*:\s*form-data.+?name\s*=\s*\".*\"/)
                 ) {
                     let n = lineString.split(/Content-Disposition\s*:.+?name\s*=\s*\"/);
