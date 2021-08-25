@@ -221,13 +221,6 @@ class MultipartReader {
 
 
                 if (isFirstLine) {
-                    console.log(lineString,
-                        lineString.length,
-                        lineString[0],
-                        lineString[1],
-                        lineString[0] == '-',
-                        lineString[1] == '-'
-                        );
                     if (lineString.length > 2 && lineString[0] == '-' && lineString[1] == '-') {
                         boundary = lineString.substring(2);
                     } else {
@@ -291,6 +284,7 @@ class MultipartReader {
                 }
                 i++;
                 currentLine = [];
+                isFirstLine = false;
             } else {
                 currentLine.push(bytes[i]);
             }
