@@ -226,6 +226,7 @@ class MultipartReader {
                     }
                 }
                 else if (lineString == `--${boundary}`) {
+                    console.log(Buffer.from(content).toString());
                     createField();
                     phase = 0;
                     filename = fieldname = mime = null;
