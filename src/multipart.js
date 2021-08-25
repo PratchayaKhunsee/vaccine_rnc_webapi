@@ -276,7 +276,7 @@ class MultipartReader {
 
                         mime = `${front}/${back}`;
                     }
-                } else if (isHeaderReadingPhase() && lineString != '') {
+                } else if (isHeaderReadingPhase() && lineString == '') {
                     phase = 1;
 
                     if (fieldname == null) {
