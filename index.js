@@ -727,6 +727,7 @@ App.route({
                                 input.certificate_list.push(certificate);
                                 continue;
                             }
+
                             try {
                                 input[v.name] = JSON.parse(v.value);
                             } catch (error) {
@@ -747,6 +748,7 @@ App.route({
                             res.send(null);
                         }
                     } catch (error) {
+                        console.log(error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
 
