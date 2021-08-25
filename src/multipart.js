@@ -216,7 +216,7 @@ class MultipartReader {
 
 
         for (let i = 0; i < bytes.length; i++) {
-            if (bytes[i] == 0x0d && bytes[i + 1] == 0x0a) {
+            if ((bytes[i] == 0x0d && bytes[i + 1] == 0x0a) || i == bytes.length - 1) {
                 let lineString = Buffer.from(currentLine).toString();
                 console.log(phase, lineString);
 
@@ -234,6 +234,7 @@ class MultipartReader {
                     content = [];
                 }
                 else if (lineString == `--${boundary}--`) {
+
                     createField();
                     break;
                 }
@@ -292,6 +293,8 @@ class MultipartReader {
 
             this.#fields = fields;
         }
+
+        this.#fields = fields;
     }
 
     /**
