@@ -296,6 +296,7 @@ class MultipartReader {
      * @returns {MultipartField|MultipartField[]}
      */
     get(name) {
+        console.log(this.#fields);
         let list = name === undefined ? Array.from(this.#fields) : this.#fields.filter(x => x.name == String(name));
         return list.length == 0 ? null : (list.length == 1 ? list[0] : list);
     }
