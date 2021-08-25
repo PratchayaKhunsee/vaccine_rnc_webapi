@@ -210,6 +210,7 @@ class MultipartReader {
         const isBodyReadingPhase = () => phase == 1;
 
         const createField = () => {
+            console.log(fieldname, content, filename, mime);
             fields.push(new MultipartField(fieldname, content, filename, mime));
         };
 
