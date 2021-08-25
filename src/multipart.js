@@ -218,9 +218,10 @@ class MultipartReader {
             if (bytes[i] == 0x0d && bytes[i + 1] == 0x0a) {
                 let lineString = Buffer.from(currentLine).toString('utf8');
 
-                console.log(lineString);
+
 
                 if (isFirstLine) {
+                    console.log(lineString, lineString.length, lineString[0], lineString[1]);
                     if (lineString.length > 2 && lineString[0] == lineString[1] == '-') {
                         boundary = lineString.substring(2);
                     } else {
