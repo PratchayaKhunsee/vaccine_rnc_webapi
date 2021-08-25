@@ -210,7 +210,7 @@ class MultipartReader {
         const isBodyReadingPhase = () => phase == 1;
 
         const createField = () => {
-            console.log(fieldname, content, filename, mime);
+            // console.log(fieldname, content, filename, mime);
             fields.push(new MultipartField(fieldname, content, filename, mime));
         };
 
@@ -218,7 +218,7 @@ class MultipartReader {
         for (let i = 0; i < bytes.length; i++) {
             if ((bytes[i] == 0x0d && bytes[i + 1] == 0x0a) || i == bytes.length - 1) {
                 let lineString = Buffer.from(currentLine).toString();
-                console.log(phase, lineString);
+                // console.log(phase, lineString);
 
                 if (isFirstLine) {
                     if (lineString.length > 2 && lineString[0] == '-' && lineString[1] == '-') {
@@ -291,7 +291,7 @@ class MultipartReader {
                 currentLine.push(bytes[i]);
             }
 
-            this.#fields = fields;
+            
         }
 
         this.#fields = fields;
@@ -304,6 +304,7 @@ class MultipartReader {
      */
     get(name) {
         let list = name === undefined ? Array.from(this.#fields) : this.#fields.filter(x => x.name == String(name));
+        console.log(list, this.#fields);
         return list.length == 0 ? null : (list.length == 1 ? list[0] : list);
     }
 }
