@@ -36,6 +36,7 @@ const whitelistFields = {
         { name: 'sex', maxCount: 1, },
         { name: 'against_description', maxCount: 1, },
         { name: 'signature', maxCount: 1, },
+        { name: 'certification_list', maxCount: Number.POSITIVE_INFINITY, },
     ]
 };
 
@@ -691,9 +692,9 @@ App.route({
 
                         /** @type {ViewOfCertificate} */
                         const input = {};
-                        
-                        for(let v of fields){
-                            if (v.name == 'certificate_list') {
+
+                        for (let v of fields) {
+                            if (v.name == 'certification_list') {
                                 if (!('certificate_list' in input)) input.certificate_list = [];
                                 const reader = new MultipartReader(v.value);
                                 /** @type {Certification} */
@@ -713,7 +714,7 @@ App.route({
                                         case 'vaccine_batch_number':
                                         case 'vaccine_manufacturer':
                                         case 'certify_from':
-                                        case 'certify_to': 
+                                        case 'certify_to':
                                             certificate[o.name] = o.value;
                                             break;
                                         case 'id':
