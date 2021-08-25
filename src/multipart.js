@@ -206,6 +206,8 @@ class MultipartReader {
         let mime = null;
         let content = [];
 
+        console.log(buffer, bytes);
+
         const isHeaderReadingPhase = () => phase == 0;
         const isBodyReadingPhase = () => phase == 1;
 
@@ -226,7 +228,6 @@ class MultipartReader {
                     }
                 }
                 else if (lineString == `--${boundary}`) {
-                    console.log(Buffer.from(content).toString());
                     createField();
                     phase = 0;
                     filename = fieldname = mime = null;
