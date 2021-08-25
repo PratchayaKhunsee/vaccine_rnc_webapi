@@ -206,8 +206,6 @@ class MultipartReader {
         let mime = null;
         let content = [];
 
-        console.log(buffer, bytes);
-
         const isHeaderReadingPhase = () => phase == 0;
         const isBodyReadingPhase = () => phase == 1;
 
@@ -219,6 +217,8 @@ class MultipartReader {
         for (let i = 0; i < bytes.length; i++) {
             if (bytes[i] == 0x0d && bytes[i + 1] == 0x0a) {
                 let lineString = Buffer.from(currentLine).toString('utf8');
+
+                console.log(lineString);
 
                 if (isFirstLine) {
                     if (lineString.length > 2 && lineString[0] == lineString[1] == '-') {
@@ -298,7 +298,6 @@ class MultipartReader {
      * @returns {MultipartField|MultipartField[]}
      */
     get(name) {
-        console.log(this.#fields);
         let list = name === undefined ? Array.from(this.#fields) : this.#fields.filter(x => x.name == String(name));
         return list.length == 0 ? null : (list.length == 1 ? list[0] : list);
     }
