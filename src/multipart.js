@@ -217,8 +217,7 @@ class MultipartReader {
         for (let i = 0; i < bytes.length; i++) {
             if (bytes[i] == 0x0d && bytes[i + 1] == 0x0a) {
                 let lineString = Buffer.from(currentLine).toString('utf8');
-
-
+                console.log(lineString);
 
                 if (isFirstLine) {
                     if (lineString.length > 2 && lineString[0] == '-' && lineString[1] == '-') {
