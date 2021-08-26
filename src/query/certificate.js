@@ -766,7 +766,7 @@ async function editCertificate(client, username, certificate) {
             for (let v of certificate.certificate_list) {
                 let i = 0;
                 const queryCtx = `UPDATE certification SET ${Object.keys(v).filter(x => x != 'id').map(x => `${x} = $${++i}`).join(',')
-                    } WHERE id = $${i} RETURNING *`;
+                    } WHERE id = $${++i} RETURNING *`;
                 const values = [
                     ...Object.entries(v).map(x =>
                         x[0] == 'clinician_signature' || x[0] == 'administring_centre_stamp' && x[1] instanceof Buffer
