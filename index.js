@@ -578,7 +578,6 @@ App.route({
                 })();
             },
         ],
-        // /** Ongoing */
         '/certificate/view/each': [
             App.acceptJson(),
             authorization,
@@ -598,6 +597,8 @@ App.route({
 
                         if (result !== null) {
                             const formdata = new ExpressMultipartResponse(res);
+
+                            console.log(result);
 
                             const isFileField = (n) => n == 'clinician_signature' || n == 'administring_centre_stamp';
 
