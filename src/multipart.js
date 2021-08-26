@@ -47,7 +47,7 @@ class Field {
     #filename;
 
     constructor(fieldname, payload, headers, isFile = false, filename) {
-        if (typeof fieldname != 'string' || payload === null || payload === undefined) throw new Error('Need a payload and a field name.');
+        if (arguments.length < 2 || typeof fieldname != 'string') throw new Error('Need a payload and a field name.');
         this.#fieldname = String(fieldname);
         this.#payload = payload;
         this.#isFile = isFile === true;

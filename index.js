@@ -538,8 +538,6 @@ App.route({
                             req.body.patient_id,
                         ));
 
-                        console.log(result);
-
                         if (result !== null) {
                             const formdata = new ExpressMultipartResponse(res);
 
