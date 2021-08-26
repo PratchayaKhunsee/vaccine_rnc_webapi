@@ -768,21 +768,14 @@ async function editCertificate(client, username, certificate) {
                 const queryCtx = `UPDATE certification SET ${Object.keys(v).filter(x => x != 'id').map(x => `${x} = $${++i}`).join(',')
                     } WHERE id = $${++i} RETURNING *`;
                 const values = [
-                    ...Object.entries(v).map(x =>
+                    ...Object.entries(v).filter(x => x != 'id').map(x =>
                         x[0] == 'clinician_signature' || x[0] == 'administring_centre_stamp' && x[1] instanceof Buffer
                             ? buffer2Sequence(x[1]) : x[1]
                     ),
                     Number(v.id)
                 ];
 
-                console.log(queryCtx, values);
-                const certUpdate = await client.query(queryCtx, [
-                    ...Object.entries(v).map(x =>
-                        x[0] == 'clinician_signature' || x[0] == 'administring_centre_stamp' && x[1] instanceof Buffer
-                            ? buffer2Sequence(x[1]) : x[1]
-                    ),
-                    Number(v.id)
-                ]);
+                const certUpdate = await client.query(queryCtx, values);
                 if (certUpdate.rowCount != 1 || certUpdate.rows.length != 1) {
                     throw CERTIFICATE_MODIFYING_FAILED;
                 }

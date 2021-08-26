@@ -29,7 +29,7 @@ function charArray2IntArray(array) {
     return Array.from(array).map(x => x.charCodeAt());
 }
 
-function getType(filename, mime) {
+function getMimeType(filename, mime) {
     var match = typeof mime == 'string' ? mime.match(/([A-Za-z]|-)+/) : null;
     return typeof filename == 'string' && filename != '' && typeof mime == 'string' && match !== null && match.length == 2 ? 'file' : 'non-file';
 }
@@ -154,20 +154,53 @@ class ExpressMultipartResponse {
 
 
 class MultipartField {
-    name;
+    /** @type {String} */
+    #name;
     /** @type {String|Buffer} */
     #value;
-    filename;
-    mime;
+    /** @type {String} */
+    #filename;
+    /** @type {String} */
+    #mime;
     get type() {
-        return getType(this.filename, mime);
+        return getMimeType(this.#filename, this.#mime);
     }
-
+    get name(){
+        return this.#name;
+    }
+    get filename(){
+        return this.#filename;
+    }
+    get mimeType(){
+        return this.#mime;
+    }
     get value() {
         return this.#value;
     }
+    /** @param {String} x */
+    set name(x){
+        this.#name = String(x);
+    }
+    /** @param {String|Buffer} v */
     set value(v) {
         this.#value = v instanceof Buffer ? v : String(v);
+    }
+    /** @param {String} x */
+    set filename(x){
+        if(x === null || x === undefined){
+            this.#filename = null;
+        } else {
+            this.#filename = String(x);
+        }
+    }
+    /** @param {String} x */
+    set mimeType(x){
+        if(x === null || x === undefined){
+            this.#mime = null;
+        }
+        else if(typeof x == 'string' && x.match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/)) {
+            this.#mime = x;
+        }
     }
 
     /**
@@ -178,12 +211,11 @@ class MultipartField {
      * @param {String} [mime] 
      */
     constructor(name, value, filename = null, mime = null) {
-        this.name = String(name);
+        this.#name = String(name);
 
-        this.filename = String(filename);
-        this.mime = String(mime);
-        value = value instanceof Buffer ? value : String(value);
-        this.#value = getType(String(filename), String(mime)) == 'file' ? Buffer.from(value) : value;
+        this.#filename = filename === null || filename === undefined ? null : String(filename);
+        this.#mime =  typeof mime == 'string' && mime.match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/) ? mime : null;
+        this.#value = getMimeType(this.#filename, this.#mime) == 'file' ? Buffer.from(value) : String(value);
     }
 }
 
@@ -196,14 +228,21 @@ class MultipartReader {
      */
     constructor(buffer) {
         let bytes = typeof buffer == 'string' || buffer instanceof String ? Buffer.from(buffer) : buffer;
+        /** @type {MultipartField[]} */
         let fields = [];
+        /** @type {String} */
         let boundary = null;
         let phase = 0;
+        /** @type {Number[]} */
         let currentLine = [];
         let isFirstLine = true;
+        /** @type {String} */
         let filename = null;
+        /** @type {String} */
         let fieldname = null;
+        /** @type {String} */
         let mime = null;
+        /** @type {Number[]} */
         let content = [];
 
         const isHeaderReadingPhase = () => phase == 0;
