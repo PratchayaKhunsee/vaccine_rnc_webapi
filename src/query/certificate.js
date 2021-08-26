@@ -960,6 +960,8 @@ async function viewEachCertification(client, username, vaccine_patient_id, certi
         /** @type {Certification} */
         let result = { ...cert.rows[0] };
 
+        console.log(result);
+
         for (let n of ['clinician_signature', 'administring_centre_stamp']) {
             if (typeof result[n] == 'string') {
                 result[n] = sequence2Buffer(result[n]);
@@ -967,8 +969,11 @@ async function viewEachCertification(client, username, vaccine_patient_id, certi
         }
 
         for (let n of ['certify_from', 'certify_to']) {
+            
             if(result[n]) result[n] = new Date(result[n]).toISOString();
         }
+
+        
 
         return result;
     } catch (error) {
