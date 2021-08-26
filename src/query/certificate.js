@@ -700,6 +700,7 @@ async function viewBriefyCertificate(client, username, patient_id) {
 
         return result;
     } catch (error) {
+        console.log(error);
         throw QueryResultError.unexpected(error);
     }
 }
