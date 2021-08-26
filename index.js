@@ -541,12 +541,13 @@ App.route({
                         if (result !== null) {
                             const formdata = new ExpressMultipartResponse(res);
 
-                            const isFileField = (n) => n == 'signature';
+                            const isFileField = (n) => n == 'signature' || n == 'certificate_list';
 
                             for (let n in result) {
                                 var value = result[n];
 
                                 if (n == 'certificate_list') {
+                                    console.log(value);
                                     formdata.append('certificate_list', JSON.stringify(value), {
                                         fieldHeaders: { 'Content-Type': 'application/json' },
                                     });
