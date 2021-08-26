@@ -215,7 +215,7 @@ class MultipartField {
 
         this.#filename = filename === null || filename === undefined ? null : String(filename);
         this.#mime = typeof mime == 'string' && mime.match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/) ? mime : null;
-        this.#value = getFieldType(filename, mime) == 'file' ? Buffer.from(value) : String(value);
+        this.#value = getFieldType(filename, mime) == 'file' ? Buffer.from(value) : Buffer.from(value).toString('utf-8');
         console.log(name, getFieldType(filename, mime), value);
 
     }
