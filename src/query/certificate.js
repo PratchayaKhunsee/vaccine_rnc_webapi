@@ -966,9 +966,8 @@ async function viewEachCertification(client, username, vaccine_patient_id, certi
             }
         }
 
-        for (let n of ['certify_form', 'certify_to']) {
-            console.log(result[n], result[n] instanceof Date);
-            result[n] = new Date(result[n]).toISOString();
+        for (let n of ['certify_from', 'certify_to']) {
+            if(result[n]) result[n] = new Date(result[n]).toISOString();
         }
 
         return result;
