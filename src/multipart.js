@@ -29,9 +29,9 @@ function charArray2IntArray(array) {
     return Array.from(array).map(x => x.charCodeAt());
 }
 
-function getMimeType(filename, mime) {
-    var match = typeof mime == 'string' ? mime.match(/([A-Za-z]|-)+/) : null;
-    return typeof filename == 'string' && filename != '' && typeof mime == 'string' && match !== null && match.length == 2 ? 'file' : 'non-file';
+function getFieldType(filename, mime) {
+    var match = typeof mime == 'string' ? mime.match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/) : null;
+    return typeof filename == 'string' && filename != '' && typeof mime == 'string' && match ? 'file' : 'non-file';
 }
 
 class Field {
@@ -47,7 +47,7 @@ class Field {
     #filename;
 
     constructor(fieldname, payload, headers, isFile = false, filename) {
-        if (arguments.length < 2) throw new Error('Need a payload and a field name.');
+        if (typeof fieldname != 'string' || payload === null || payload === undefined) throw new Error('Need a payload and a field name.');
         this.#fieldname = String(fieldname);
         this.#payload = payload;
         this.#isFile = isFile === true;
@@ -163,22 +163,22 @@ class MultipartField {
     /** @type {String} */
     #mime;
     get type() {
-        return getMimeType(this.#filename, this.#mime);
+        return getFieldType(this.#filename, this.#mime);
     }
-    get name(){
+    get name() {
         return this.#name;
     }
-    get filename(){
+    get filename() {
         return this.#filename;
     }
-    get mimeType(){
+    get mimeType() {
         return this.#mime;
     }
     get value() {
         return this.#value;
     }
     /** @param {String} x */
-    set name(x){
+    set name(x) {
         this.#name = String(x);
     }
     /** @param {String|Buffer} v */
@@ -186,19 +186,19 @@ class MultipartField {
         this.#value = v instanceof Buffer ? v : String(v);
     }
     /** @param {String} x */
-    set filename(x){
-        if(x === null || x === undefined){
+    set filename(x) {
+        if (x === null || x === undefined) {
             this.#filename = null;
         } else {
             this.#filename = String(x);
         }
     }
     /** @param {String} x */
-    set mimeType(x){
-        if(x === null || x === undefined){
+    set mimeType(x) {
+        if (x === null || x === undefined) {
             this.#mime = null;
         }
-        else if(typeof x == 'string' && x.match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/)) {
+        else if (typeof x == 'string' && x.match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/)) {
             this.#mime = x;
         }
     }
@@ -214,8 +214,10 @@ class MultipartField {
         this.#name = String(name);
 
         this.#filename = filename === null || filename === undefined ? null : String(filename);
-        this.#mime =  typeof mime == 'string' && mime.match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/) ? mime : null;
-        this.#value = getMimeType(this.#filename, this.#mime) == 'file' ? Buffer.from(value) : String(value);
+        this.#mime = typeof mime == 'string' && mime.match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/) ? mime : null;
+        this.#value = getFieldType(filename, mime) == 'file' ? Buffer.from(value) : String(value);
+        console.log(name, getFieldType(filename, mime), value);
+
     }
 }
 
@@ -326,7 +328,7 @@ class MultipartReader {
                 currentLine.push(bytes[i]);
             }
 
-            
+
         }
 
         this.#fields = fields;
