@@ -567,6 +567,7 @@ App.route({
                             new ExpressMultipartResponse(res).finalize().end();
                         }
                     } catch (error) {
+                        console.log(error);
                         res.contentType('application/json')
                             .send(Error.QueryResultError.unexpected(error).toObject())
                             .end();
