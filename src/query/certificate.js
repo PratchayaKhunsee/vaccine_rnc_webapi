@@ -788,7 +788,7 @@ async function editCertificate(client, username, certificate) {
                 result.certificate_list.push({
                     ...Object.entries(certUpdate.rows[0]).map(x =>
                         x[0] == 'clinician_signature' || x[0] == 'administring_centre_stamp'
-                            ? sequence2Buffer(x[1]) : x[1]
+                            ? (x[1] == null ? null : sequence2Buffer(x[1])) : x[1]
                     ),
                 });
             }
