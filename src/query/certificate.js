@@ -783,7 +783,7 @@ async function editCertificate(client, username, certificate) {
                     throw CERTIFICATE_MODIFYING_FAILED;
                 }
 
-                if ('certificate_list' in result) result.certificate_list = [];
+                if (!(result.certificate_list instanceof Array)) result.certificate_list = [];
 
                 result.certificate_list.push({
                     ...Object.entries(certUpdate.rows[0]).map(x =>
