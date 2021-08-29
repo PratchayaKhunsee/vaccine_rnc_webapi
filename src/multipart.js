@@ -80,6 +80,7 @@ class MultipartField {
     #isFile() {
         if (this.#headers !== null) {
             for (let n in this.#headers) {
+                console.log(n, this.#headers[n]);
                 if (n.match(new RegExp("Content-Type".split('').map(
                     x => x != '-' ? `(${x.toLowerCase()}${x.toUpperCase()})` : '-'
                 ).join(''))) && String(this.#headers[n]).match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/)
@@ -114,7 +115,7 @@ class MultipartField {
 
         intArray.push(0x0d, 0x0a, 0x0d, 0x0a);
 
-        console.log(this.#fieldname, 'isFile =', this.#isFile(), payload);
+        // console.log(this.#fieldname, 'isFile =', this.#isFile(), payload);
         if (this.#isFile()) {
             
             intArray.push(...Buffer.from(payload, 'utf-8'));
