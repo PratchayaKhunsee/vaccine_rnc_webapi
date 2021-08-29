@@ -356,8 +356,8 @@ class ExpressMultipartResponse extends MultipartBuilder{
      * @param {import("express").Response} res 
      */
     constructor(res) {
-        this.#response = res;
         super();
+        this.#response = res;
     }
 
 
