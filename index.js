@@ -547,14 +547,15 @@ App.route({
                                 var value = result[n];
 
                                 if (n == 'certificate_list') {
-                                    formdata.append('certificate_list', JSON.stringify(value), createFileFieldHeaders('application/json'));
+                                    formdata.append(n, JSON.stringify(value), `${n}_${crypto.randomUUID()}.json`, createFileFieldHeaders('application/json'));
                                     continue;
                                 }
-
 
                                 formdata.append(n, value, ...(isFileField(n) ? [
                                     crypto.randomUUID(), createFileFieldHeaders(await Mime.get(value))
                                 ] : []));
+
+                                console.log(n, value);
 
                                 //     formdata.append(n, value, ...(isFileField(n)) {
                                 //         type: isFileField(n) ? 'file' : 'non-file',
