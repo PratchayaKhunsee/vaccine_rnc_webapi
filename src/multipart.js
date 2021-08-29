@@ -26,7 +26,7 @@ function isIterable(obj) {
  * @param {String[]} array 
  */
 function charArray2IntArray(array) {
-    return Array.from(array).map(x => x.charCodeAt());
+    return Array.from(Buffer.from(array, 'utf-8'));
 }
 
 function getFieldType(filename, mime) {
@@ -62,6 +62,10 @@ class Field {
             if (e[0] != '' && e[1] != '') fieldHeaders += `${CRLF}${e[0]}: ${e[1]}`;
         }
 
+        if(this.#isFile && !fieldHeaders.match(/Content-Type\s*:\s*([A-Za-z]|-)+\/([A-Za-z]|-)+/)){
+            fieldHeaders = fieldHeaders + `${CRLF}Content-Type: application/octet-stream`;
+        }
+
         let payload = this.#payload;
 
         if (isIterable(payload)) {
@@ -70,7 +74,7 @@ class Field {
             }
 
             else {
-                payload = Array.from(payload).join(',') || null;
+                payload = Array.from(payload).join(',');
             }
         }
 
@@ -79,79 +83,18 @@ class Field {
             ...charArray2IntArray(fieldHeaders),
         ];
 
-        intArray.push(...charArray2IntArray(`${CRLF}${CRLF}`));
+        intArray.push(0x0d, 0x0a, 0x0d, 0x0a);
         if (this.#isFile && payload instanceof Buffer) {
-
             intArray.push(...payload);
-
         } else {
             intArray.push(...charArray2IntArray(String(payload)));
         }
 
-        intArray.push(...charArray2IntArray(CRLF));
+        intArray.push(0x0d, 0x0a);
 
         return Buffer.from(intArray);
     }
 }
-
-/**
- * An instance for handling the "multipart/form-data" response.
- */
-class ExpressMultipartResponse {
-    /** @type {import("express").Response} */
-    #response;
-    #boundary;
-    // #content = "";
-    /** @type {Field[]} */
-    #fields = [];
-
-    /**
-     * @param {import("express").Response} res 
-     */
-    constructor(res) {
-        this.#response = res;
-        this.#boundary = crypto.randomUUID();
-    }
-
-    /**
-     * 
-     * @param {String} name 
-     * @param {*} value
-     * @param {FieldAttributes} [attributes]
-     */
-    append(name, value, attributes) {
-        const hasAttributes = typeof attributes == 'object';
-        this.#fields.push(new Field(
-            name,
-            value,
-            hasAttributes ? attributes.headers : null,
-            hasAttributes ? attributes.type == 'file' : false,
-            hasAttributes ? attributes.filename : null
-        ));
-
-        return this;
-    }
-
-    finalize() {
-        this.#response.header({
-            'Content-Type': `multipart/form-data; boundary=${this.#boundary}`,
-        });
-        for (let field of this.#fields) {
-            this.#response.write(`--${this.#boundary}${CRLF}`);
-            this.#response.write(field.toBuffer());
-        }
-
-        if (this.#fields.length == 0) this.#response.write(`--${this.#boundary}${CRLF}`);
-        this.#response.write(`--${this.#boundary}--${CRLF}`);
-
-        return this;
-    }
-
-    end() {
-        this.#response.end();
-    }
-}
-
 
 class MultipartField {
     /** @type {String} */
@@ -216,8 +159,6 @@ class MultipartField {
         this.#filename = filename === null || filename === undefined ? null : String(filename);
         this.#mime = typeof mime == 'string' && mime.match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/) ? mime : null;
         this.#value = getFieldType(filename, mime) == 'file' ? Buffer.from(value) : Buffer.from(value).toString('utf-8');
-        console.log(name, getFieldType(filename, mime), value);
-
     }
 }
 
@@ -345,4 +286,94 @@ class MultipartReader {
     }
 }
 
-module.exports = { ExpressMultipartResponse, MultipartReader, };
+
+class MultipartBuilder {
+    #boundary;
+    // #content = "";
+    /** @type {Field[]} */
+    #fields = [];
+    constructor() {
+        this.#boundary = crypto.randomUUID();
+    }
+
+    /**
+    * 
+    * @param {String} name 
+    * @param {*} value
+    * @param {FieldAttributes} [attributes]
+    */
+    append(name, value, attributes) {
+        const hasAttributes = typeof attributes == 'object';
+        this.#fields.push(new Field(
+            name,
+            value,
+            hasAttributes ? attributes.headers : null,
+            hasAttributes ? attributes.type == 'file' : false,
+            hasAttributes ? attributes.filename : null
+        ));
+
+        return this;
+    }
+
+    toBuffer() {
+        /** @type{Buffer[]} */
+        let bufferList = [];
+        for (let field of this.#fields) {
+            bufferList.push(...Buffer.from(`--${this.#boundary}`, 'utf-8'));
+            bufferList.push(field.toBuffer());
+        }
+
+        if (bufferList.length == 0) {
+            bufferList.push(...Buffer.from(Buffer.from(`--${this.#boundary}`, 'utf-8')));
+        }
+        bufferList.push(...Buffer.from(`--${this.#boundary}--`, 'utf-8'));
+
+        let buffer = [];
+        for (let b of bufferList) {
+            buffer.push(...b, 0x0d, 0x0a);
+        }
+
+        return Buffer.from(buffer);
+    }
+}
+
+/**
+ * An instance for handling the "multipart/form-data" response.
+ */
+class ExpressMultipartResponse extends MultipartBuilder{
+    /** @type {import("express").Response} */
+    #response;
+
+    /**
+     * @param {import("express").Response} res 
+     */
+    constructor(res) {
+        this.#response = res;
+        super();
+    }
+
+
+    finalize() {
+        this.#response.header({
+            'Content-Type': `multipart/form-data; boundary=${this.#boundary}`,
+        });
+
+
+        this.#response.write(this.toBuffer());
+        // for (let field of this.#fields) {
+        //     this.#response.write(`--${this.#boundary}${CRLF}`);
+        //     this.#response.write(field.toBuffer());
+        // }
+
+        // if (this.#fields.length == 0) this.#response.write(`--${this.#boundary}${CRLF}`);
+        // this.#response.write(`--${this.#boundary}--${CRLF}`);
+
+        return this;
+    }
+
+    end() {
+        this.#response.end();
+    }
+}
+
+module.exports = { ExpressMultipartResponse, MultipartReader, MultipartBuilder, };

@@ -6,7 +6,7 @@ const Query = require('./src/query');
 const DBConnection = require('./src/database-connection');
 const Error = require('./src/error');
 const App = require('./src/express-app');
-const { ExpressMultipartResponse, MultipartReader } = require('./src/multipart');
+const { ExpressMultipartResponse, MultipartReader, MultipartBuilder } = require('./src/multipart');
 const Mime = require('./src/mime');
 
 /**
@@ -547,7 +547,7 @@ App.route({
                                 var value = result[n];
 
                                 if (n == 'certificate_list') {
-                                    
+
                                     formdata.append('certificate_list', JSON.stringify(value), {
                                         fieldHeaders: { 'Content-Type': 'application/json' },
                                     });
@@ -598,8 +598,6 @@ App.route({
                         if (result !== null) {
                             const formdata = new ExpressMultipartResponse(res);
 
-                            console.log(result);
-
                             const isFileField = (n) => n == 'clinician_signature' || n == 'administring_centre_stamp';
 
                             for (let n in result) {
@@ -629,58 +627,64 @@ App.route({
             }
         ],
         // /** Ongoing */
-        // '/certificate/view/details': [
-        //     App.acceptJson(),
-        //     authorization,
-        //     checkParams('certificate/view/details'),
-        //     /** @type {R} */
-        //     function (req, res) {
-        //         (async () => {
-        //             try {
+        '/certificate/view/complete': [
+            App.acceptJson(),
+            authorization,
+            checkParams('certificate/view/complete'),
+            /** @type {R} */
+            function (req, res) {
+                (async () => {
+                    try {
 
-        //                 /** @type {ViewOfBreifyCertificate} */
-        //                 const result = await DBConnection.query(async client => await Query.certificate.viewBriefyCertificate(
-        //                     client,
-        //                     (Auth.decode(req.headers.authorization) || {}).username,
-        //                     req.body.patient_id,
-        //                 ));
+                        /** @type {ViewOfCertificate} */
+                        const result = await DBConnection.query(async client => await Query.certificate.getCompleteCertification(
+                            client,
+                            (Auth.decode(req.headers.authorization) || {}).username,
+                            req.body.patient_id,
+                        ));
 
-        //                 if (result !== null) {
-        //                     const formdata = new ExpressMultipartResponse(res);
+                        if (result !== null) {
+                            const formdata = new ExpressMultipartResponse(res);
 
-        //                     for (let n in result) {
-        //                         var value = result[n];
+                            for (let n in result) {
+                                var value = result[n];
 
-        //                         if (n == 'certificate_list') {
-        //                             for (let li of result.certificate_list) {
-        //                                 formdata.append('certificate_list', JSON.stringify(li), {
-        //                                     fieldHeaders: { 'Content-Type': 'multipart/mixed' },
-        //                                 });
-        //                             }
-        //                             continue;
-        //                         }
+                                if (n == 'certificate_list') {
+                                    for (let li of result.certificate_list) {
+                                        let builder = new MultipartBuilder();
+                                        for (let n in li) {
+                                            builder.append(n, li[n], {
+                                                type: n == 'clinician_signature' || n == 'administring_centre_stamp' ? 'file' : 'non-file',
+                                            });
+                                        }
+                                        formdata.append('certificate_list', builder.toBuffer(), {
+                                            fieldHeaders: { 'Content-Type': 'multipart/mixed' },
+                                        });
+                                    }
+                                    continue;
+                                }
 
-        //                         formdata.append(n, value, {
-        //                             type: 'file',
-        //                             filename: n == 'signature' && value !== null ? crypto.randomUUID() : null,
-        //                             headers: n == 'signature' && value !== null ? {
-        //                                 'Content-Type': await Mime.get(value),
-        //                             } : null,
-        //                         });
-        //                     }
+                                formdata.append(n, value, {
+                                    type: 'file',
+                                    filename: n == 'signature' && value !== null ? crypto.randomUUID() : null,
+                                    headers: n == 'signature' && value !== null ? {
+                                        'Content-Type': await Mime.get(value),
+                                    } : null,
+                                });
+                            }
 
-        //                     formdata.finalize().end();
-        //                 }
-        //             } catch (error) {
-        //                 res.contentType('application/json')
-        //                     .send(Error.QueryResultError.unexpected(error).toObject())
-        //                     .end();
-        //             }
+                            formdata.finalize().end();
+                        }
+                    } catch (error) {
+                        res.contentType('application/json')
+                            .send(Error.QueryResultError.unexpected(error).toObject())
+                            .end();
+                    }
 
 
-        //         })();
-        //     }
-        // ],
+                })();
+            }
+        ],
         '/certificate/edit': [
             App.acceptFormData(whitelistFields['certificate/edit']),
             authorization,
@@ -705,6 +709,7 @@ App.route({
                                 /** @type {(import('./src/multipart').MultipartField)[]}*/
                                 const list = reader.get();
                                 for (let o of list) {
+
                                     switch (o.name) {
                                         case 'clinician_signature':
                                         case 'administring_centre_stamp':

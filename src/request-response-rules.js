@@ -1,6 +1,6 @@
 const DateString = String;
 /**
- * @typedef {'login'|'signup'|'user/view'|'user/edit/info'|'user/edit/account'|'record/view'|'record/create'|'record/edit'|'patient/view'|'patient/create'|'patient/create/self'|'patient/edit'|'certificate/view'|'certificate/view/each'|'certificate/available'|'certificate/create'|'certificate/view/details'|'certificate/edit'} RoutingPathNameList
+ * @typedef {'login'|'signup'|'user/view'|'user/edit/info'|'user/edit/account'|'record/view'|'record/create'|'record/edit'|'patient/view'|'patient/create'|'patient/create/self'|'patient/edit'|'certificate/view'|'certificate/view/each'|'certificate/available'|'certificate/create'|'certificate/view/complete'|'certificate/edit'} RoutingPathNameList
  */
 /** @namespace Ocean */
 /**
@@ -160,7 +160,7 @@ const requestRequiredParameters = {
         patient_id: Number,
         certificate_id: Number,
     },
-    'certificate/view/details': {
+    'certificate/view/complete': {
         patient_id: Number,
     },
     'certificate/available': {
