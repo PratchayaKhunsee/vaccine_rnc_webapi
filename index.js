@@ -556,18 +556,10 @@ App.route({
                                 ] : []));
 
                                 console.log(n, value);
-
-                                //     formdata.append(n, value, ...(isFileField(n)) {
-                                //         type: isFileField(n) ? 'file' : 'non-file',
-                                //         filename: isFileField(n) && value !== null ? crypto.randomUUID() : null,
-                                //         headers: isFileField(n) && value !== null ? {
-                                //             'Content-Type': await Mime.get(value),
-                                //         } : null,
-                                //     });
-                                // }
-
-                                formdata.finalize().end();
+                                
                             }
+
+                            formdata.finalize().end();
                         } else {
                             new ExpressMultipartResponse(res).finalize().end();
                         }
