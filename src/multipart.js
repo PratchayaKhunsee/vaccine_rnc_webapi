@@ -80,10 +80,8 @@ class MultipartField {
     #isFile() {
         if (this.#headers !== null) {
             for (let n in this.#headers) {
-                console.log(n, this.#headers[n]);
-                if (n.match(new RegExp("Content-Type".split('').map(
-                    x => x != '-' ? `(${x.toLowerCase()}${x.toUpperCase()})` : '-'
-                ).join(''))) && String(this.#headers[n]).match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/)
+                console.log(n, this.#headers[n], n.toLowerCase().match(/content-type/) && String(this.#headers[n]).match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/));
+                if (n.toLowerCase().match(/content-type/) && String(this.#headers[n]).match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/)
                 ) {
                     return true;
                 }
@@ -117,7 +115,7 @@ class MultipartField {
 
         // console.log(this.#fieldname, 'isFile =', this.#isFile(), payload);
         if (this.#isFile()) {
-            
+
             intArray.push(...Buffer.from(payload, 'utf-8'));
         } else {
             intArray.push(...charArray2IntArray(String(payload)));
@@ -298,7 +296,7 @@ class MultipartReader {
                     //     if (m.length > 1 && m[1].match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/)) {
 
 
-                            
+
                     //         // let h = m[1].split(/\//);
 
                     //         // if (m.length < 2) continue;
