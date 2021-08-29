@@ -62,6 +62,8 @@ class Field {
             if (e[0] != '' && e[1] != '') fieldHeaders += `${CRLF}${e[0]}: ${e[1]}`;
         }
 
+        console.log(this.#fieldname, this.#isFile);
+
         if(this.#isFile && !fieldHeaders.match(/Content-Type\s*:\s*([A-Za-z]|-)+\/([A-Za-z]|-)+/)){
             fieldHeaders = fieldHeaders + `${CRLF}Content-Type: application/octet-stream`;
         }
