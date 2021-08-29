@@ -296,6 +296,14 @@ class MultipartBuilder {
         this.#boundary = crypto.randomUUID();
     }
 
+    get boundary(){
+        return this.#boundary;
+    }
+
+    set boundary(x){
+        this.#boundary = String(x);
+    }
+
     /**
     * 
     * @param {String} name 
@@ -355,7 +363,7 @@ class ExpressMultipartResponse extends MultipartBuilder{
 
     finalize() {
         this.#response.header({
-            'Content-Type': `multipart/form-data; boundary=${super.#boundary}`,
+            'Content-Type': `multipart/form-data; boundary=${this.boundary}`,
         });
 
 
