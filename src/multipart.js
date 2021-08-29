@@ -113,7 +113,10 @@ class MultipartField {
         ];
 
         intArray.push(0x0d, 0x0a, 0x0d, 0x0a);
+
+        console.log(this.#fieldname, 'isFile =', this.#isFile(), payload);
         if (this.#isFile()) {
+            
             intArray.push(...Buffer.from(payload, 'utf-8'));
         } else {
             intArray.push(...charArray2IntArray(String(payload)));
