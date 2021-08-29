@@ -206,8 +206,7 @@ class ExpressMultipartResponse extends MultipartBuilder {
     finalize() {
         this.#response.header({
             'Content-Type': `multipart/form-data; boundary=${this.boundary}`,
-        });
-        this.#response.write(this.toBuffer());
+        }).write(this.toBuffer());
         return this;
     }
 
