@@ -6,7 +6,7 @@ const Query = require('./src/query');
 const DBConnection = require('./src/database-connection');
 const Error = require('./src/error');
 const App = require('./src/express-app');
-const { ExpressMultipartResponse, MultipartReader, MultipartBuilder } = require('./src/multipart');
+const { ExpressMultipartResponse, MultipartReader, MultipartBuilder, createFileFieldHeaders } = require('./src/multipart');
 const Mime = require('./src/mime');
 
 /**
@@ -547,23 +547,26 @@ App.route({
                                 var value = result[n];
 
                                 if (n == 'certificate_list') {
-
-                                    formdata.append('certificate_list', JSON.stringify(value), {
-                                        fieldHeaders: { 'Content-Type': 'application/json' },
-                                    });
+                                    formdata.append('certificate_list', JSON.stringify(value), createFileFieldHeaders('application/json'));
                                     continue;
                                 }
 
-                                formdata.append(n, value, {
-                                    type: isFileField(n) ? 'file' : 'non-file',
-                                    filename: isFileField(n) && value !== null ? crypto.randomUUID() : null,
-                                    headers: isFileField(n) && value !== null ? {
-                                        'Content-Type': await Mime.get(value),
-                                    } : null,
-                                });
-                            }
 
-                            formdata.finalize().end();
+                                formdata.append(n, value, ...(isFileField(n) ? [
+                                    crypto.randomUUID(), createFileFieldHeaders(await Mime.get(value))
+                                ] : []));
+
+                                //     formdata.append(n, value, ...(isFileField(n)) {
+                                //         type: isFileField(n) ? 'file' : 'non-file',
+                                //         filename: isFileField(n) && value !== null ? crypto.randomUUID() : null,
+                                //         headers: isFileField(n) && value !== null ? {
+                                //             'Content-Type': await Mime.get(value),
+                                //         } : null,
+                                //     });
+                                // }
+
+                                formdata.finalize().end();
+                            }
                         } else {
                             new ExpressMultipartResponse(res).finalize().end();
                         }
