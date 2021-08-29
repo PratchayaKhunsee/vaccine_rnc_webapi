@@ -72,7 +72,7 @@
  * @property {String} clinician_prof_status
  * @property {String} certify_from
  * @property {String} certify_to
- * @property {Buffer|String} adminstering_centre_stamp
+ * @property {Buffer|String} administring_centre_stamp
  * @property {String} vaccine_against
  * @property {String} vaccine_name
  * @property {String} vaccine_manufacturer
@@ -541,13 +541,17 @@ async function getCompleteCertification(client, username, patient_id) {
             certificate_list: cert.rows,
         };
 
+        if(result.signature !== null){
+            result.signature = sequence2Buffer(result.signature, 'escape');
+        }
         if (result.certificate_list instanceof Array) {
             for (let r of result.certificate_list) {
                 if (r.clinician_signature !== null) {
                     r.clinician_signature = sequence2Buffer(r.clinician_signature, 'escape');
                 }
-                if (r.adminstering_centre_stamp !== null) {
-                    r.adminstering_centre_stamp = sequence2Buffer(r.adminstering_centre_stamp, 'escape');
+                
+                if (r.administring_centre_stamp !== null) {
+                    r.administring_centre_stamp = sequence2Buffer(r.administring_centre_stamp, 'escape');
                 }
             }
         }
