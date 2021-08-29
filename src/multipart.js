@@ -340,8 +340,7 @@ class MultipartBuilder {
         let buffer = [];
         
         for (let b of bufferList) {
-            console.log(b, b.map(x => x));
-            buffer.push(...b.map(x => x), 0x0d, 0x0a);
+            buffer.push(...b, 0x0d, 0x0a);
         }
 
         return Buffer.from(buffer);
