@@ -551,7 +551,7 @@ App.route({
                                     continue;
                                 }
 
-                                formdata.append(n, value, ...(isFileField(n) ? [
+                                formdata.append(n, value, ...(isFileField(n) && value !== null ? [
                                     crypto.randomUUID(), createFileFieldHeaders(await Mime.get(value))
                                 ] : []));
 
