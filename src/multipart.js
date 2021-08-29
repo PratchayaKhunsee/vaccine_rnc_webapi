@@ -338,7 +338,8 @@ class MultipartBuilder {
 
         let buffer = [];
         for (let b of bufferList) {
-            buffer.push(...b, 0x0d, 0x0a);
+            console.log(b, b.map(x => x));
+            buffer.push(...b.map(x => x), 0x0d, 0x0a);
         }
 
         return Buffer.from(buffer);
@@ -365,17 +366,7 @@ class ExpressMultipartResponse extends MultipartBuilder{
         this.#response.header({
             'Content-Type': `multipart/form-data; boundary=${this.boundary}`,
         });
-
-
         this.#response.write(this.toBuffer());
-        // for (let field of this.#fields) {
-        //     this.#response.write(`--${this.#boundary}${CRLF}`);
-        //     this.#response.write(field.toBuffer());
-        // }
-
-        // if (this.#fields.length == 0) this.#response.write(`--${this.#boundary}${CRLF}`);
-        // this.#response.write(`--${this.#boundary}--${CRLF}`);
-
         return this;
     }
 
