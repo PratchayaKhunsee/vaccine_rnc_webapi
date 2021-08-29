@@ -327,16 +327,18 @@ class MultipartBuilder {
         /** @type{Buffer[]} */
         let bufferList = [];
         for (let field of this.#fields) {
-            bufferList.push(...Buffer.from(`--${this.#boundary}`, 'utf-8'));
+            bufferList.push(Buffer.from(`--${this.#boundary}`, 'utf-8'));
             bufferList.push(field.toBuffer());
         }
 
         if (bufferList.length == 0) {
-            bufferList.push(...Buffer.from(Buffer.from(`--${this.#boundary}`, 'utf-8')));
+            bufferList.push(Buffer.from(Buffer.from(`--${this.#boundary}`, 'utf-8')));
         }
-        bufferList.push(...Buffer.from(`--${this.#boundary}--`, 'utf-8'));
+        bufferList.push(Buffer.from(`--${this.#boundary}--`, 'utf-8'));
 
+        /** @type {Number[]} */
         let buffer = [];
+        
         for (let b of bufferList) {
             console.log(b, b.map(x => x));
             buffer.push(...b.map(x => x), 0x0d, 0x0a);
