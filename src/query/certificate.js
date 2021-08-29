@@ -502,7 +502,7 @@ async function getCompleteCertification(client, username, patient_id) {
             `SELECT 
                 id,
                 vaccine_patient_id,
-                vaccine_briefing,
+                vaccine_name,
                 vaccine_against,
                 vaccine_manufacturer,
                 vaccine_batch_number,
