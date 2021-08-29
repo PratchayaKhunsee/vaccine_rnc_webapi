@@ -554,6 +554,7 @@ async function getCompleteCertification(client, username, patient_id) {
 
         return result;
     } catch (error) {
+        console.log(error);
         throw QueryResultError.unexpected();
     }
 }
