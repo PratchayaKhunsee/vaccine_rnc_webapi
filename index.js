@@ -596,9 +596,7 @@ App.route({
 
                                 formdata.append(n, value, ...(isFileField(n) && value !== null ? [
                                     crypto.randomUUID(),
-                                    {
-                                        'Content-Type': await Mime.get(value),
-                                    },
+                                    createFileFieldHeaders(await Mime.get(value))
                                 ] : []));
                             }
 
@@ -643,24 +641,40 @@ App.route({
                                     for (let li of result.certificate_list) {
                                         let builder = new MultipartBuilder();
                                         for (let n in li) {
-                                            builder.append(n, li[n], {
-                                                type: n == 'clinician_signature' || n == 'administring_centre_stamp' ? 'file' : 'non-file',
-                                            });
+
+                                            builder.append(n, li[n], ...(
+                                                n == 'clinician_signature' || n == 'administring_centre_stamp' && li[n] !== null ?
+                                                    [
+                                                        crypto.randomUUID(),
+                                                        createFileFieldHeaders(await Mime.get(li[n]))
+                                                    ] :
+                                                    []
+                                            )
+                                            );
                                         }
-                                        formdata.append('certificate_list', builder.toBuffer(), {
-                                            fieldHeaders: { 'Content-Type': 'multipart/mixed' },
-                                        });
+
+                                        console.log(builder.toBuffer().toString('utf-8'));
+
+
+                                        formdata.append(
+                                            'certificate_list',
+                                            builder.toBuffer(),
+                                            crypto.randomUUID(),
+                                            createFileFieldHeaders('multipart/mixed')
+                                        );
                                     }
                                     continue;
                                 }
 
-                                formdata.append(n, value, {
-                                    type: 'file',
-                                    filename: n == 'signature' && value !== null ? crypto.randomUUID() : null,
-                                    headers: n == 'signature' && value !== null ? {
-                                        'Content-Type': await Mime.get(value),
-                                    } : null,
-                                });
+                                formdata.append(n, value,
+                                    ...(n == 'signature' && value !== null ? [
+                                        crypto.randomUUID(),
+                                        {
+                                            'Content-Type': await Mime.get(value),
+                                        }
+                                    ] : []
+                                    )
+                                );
                             }
 
                             formdata.finalize().end();
