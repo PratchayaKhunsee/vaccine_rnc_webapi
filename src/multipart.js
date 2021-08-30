@@ -120,8 +120,6 @@ class MultipartField {
             intArray.push(...charArray2IntArray(String(payload)));
         }
 
-        intArray.push(0x0d, 0x0a);
-
         return Buffer.from(intArray);
     }
 }
@@ -290,45 +288,10 @@ class MultipartReader {
                         filename = fn.length < 2 ? null : fn[1].replace(/\"*$/, "");
                     }
 
-                    // else if (lineString.match(/Content-Type\s*:\s*([A-Za-z]|-)+\/([A-Za-z]|-)+/)) {
-                    //     let m = lineString.split(/Content-Type\s*:\s*"/);
-                    //     if (m.length > 1 && m[1].match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/)) {
-
-
-
-                    //         // let h = m[1].split(/\//);
-
-                    //         // if (m.length < 2) continue;
-                    //         // let front = h[0];
-                    //         // let back = h[1];
-                    //         // for (let i = 0; i < back.length; i++) {
-                    //         //     if (back[i].match(/([A-Za-z]|-)/)) {
-                    //         //         back = back.substring(0, i + 1);
-                    //         //         continue;
-                    //         //     }
-                    //         // }
-
-                    //         // mime = `${front}/${back}`;
-                    //     }
-                    // }
-
                     else if (lineString.match(/([A-Za-z]|-)+\s*:.+/)) {
                         let m = lineString.split(/([A-Za-z]|-)+\s*:\s*"/);
                         if (m.length > 1) {
                             headers[m[0]] = m[1];
-                            // let h = m[1].split(/\//);
-
-                            // if (m.length < 2) continue;
-                            // let front = h[0];
-                            // let back = h[1];
-                            // for (let i = 0; i < back.length; i++) {
-                            //     if (back[i].match(/([A-Za-z]|-)/)) {
-                            //         back = back.substring(0, i + 1);
-                            //         continue;
-                            //     }
-                            // }
-
-                            // mime = `${front}/${back}`;
                         }
                     }
                     else if (lineString == '') {
