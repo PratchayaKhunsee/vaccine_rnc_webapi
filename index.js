@@ -641,9 +641,15 @@ App.route({
                                     for (let li of result.certificate_list) {
                                         let builder = new MultipartBuilder();
                                         for (let n in li) {
-
+                                            console.log(n, li[n], (n == 'clinician_signature' || n == 'administring_centre_stamp') && li[n] !== null ?
+                                                [
+                                                    crypto.randomUUID(),
+                                                    createFileFieldHeaders(await Mime.get(li[n]))
+                                                ] :
+                                                null
+                                            );
                                             builder.append(n, li[n], ...(
-                                                n == 'clinician_signature' || n == 'administring_centre_stamp' && li[n] !== null ?
+                                                (n == 'clinician_signature' || n == 'administring_centre_stamp') && li[n] !== null ?
                                                     [
                                                         crypto.randomUUID(),
                                                         createFileFieldHeaders(await Mime.get(li[n]))
