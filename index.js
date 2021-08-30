@@ -641,26 +641,27 @@ App.route({
                                     for (let li of result.certificate_list) {
                                         let builder = new MultipartBuilder();
                                         for (let n in li) {
-                                            console.log(n, li[n], (n == 'clinician_signature' || n == 'administring_centre_stamp') && li[n] !== null ?
-                                                [
-                                                    crypto.randomUUID(),
-                                                    createFileFieldHeaders(await Mime.get(li[n]))
-                                                ] :
-                                                null
-                                            );
-                                            builder.append(n, li[n], ...(
-                                                (n == 'clinician_signature' || n == 'administring_centre_stamp') && li[n] !== null ?
-                                                    [
-                                                        crypto.randomUUID(),
-                                                        createFileFieldHeaders(await Mime.get(li[n]))
-                                                    ] :
-                                                    []
-                                            )
-                                            );
+                                            if (n == 'clinician_signature' || n == 'administring_centre_stamp') {
+                                                builder.append(n, li[n], ...(
+                                                    li[n] !== null ?
+                                                        [
+                                                            crypto.randomUUID(),
+                                                            createFileFieldHeaders(await Mime.get(li[n]))
+                                                        ] :
+                                                        []
+                                                )
+                                                );
+
+                                                continue;
+                                            }
+
+                                            if(n == 'certify_from' || n == 'certify_to'){
+                                                builder.append(n, li[n] !== null ? new Date(li[n]).toISOString() : null);
+                                                continue;
+                                            }
+
+                                            builder.append(n, li[n]);
                                         }
-
-                                        console.log(builder.toBuffer().toString('utf-8'));
-
 
                                         formdata.append(
                                             'certificate_list',
@@ -682,6 +683,8 @@ App.route({
                                     )
                                 );
                             }
+
+                            console.log(formdata.toBuffer().toString('utf-8'));
 
                             formdata.finalize().end();
                         }
