@@ -160,7 +160,12 @@ class MultipartBuilder {
         return this;
     }
 
-    toBuffer() {
+    /**
+     * 
+     * @param {Boolean} endWithCRLF 
+     * @returns {Buffer}
+     */
+    toBuffer(endWithCRLF) {
         /** @type {Buffer[]} */
         let bufferList = [];
         for (let field of this.#fields) {
@@ -176,8 +181,13 @@ class MultipartBuilder {
         /** @type {Number[]} */
         let buffer = [];
 
-        for (let b of bufferList) {
-            buffer.push(...b, 0x0d, 0x0a);
+        // for (let b of bufferList) {
+        //     buffer.push(...b, 0x0d, 0x0a);
+        // }
+
+        for(let i = 0; i < bufferList.length; i++){
+            buffer.push(...bufferList[i]);
+            if(i < bufferList.length - 1 || endWithCRLF === true) buffer.push(0x0d, 0x0a);
         }
 
         return Buffer.from(buffer);

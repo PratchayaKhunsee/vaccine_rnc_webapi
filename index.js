@@ -665,7 +665,7 @@ App.route({
 
                                         formdata.append(
                                             'certificate_list',
-                                            builder.toBuffer(),
+                                            builder.toBuffer(false),
                                             crypto.randomUUID(),
                                             createFileFieldHeaders(`multipart/mixed; boundary=${builder.boundary}`)
                                         );
