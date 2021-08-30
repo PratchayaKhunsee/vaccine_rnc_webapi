@@ -80,7 +80,6 @@ class MultipartField {
     #isFile() {
         if (this.#headers !== null) {
             for (let n in this.#headers) {
-                console.log(n, this.#headers[n], n.toLowerCase().match(/content-type/) && String(this.#headers[n]).match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/));
                 if (n.toLowerCase().match(/content-type/) && String(this.#headers[n]).match(/([A-Za-z]|-)+\/([A-Za-z]|-)+/)
                 ) {
                     return true;

@@ -555,8 +555,6 @@ App.route({
                                     crypto.randomUUID(), createFileFieldHeaders(await Mime.get(value))
                                 ] : []));
 
-                                console.log(n, value);
-                                
                             }
 
                             formdata.finalize().end();
@@ -564,13 +562,10 @@ App.route({
                             new ExpressMultipartResponse(res).finalize().end();
                         }
                     } catch (error) {
-                        console.log(error);
                         res.contentType('application/json')
                             .send(Error.QueryResultError.unexpected(error).toObject())
                             .end();
                     }
-
-
                 })();
             },
         ],
@@ -599,13 +594,12 @@ App.route({
                             for (let n in result) {
                                 var value = result[n];
 
-                                formdata.append(n, value, {
-                                    type: isFileField(n) ? 'file' : 'non-file',
-                                    filename: isFileField(n) && value !== null ? crypto.randomUUID() : null,
-                                    headers: isFileField(n) && value !== null ? {
+                                formdata.append(n, value, ...(isFileField(n) ? [
+                                    crypto.randomUUID(),
+                                    {
                                         'Content-Type': await Mime.get(value),
-                                    } : null,
-                                });
+                                    },
+                                ] : []));
                             }
 
                             formdata.finalize().end();
