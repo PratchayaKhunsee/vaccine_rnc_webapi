@@ -684,8 +684,6 @@ App.route({
                                 );
                             }
 
-                            console.log(formdata.toBuffer().toString('utf-8'));
-
                             formdata.finalize().end();
                         }
                     } catch (error) {
