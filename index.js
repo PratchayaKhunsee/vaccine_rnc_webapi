@@ -594,7 +594,7 @@ App.route({
                             for (let n in result) {
                                 var value = result[n];
 
-                                formdata.append(n, value, ...(isFileField(n) ? [
+                                formdata.append(n, value, ...(isFileField(n) && value !== null ? [
                                     crypto.randomUUID(),
                                     {
                                         'Content-Type': await Mime.get(value),

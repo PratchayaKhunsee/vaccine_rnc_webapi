@@ -461,7 +461,6 @@ async function viewEachCertification(client, username, vaccine_patient_id, certi
         let result = { ...cert.rows[0] };
 
         for (let n of ['clinician_signature', 'administring_centre_stamp']) {
-            console.log(n, result[n]);
             if (typeof result[n] == 'string') {
                 result[n] = sequence2Buffer(result[n]);
             }
