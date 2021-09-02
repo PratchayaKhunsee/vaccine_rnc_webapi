@@ -227,7 +227,7 @@ async function editCertificate(client, username, certificate) {
         if (!checkPatient) throw null;
 
         const certHeader = {};
-        for (let n of ['fullname_in_cert', 'sex', 'nationality', 'against_description', 'signature']) {
+        for (let n of ['fullname_in_cert', 'sex', 'nationality', 'against_description', 'signature', 'date_of_birth']) {
             if (n in certificate) {
                 switch (n) {
                     case 'signature':
