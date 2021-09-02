@@ -733,11 +733,11 @@ App.route({
                                 /** @type {(import('./src/multipart').MultipartField)[]}*/
                                 const list = reader.get();
                                 for (let o of list) {
-                                    
+                                    console.log(o.name, o.value);
                                     switch (o.name) {
                                         case 'clinician_signature':
                                         case 'administring_centre_stamp':
-                                            console.log(o.name, o.value);
+                                            
                                             certificate[o.name] = o.value;
                                             break;
                                         case 'clinician_prof_status':
