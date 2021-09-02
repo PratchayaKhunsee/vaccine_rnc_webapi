@@ -113,7 +113,7 @@ class MultipartField {
         intArray.push(0x0d, 0x0a, 0x0d, 0x0a);
 
         if (isIterableObject(payload) && this.#isFile()) {
-            intArray.push(...Buffer.of(...payload));
+            for(let i = 0; i < (payload.length || payload.byteLength || 0); i++) intArray.push(payload[i]);
         } else {
             intArray.push(...charArray2IntArray(String(payload)));
         }
