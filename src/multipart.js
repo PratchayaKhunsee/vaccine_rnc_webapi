@@ -287,9 +287,9 @@ class MultipartReader {
 
                         if (n.length < 2) throw 0;
 
-                        fieldname = n[1].replace(/\"*$/, "");
+                        fieldname = n[1].replace(/\".*$/, "");
 
-                        filename = fn.length < 2 ? null : fn[1].replace(/\"*$/, "");
+                        filename = fn.length < 2 ? null : fn[1].replace(/\".*$/, "");
                     }
 
                     else if (lineString.match(/([A-Za-z]|-)+\s*:.+/)) {
