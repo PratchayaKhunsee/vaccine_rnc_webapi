@@ -112,9 +112,8 @@ class MultipartField {
 
         intArray.push(0x0d, 0x0a, 0x0d, 0x0a);
 
-        if (this.#isFile()) {
-            console.log(payload);
-            intArray.push(...Buffer.from(payload));
+        if (isIterableObject(payload) && this.#isFile()) {
+            intArray.push(...Buffer.of(...payload));
         } else {
             intArray.push(...charArray2IntArray(String(payload)));
         }
