@@ -594,6 +594,10 @@ App.route({
                             for (let n in result) {
                                 var value = result[n];
 
+                                if(value instanceof Date){
+                                    value = value.toISOString();
+                                }
+
                                 formdata.append(n, value, ...(isFileField(n) && value !== null ? [
                                     crypto.randomUUID(),
                                     createFileFieldHeaders(await Mime.get(value))
@@ -671,6 +675,10 @@ App.route({
                                         );
                                     }
                                     continue;
+                                }
+
+                                if(value instanceof Date){
+                                    value = value.toISOString();
                                 }
 
                                 formdata.append(n, value,
@@ -768,7 +776,6 @@ App.route({
                             res.send(null);
                         }
                     } catch (error) {
-                        console.log(error);
                         res.send(Error.QueryResultError.unexpected(error).toObject());
                     }
 
