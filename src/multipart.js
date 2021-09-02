@@ -266,7 +266,7 @@ class MultipartReader {
                 else if (lineString == `--${boundary}`) {
                     createField();
                     phase = 0;
-                    filename = fieldname = mime = null;
+                    filename = fieldname = null;
                     content = [];
                 }
                 else if (lineString == `--${boundary}--`) {
