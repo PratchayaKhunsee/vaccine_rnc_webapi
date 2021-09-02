@@ -124,7 +124,7 @@ class MultipartField {
 
 class MultipartBuilder {
     #boundary;
-    /** @type {MultipartBuilder[]} */
+    /** @type {MultipartField[]} */
     #fields = [];
     /**
      * 
