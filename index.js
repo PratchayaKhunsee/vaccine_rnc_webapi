@@ -546,6 +546,10 @@ App.route({
                             for (let n in result) {
                                 var value = result[n];
 
+                                if(value instanceof Date){
+                                    value = value.toISOString();
+                                }
+
                                 if (n == 'certificate_list') {
                                     formdata.append(n, JSON.stringify(value), `${n}_${crypto.randomUUID()}.json`, createFileFieldHeaders('application/json'));
                                     continue;
