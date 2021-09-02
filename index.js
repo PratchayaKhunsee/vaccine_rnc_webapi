@@ -733,13 +733,14 @@ App.route({
                                 /** @type {(import('./src/multipart').MultipartField)[]}*/
                                 const list = reader.get();
                                 for (let o of list) {
-
+                                    if (!(o.value instanceof Buffer)) {
+                                        continue;
+                                    }
                                     switch (o.name) {
                                         case 'clinician_signature':
                                         case 'administring_centre_stamp':
-                                            if (o.type == 'file') {
-                                                certificate[o.name] = o.value;
-                                            }
+                                            
+                                            certificate[o.name] = o.value;
                                             break;
                                         case 'clinician_prof_status':
                                         case 'vaccine_name':
