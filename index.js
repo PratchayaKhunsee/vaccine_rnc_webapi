@@ -748,7 +748,7 @@ App.route({
                                         case 'certify_from':
                                         case 'certify_to':
                                             let v = Buffer.from(o.value).toString('utf-8');
-                                            let isJSonConverted= false;
+                                            let isJsonConverted= false;
                                             try {
                                                 v = JSON.parse(v);
                                                 isJSonConverted = true;
