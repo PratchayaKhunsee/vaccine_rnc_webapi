@@ -182,7 +182,10 @@ class MultipartBuilder {
         let buffer = [];
 
         for(let i = 0; i < bufferList.length; i++){
-            buffer.push(...bufferList[i]);
+            // buffer.push(...bufferList[i]);
+            for(let n = 0; n < bufferList[i].length; n++){
+                buffer.push(bufferList[i][n]);
+            }
             if(i < bufferList.length - 1 || endWithCRLF === true) buffer.push(0x0d, 0x0a);
         }
 
