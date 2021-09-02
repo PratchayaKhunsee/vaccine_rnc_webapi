@@ -113,7 +113,7 @@ class MultipartField {
         intArray.push(0x0d, 0x0a, 0x0d, 0x0a);
 
         if (this.#isFile()) {
-            intArray.push(...Buffer.from(payload, 'utf-8'));
+            intArray.push(...Buffer.from(payload));
         } else {
             intArray.push(...charArray2IntArray(String(payload)));
         }
