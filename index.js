@@ -747,7 +747,15 @@ App.route({
                                         case 'vaccine_manufacturer':
                                         case 'certify_from':
                                         case 'certify_to':
-                                            certificate[o.name] = o.value;
+                                            let v = Buffer.from(o.value).toString('utf-8');
+                                            let isJSonConverted= false;
+                                            try {
+                                                v = JSON.parse(v);
+                                                isJSonConverted = true;
+                                            } catch (error) {
+                                                
+                                            }
+                                            certificate[o.name] = isJsonConverted && v === null ? null : v;
                                             break;
                                         case 'id':
                                             certificate[o.name] = Number(o.value);
