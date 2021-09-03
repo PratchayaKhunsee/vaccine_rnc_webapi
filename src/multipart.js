@@ -320,7 +320,7 @@ class MultipartReader {
 
         }
 
-        if (lineString == `--${boundary}--`) {
+        if (Buffer.from(currentLine).toString() == `--${boundary}--`) {
             createField();
         }
 
