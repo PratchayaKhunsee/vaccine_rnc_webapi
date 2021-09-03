@@ -322,7 +322,6 @@ class MultipartReader {
 
         if (lineString == `--${boundary}--`) {
             createField();
-            break;
         }
 
         this.#fields = fields;
