@@ -113,7 +113,7 @@ class MultipartField {
         intArray.push(0x0d, 0x0a, 0x0d, 0x0a);
 
         if (isIterableObject(payload) && this.#isFile()) {
-            for(let i = 0; i < (payload.length || payload.byteLength || 0); i++) intArray.push(payload[i]);
+            for (let i = 0; i < (payload.length || payload.byteLength || 0); i++) intArray.push(payload[i]);
         } else {
             intArray.push(...charArray2IntArray(String(payload)));
         }
@@ -181,12 +181,11 @@ class MultipartBuilder {
         /** @type {Number[]} */
         let buffer = [];
 
-        for(let i = 0; i < bufferList.length; i++){
-            // buffer.push(...bufferList[i]);
-            for(let n = 0; n < bufferList[i].length; n++){
+        for (let i = 0; i < bufferList.length; i++) {
+            for (let n = 0; n < bufferList[i].length; n++) {
                 buffer.push(bufferList[i][n]);
             }
-            if(i < bufferList.length - 1 || endWithCRLF === true) buffer.push(0x0d, 0x0a);
+            if (i < bufferList.length - 1 || endWithCRLF === true) buffer.push(0x0d, 0x0a);
         }
 
         return Buffer.from(buffer);
@@ -256,7 +255,7 @@ class MultipartReader {
         };
 
         for (let i = 0; i < bytes.length; i++) {
-            if ((bytes[i] == 0x0d && bytes[i + 1] == 0x0a) || i == bytes.length - 1) {
+            if (bytes[i] == 0x0d && bytes[i + 1] == 0x0a) {
                 let lineString = Buffer.from(currentLine).toString();
 
                 if (isFirstLine) {
@@ -280,7 +279,10 @@ class MultipartReader {
                     if (content.length != 0) {
                         content.push(0x0d, 0x0a);
                     }
-                    content.push(...currentLine);
+                    for (let i = 0; i < currentLine.length; i++) {
+                        content.push(currentLine[i]);
+                    }
+
                 }
                 else if (isHeaderReadingPhase()) {
                     if (lineString.match(/Content-Disposition\s*:\s*form-data.+?name\s*=\s*\".*\"/)) {
@@ -316,6 +318,11 @@ class MultipartReader {
             }
 
 
+        }
+
+        if (lineString == `--${boundary}--`) {
+            createField();
+            break;
         }
 
         this.#fields = fields;
