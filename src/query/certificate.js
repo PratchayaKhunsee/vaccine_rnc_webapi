@@ -276,8 +276,6 @@ async function editCertificate(client, username, certificate) {
                     Number(v.id)
                 ];
 
-                console.log(queryCtx, values, v);
-
                 const certUpdate = await client.query(queryCtx, values);
                 if (certUpdate.rowCount != 1 || certUpdate.rows.length != 1) {
                     throw CERTIFICATE_MODIFYING_FAILED;
@@ -298,7 +296,6 @@ async function editCertificate(client, username, certificate) {
 
         return result;
     } catch (error) {
-        console.log(error);
         await client.query('ROLLBACK');
         throw QueryResultError.unexpected(error);
     }
@@ -555,7 +552,6 @@ async function getCompleteCertification(client, username, patient_id) {
 
         return result;
     } catch (error) {
-        console.log(error);
         throw QueryResultError.unexpected();
     }
 }
