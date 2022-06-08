@@ -183,6 +183,12 @@ const _google = (() => {
         process.env.GOOGLE_OAUTH_CLIENT_SECRET,
         `https://${process.env.HEROKU_APP_NAME}${process.env.DOMAIN_NAME}/google/auth`
     );
+    console.log(
+        process.env.GOOGLE_OAUTH_CLIENT_ID,
+        process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+        process.env.HEROKU_APP_NAME,
+        process.env.DOMAIN_NAME
+    );
     const authCode = require('crypto').randomUUID();
 
     async function authorize() {
