@@ -1,12 +1,17 @@
 const crypto = require('crypto');
 const Auth = require('./src/authorization');
-const ActiveStorage = require('./src/active-storage');
+const ActiveStorage = require('./src/active-storage').google;
 const Rules = require('./src/request-response-rules');
 const Query = require('./src/query');
 const DBConnection = require('./src/database-connection');
 const Error = require('./src/error');
 const App = require('./src/express-app');
-const { ExpressMultipartResponse, MultipartReader, MultipartBuilder, createFileFieldHeaders } = require('./src/multipart');
+const {
+    ExpressMultipartResponse,
+    MultipartReader,
+    MultipartBuilder,
+    createFileFieldHeaders,
+} = require('./src/multipart');
 const Mime = require('./src/mime');
 
 /**
@@ -546,7 +551,7 @@ App.route({
                             for (let n in result) {
                                 var value = result[n];
 
-                                if(value instanceof Date){
+                                if (value instanceof Date) {
                                     value = value.toISOString();
                                 }
 
@@ -598,7 +603,7 @@ App.route({
                             for (let n in result) {
                                 var value = result[n];
 
-                                if(value instanceof Date){
+                                if (value instanceof Date) {
                                     value = value.toISOString();
                                 }
 
@@ -663,7 +668,7 @@ App.route({
                                                 continue;
                                             }
 
-                                            if(n == 'certify_from' || n == 'certify_to'){
+                                            if (n == 'certify_from' || n == 'certify_to') {
                                                 builder.append(n, li[n] !== null ? new Date(li[n]).toISOString() : null);
                                                 continue;
                                             }
@@ -681,7 +686,7 @@ App.route({
                                     continue;
                                 }
 
-                                if(value instanceof Date){
+                                if (value instanceof Date) {
                                     value = value.toISOString();
                                 }
 
@@ -736,7 +741,7 @@ App.route({
                                     switch (o.name) {
                                         case 'clinician_signature':
                                         case 'administring_centre_stamp':
-                                            
+
                                             certificate[o.name] = o.value;
                                             break;
                                         case 'clinician_prof_status':
@@ -746,12 +751,12 @@ App.route({
                                         case 'certify_from':
                                         case 'certify_to':
                                             let v = Buffer.from(o.value).toString('utf-8');
-                                            let isJsonConverted= false;
+                                            let isJsonConverted = false;
                                             try {
                                                 v = JSON.parse(v);
                                                 isJSonConverted = true;
                                             } catch (error) {
-                                                
+
                                             }
                                             certificate[o.name] = isJsonConverted && v === null ? null : v;
                                             break;
