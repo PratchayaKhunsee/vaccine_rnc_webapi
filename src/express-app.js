@@ -17,7 +17,7 @@ const express = require('express');
 const app = express();
 const error = require('./error');
 const cors = require('cors');
-const ActiveStorage = require('./active-storage').google;
+const ActiveStorage = require('./active-storage').aws;
 
 app.use(cors());
 

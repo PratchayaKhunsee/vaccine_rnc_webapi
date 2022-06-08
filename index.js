@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const Auth = require('./src/authorization');
-const ActiveStorage = require('./src/active-storage').google;
+const ActiveStorage = require('./src/active-storage').aws;
 const Rules = require('./src/request-response-rules');
 const Query = require('./src/query');
 const DBConnection = require('./src/database-connection');
@@ -71,6 +71,7 @@ function authorization(req, res, next) {
 function loginAuthorization(req, res, next) {
     var token = `${req.headers.authorization}`.split(' ')[1];
     var username = (Auth.decode(req.headers.authorization) || {}).username;
+
     ActiveStorage.authentication.get(username, token)
         .then((c) => {
             // Response [OK] http code with JSON message for allowing client to be more accessible.
@@ -82,6 +83,7 @@ function loginAuthorization(req, res, next) {
                 .end();
         })
         .catch((e) => {
+            console.log(e);
             next();
         });
 }
@@ -217,7 +219,7 @@ App.route({
                     res.send(Error.QueryResultError.unexpected().toObject());
                 });
             },
-        ]
+        ],
     },
     POST: {
         '/login': [
